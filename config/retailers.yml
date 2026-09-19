@@ -1,0 +1,84 @@
+# Cadenas a scrapear.
+#
+# sales_channel: FIJARLO Y NO CAMBIARLO. En VTEX el precio varia segun el
+#   canal/tienda seleccionada. Si cambia a mitad del panel, la serie tiene un
+#   salto que no es inflacion. 1 = canal por defecto.
+#
+# food_categories: ids raiz del arbol de categorias. El scraper baja a las hojas
+#   automaticamente (la API de VTEX corta la paginacion ~2500 resultados por
+#   query, por eso se consulta hoja por hoja y no la categoria entera).
+#
+# enabled: false = no se consulta. Verificar antes de activar.
+
+retailers:
+  - name: plaza_vea
+    base_url: https://www.plazavea.com.pe
+    platform: vtex
+    sales_channel: 1
+    enabled: true
+    food_categories: [431, 2, 77]  # Abarrotes, Bebidas, Frutas y Verduras -- VERIFICADO
+
+  - name: metro
+    base_url: https://www.metro.pe
+    platform: vtex
+    sales_channel: 1
+    enabled: true
+    food_categories: []         # vacio = descubre desde el arbol -- VERIFICADO que es VTEX
+
+  # Wong ES VTEX y el arbol de categorias responde 200, pero la busqueda
+  # FILTRADA (fq=C:/...) devuelve 401 de forma consistente, incluso con
+  # categorias propias validas. La busqueda SIN filtro si responde 206.
+  # Via posible: paginar sin fq y clasificar por categoryId en post-proceso.
+  # Requiere trabajo aparte -- 2026-09-19
+  - name: wong
+    base_url: https://www.wong.pe
+    platform: vtex
+    sales_channel: 1
+    enabled: false
+    food_categories: []
+
+  # Vivanda responde 200 pero de forma intermitente (a veces devuelve HTML
+  # en vez de JSON). Probable rate limiting agresivo. Reintentar con
+  # rate_limit_seconds mas alto antes de descartarla. -- 2026-09-19
+  - name: vivanda
+    base_url: https://www.vivanda.com.pe
+    platform: vtex
+    sales_channel: 1
+    enabled: false
+    food_categories: []
+
+  # Tottus (Falabella) devolvio HTTP 503 al probar el endpoint VTEX.
+  # O no es VTEX o tiene proteccion anti-bot. Requiere trabajo aparte.
+  - name: tottus
+    base_url: https://www.tottus.com.pe
+    platform: vtex
+    sales_channel: 1
+    enabled: false
+    food_categories: []
+
+# Palabras clave para reconocer categorias de alimentos cuando food_categories
+# esta vacio. Se compara en minusculas y sin tildes contra el nombre.
+food_keywords:
+  - abarrote
+  - bebida
+  - carne
+  - pescado
+  - marisco
+  - fruta
+  - verdura
+  - lacteo
+  - huevo
+  - panaderia
+  - desayuno
+  - congelado
+  - fresco
+  - pollo
+  - queso
+  - embutido
+
+# Cortesia. No bajar de 0.5s sin una buena razon.
+rate_limit_seconds: 1.5
+page_size: 50
+max_offset: 2450        # tope duro de VTEX; se corta antes para no recibir 500
+request_timeout: 60
+max_retries: 4

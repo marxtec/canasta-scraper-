@@ -1,0 +1,50 @@
+name: Recoleccion diaria de precios
+
+on:
+  schedule:
+    # 13:00 UTC = 08:00 Lima. Misma hora siempre: si la hora de captura
+    # cambia, la serie tiene ruido que no es inflacion.
+    - cron: "0 13 * * *"
+  workflow_dispatch:      # permite lanzarlo a mano desde la pestana Actions
+
+# Evita que dos corridas se pisen si una se atrasa
+concurrency:
+  group: scrape-diario
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write     # necesario para commitear los datos
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Recolectar
+        run: python collect.py
+
+      - name: Commitear datos del dia
+        run: |
+          git config user.name  "canasta-bot"
+          git config user.email "actions@github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "Sin cambios."
+          else
+            git commit -m "datos $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Avisar si fallo
+        if: failure()
+        run: echo "::error::La recoleccion fallo. Un dia perdido no se recupera."
