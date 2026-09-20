@@ -373,6 +373,50 @@ de listar, que cambian de código. La canasta definitiva se define **sobre el
 panel acumulado**, no sobre los datos de hoy. Conviene recalcular esta tabla
 cada par de semanas.
 
+### 4c. Gramaje discrepante entre cadenas — para el preprocesamiento
+
+Medido sobre los 917 productos presentes en las 5 cadenas (19-09-2026).
+**134 (15%) reportan pesos distintos en distintas cadenas.**
+
+Como el EAN garantiza que es el mismo producto físico, cualquier desacuerdo
+en `net_quantity` es un error **por definición**. Es una validación cruzada
+gratuita: no hace falta revisar nada a mano para detectarlos.
+
+| Tipo | Casos | Ejemplo |
+|---|---|---|
+| **A. Unidad vs peso** | 87 | Plaza Vea `"Malla 25g x 5un"` → 125 g; Metro `"5un"` → 5 unidades |
+| **B. Peso muy distinto** | 26 | Tottus dice 500 g; las otras cuatro dicen 250 g |
+| **C. Diferencia chica** | 21 | 400 ml vs 475 ml (cambio de formato no actualizado) |
+
+El tipo A **no es un bug del parser**: cada cadena nombra distinto y el parser
+hace lo correcto con lo que recibe. Pero rompe la comparación, porque no se
+puede comparar precio por kilo contra precio por unidad.
+
+#### Cómo resolverlo (al preprocesar, no al recolectar)
+
+Dos reglas, ambas sobre datos ya recolectados:
+
+1. **Copiar el peso vía EAN.** Si una cadena publica el gramaje y otra no, se
+   copia: es el mismo paquete físico. Resuelve los 87 del tipo A.
+2. **Mayoría.** Si varias publican pesos distintos, gana el que reportan más
+   cadenas. Resuelve los 47 de tipo B y C.
+
+**Esto NO va en el scraper.** El scraper guarda lo que cada cadena dice, tal
+cual — si empieza a "corregir" datos en la captura, se pierde la evidencia de
+qué publicó realmente cada cadena y no se puede auditar después. La
+reconciliación es una decisión metodológica y va en la capa de análisis,
+documentada aparte.
+
+Recalcular estas cifras sobre el panel acumulado antes de fijar la canasta.
+
+#### Otros casos a filtrar en los 917
+
+| Problema | Casos |
+|---|---|
+| Brecha de precio entre cadenas >50% | 55 — revisar antes de incluir: puede ser promoción real o error de catalogación |
+| Gramaje sin parsear en alguna cadena | 20 |
+| Algún precio en cero | 2 |
+
 ### 5. Vendedor del marketplace ≠ la cadena
 Las columnas `seller_id` / `seller_name` existen para esto. VTEX y Catalyst
 devuelven surtido propio y de terceros en la misma lista; el scraper prefiere
