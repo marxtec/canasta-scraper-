@@ -38,12 +38,14 @@ python3 collect.py --retailer metro   # una sola cadena
 ```
 canasta/vtex.py        Cliente de la API de catálogo VTEX
 canasta/catalyst.py    Cliente de la API de catálogo Catalyst (Tottus)
+canasta/eans.py        Caché persistente de EAN (solo Tottus lo necesita)
 canasta/normalize.py   JSON de VTEX -> filas planas (esquema de la slide 6)
 canasta/storage.py     Guardado en dos capas
 collect.py             Orquestador. Es el que corre a diario
 config/retailers.yml   Cadenas, canal de venta, categorías
 data/raw/              JSON crudo comprimido
 data/daily/            CSV normalizado, una fila por SKU por día
+data/ean_tottus.json   Caché de EAN. VERSIONARLA: si se pierde, no converge
 ```
 
 **Por qué se guarda el JSON crudo:** el día que encuentres un bug en el
@@ -59,30 +61,34 @@ Comprimido ocupa ~80 KB por cadena por día.
 |---|---|---|---|---|---|
 | **Plaza Vea** | VTEX | 343 | 99% | 58% | `sc=1` |
 | **Metro** | VTEX | 266 | 100% | 100% | `sc=1` |
-| **Wong** | VTEX | 266 | 100% | 100% | **sin** `sc` (ver abajo) |
+| **Wong** | VTEX | 266 | 100% | 100% | `sc=70` (no 1) |
 | **Vivanda** | VTEX | 309 | 100% | 82% | host canónico, no el front público |
-| **Tottus** | Falabella Catalyst | 411 | 100% | **0%** | cliente propio, sin navegador |
+| **Tottus** | Falabella Catalyst | 448 | 100% | caché | cliente propio, sin navegador |
 
 Las cinco se recolectan en una sola corrida, **1.595 categorías hoja**.
 
 Tres cosas que costaron depuración y conviene no volver a descubrir:
 
-- **Wong: el 401 no era el filtro, era el canal.** La API responde literal
-  `"sc 1 is not available for account wongio"`. Pero `sc=2`, que sí responde
-  200, devuelve catálogo vacío: la única forma de obtener su surtido es
-  **omitir** `sc`. Eso deja a Wong en el canal por defecto de la cuenta, o
-  sea sin fijar, lo que contradice la regla de abajo sobre fijar el canal. Es
-  la única opción viable, pero si VTEX cambia ese default la serie de Wong da
-  un salto que no es inflación. Vigilar con `--audit`.
+- **Wong: el 401 no era el filtro, era el canal — y el canal es el 70.** La
+  API responde literal `"sc 1 is not available for account wongio"`, y `sc=2`
+  devuelve 200 con catálogo vacío, lo que hacía parecer que el canal no se
+  podía fijar. El valor correcto lo publica la propia tienda en
+  `/api/segments` → `"channel":"70"`. Verificado: `sc=70` devuelve los mismos
+  productos y precios que omitir el parámetro, en 6 de 6 categorías raíz.
+  Queda fijado como las demás, así que la regla de abajo se cumple en las
+  cuatro cadenas VTEX. Los canales confirmados vía `/api/segments` son:
+  Plaza Vea 1, Metro 1, Vivanda 1, Wong 70.
 
 - **Vivanda no era intermitente.** `www.vivanda.com.pe` es un front Next.js
   que devuelve HTML en *toda* ruta `/api/`. El catálogo vive en la cuenta
   `vivanda.vtexcommercestable.com.br`, con árbol de categorías propio.
 
 - **Tottus no es VTEX y aun así no necesita navegador.** El menú viene en el
-  `__NEXT_DATA__` del HTML y el catálogo en una API JSON paginada.
-  **No expone EAN**: el emparejamiento con las otras cadenas depende
-  enteramente del fallback por marca + nombre (ver §4 más abajo).
+  `__NEXT_DATA__` del HTML y el catálogo en una API JSON paginada. Su listado
+  **no** trae EAN, pero la ficha de cada producto sí (`okayToShopBarcodes`),
+  y como el EAN es estático se resuelve con caché persistente en
+  `data/ean_tottus.json`: se pide una vez por SKU y nunca más. Ver
+  `canasta/eans.py`.
 
 ---
 
@@ -150,10 +156,12 @@ Un SKU se agota, se renombra o desaparece. La fórmula `Canasta = Σ qᵢ·Pᵢ,
 sustituye? Sin regla explícita, la canasta sube y baja por agotamientos y no
 por precios. Es el error más fácil de cometer y el más difícil de detectar.
 
-### 3. Fijar el canal de venta
-`sales_channel: 1` en la config. **No cambiarlo nunca.** En VTEX el precio
-varía por tienda/región; si cambia a mitad del panel, la serie tiene un salto
-que no es inflación.
+### 3. Fijar el canal de venta — ya resuelto, no tocar
+`sales_channel` en la config: Plaza Vea 1, Metro 1, Vivanda 1, **Wong 70**.
+**No cambiarlos nunca.** En VTEX el precio varía por tienda/región; si cambia
+a mitad del panel, la serie tiene un salto que no es inflación. Los cuatro
+valores están confirmados contra `/api/segments` de cada tienda, que es lo
+que la propia web usa. Tottus no tiene canales: no aplica.
 
 ### 4. Emparejamiento entre cadenas
 Aquí vive el grueso del trabajo analítico. `ean` es la llave limpia, pero su
@@ -161,13 +169,18 @@ cobertura es muy desigual y eso condiciona el método:
 
 | Metro | Wong | Vivanda | Plaza Vea | Tottus |
 |---|---|---|---|---|
-| 100% | 100% | 82% | 58% | **0%** |
+| 100% | 100% | 82% | 58% | vía caché |
 
-**Tottus no expone EAN en ningún endpoint público de listado**, así que entra
-entero por el fallback. Plan: EAN cuando exista → marca + categoría + precio
-por unidad base. Conviene medir la tasa de acierto del fallback contra los
-pares que *sí* tienen EAN en las otras cadenas, porque esa tasa es el techo
-de calidad de todo lo que se diga sobre Tottus.
+Tottus no publica EAN en su API de listado, solo en la ficha de producto. Se
+resuelve con `canasta/eans.py`: caché persistente en `data/ean_tottus.json`,
+con presupuesto de `ean_budget_per_run` fichas por corrida (400 por defecto).
+El catálogo de alimentos queda cubierto en ~2 semanas y desde ahí el coste
+diario es casi cero, porque solo se consultan los SKU nuevos. Los **precios**
+se capturan completos desde el primer día: el EAN solo hace falta al
+emparejar cadenas, que es análisis posterior y sí se puede hacer hacia atrás.
+
+Plan de emparejamiento: EAN cuando exista → fallback a marca + categoría +
+precio por unidad base.
 
 ### 5. Vendedor del marketplace ≠ la cadena
 Las columnas `seller_id` / `seller_name` existen para esto. VTEX y Catalyst

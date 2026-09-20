@@ -20,7 +20,7 @@ import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
-from canasta import storage
+from canasta import eans, storage
 from canasta.catalyst import CatalystClient, normalize as normalize_catalyst
 from canasta.normalize import normalize
 from canasta.vtex import VtexClient
@@ -98,6 +98,15 @@ def run(retailer, cfg, keywords, excluded, date_str, timestamp, smoke=False):
         return 0
 
     rows = normalizer(products, retailer["name"], timestamp)
+
+    # Tottus no trae EAN en el listado: se completa desde cache persistente,
+    # con presupuesto por corrida. Nunca bloquea la captura de precios.
+    if rows and retailer.get("ean_from_product_page") and not smoke:
+        try:
+            eans.enrich(rows, cfg, log)
+        except Exception:
+            log.exception("%s: fallo el enriquecimiento de EAN (se continua)",
+                          retailer["name"])
 
     if not rows:
         # Distinto de "0 productos": la API respondio, el parser no produjo

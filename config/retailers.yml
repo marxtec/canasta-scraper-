@@ -30,14 +30,17 @@ retailers:
     enabled: true
     food_categories: []
 
-  # La cuenta Wong rechaza sc=1 y, aunque sc=2 devuelve 200, da catalogo
-  # vacio. Sin el parametro sc entrega el catalogo y el precio publico; se
-  # omite explicitamente para no convertir 200 vacio en una falsa corrida OK.
-  # Verificado 2026-09-19.
+  # Wong usa el canal 70, no el 1. La cuenta rechaza sc=1 con 401 y sc=2
+  # responde 200 pero con catalogo vacio, lo que hacia parecer que el canal
+  # no se podia fijar. El valor correcto lo publica la propia tienda en
+  # /api/segments -> "channel":"70". Verificado: sc=70 devuelve exactamente
+  # los mismos productos y precios que omitir el parametro, en 6 de 6
+  # categorias raiz probadas. Se fija explicitamente para no depender del
+  # default de la cuenta. Verificado 2026-09-19.
   - name: wong
     base_url: https://www.wong.pe
     platform: vtex
-    sales_channel: null
+    sales_channel: 70
     enabled: true
     food_categories: []
 
@@ -62,6 +65,9 @@ retailers:
     platform: falabella_catalyst
     sales_channel: null
     catalog_path: /tottus-pe
+    # El listado de Catalyst no publica EAN; solo la ficha de cada producto
+    # (okayToShopBarcodes). Se resuelve con cache persistente: ver canasta/eans.py
+    ean_from_product_page: true
     enabled: true
     food_categories: []
 
@@ -121,3 +127,9 @@ max_offset: 2450        # tope duro de VTEX; se corta antes para no recibir 500
 max_pages: 100           # tope de seguridad para APIs paginadas no-VTEX
 request_timeout: 60
 max_retries: 4
+
+# Fichas de producto que se consultan por corrida para resolver EAN (solo
+# Tottus). El EAN es estatico: una vez en cache no se vuelve a pedir. A 400
+# por dia el catalogo de alimentos queda cubierto en ~2 semanas, mientras los
+# PRECIOS se capturan completos desde el primer dia.
+ean_budget_per_run: 400
