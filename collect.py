@@ -214,10 +214,26 @@ def main():
     ap.add_argument("--retailer", help="solo esta cadena")
     ap.add_argument("--smoke", action="store_true", help="prueba rapida")
     ap.add_argument("--audit", action="store_true", help="calidad de datos")
+    ap.add_argument("--card-prices", metavar="CSV",
+                    help="rellena card_price en un CSV diario usando navegador")
+    ap.add_argument("--limit", type=int, default=120,
+                    help="max fichas a abrir con --card-prices (def: 120)")
     args = ap.parse_args()
 
     if args.audit:
         audit()
+        return 0
+
+    if args.card_prices:
+        # Paso aparte y opcional: el navegador es lento y fragil, y la captura
+        # de precios -- lo unico que no se recupera hacia atras -- no puede
+        # depender de el. Ver canasta/browser.py.
+        from canasta import browser
+        ruta = pathlib.Path(args.card_prices)
+        if not ruta.exists():
+            log.error("No existe %s", ruta)
+            return 1
+        browser.enrich_csv(ruta, log, limite=args.limit)
         return 0
 
     conf = load_config()

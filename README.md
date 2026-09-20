@@ -39,6 +39,7 @@ python3 collect.py --retailer metro   # una sola cadena
 canasta/vtex.py        Cliente de la API de catálogo VTEX
 canasta/catalyst.py    Cliente de la API de catálogo Catalyst (Tottus)
 canasta/eans.py        Caché persistente de EAN (solo Tottus lo necesita)
+canasta/browser.py     Playwright: precio con tarjeta (paso aparte, opcional)
 canasta/normalize.py   JSON de VTEX -> filas planas (esquema de la slide 6)
 canasta/storage.py     Guardado en dos capas
 collect.py             Orquestador. Es el que corre a diario
@@ -133,77 +134,87 @@ Documentados porque costaron depuración y no están en la documentación obvia:
 
 ---
 
-## Por qué no se scrapea el HTML de las páginas
+## Scraping con navegador: qué se probó y qué se decidió
 
 Sí es *web scraping*: son endpoints internos, no documentados, sin API key ni
 términos de uso que los habiliten — los mismos que la web usa para pintarse.
-En la literatura esto es *API scraping* o *scraping de API no documentada*, y
-es una técnica de scraping, no una alternativa a ella. De hecho en Tottus se
-parsea HTML directamente (ver abajo). Lo que no se hace es reconstruir los
-datos desde el HTML **renderizado**, y la razón principal no es de estilo.
+En la literatura esto es *API scraping*. La pregunta legítima es si no habría
+sido mejor renderizar las páginas con un navegador. **Se probó con Playwright
+(Chromium headless), y sí funciona.** Estos son los números.
 
-### El precio no está en el HTML
+### Qué da cada técnica (medido 2026-09-19)
 
-Las cinco webs son aplicaciones React/Next.js: el servidor manda un esqueleto
-y el precio lo pinta JavaScript, pidiéndolo a la misma API que usa este
-scraper. Medido con un GET simple (verificado 2026-09-19):
-
-| Página | HTML | Precios en el HTML |
+| Página | HTTP simple | Navegador headless |
 |---|---|---|
-| Vivanda portada | 921 KB | **102** (~90 productos de carrusel) |
-| Vivanda ficha de producto | 301 KB | **0** |
-| Plaza Vea portada | 79 KB | **0** |
-| Plaza Vea categoría | 66 KB | **0** |
-| Metro portada | 4.508 KB | **0** |
-| Metro categoría | 13.504 KB | **0** |
-| Tottus categoría | — | HTTP 503 |
+| Plaza Vea categoría | 0 precios | **64 precios**, 7.1 s |
+| Metro categoría | 60 precios (en JSON embebido) | 26 precios, 15.0 s |
+| Tottus categoría | HTTP 503 | **bloqueado** (DOM vacío) |
 
-La única página que entrega precios es una portada promocional con ~90
-productos. Los listados de categoría y las fichas —las que harían falta para
-recorrer las 1.632 categorías hoja— dan **cero**.
+Dos correcciones a lo que parecía a simple vista:
 
-### ¿Sería imposible entonces? No, pero sería peor
+- **El HTML de Metro sí trae precios**, dentro de un JSON embebido. Una
+  búsqueda del formato visual `S/ 17.90` da cero y hace creer que no están.
+- **Tottus bloquea el navegador** pero no el cliente HTTP. La protección
+  anti-bot reacciona al renderizado, no a la petición. Para Tottus, el
+  navegador es estrictamente peor.
 
-Con un navegador headless (Playwright, Selenium) los precios aparecerían:
-ejecutaría el JavaScript que llama a la API. **Esa vía no se probó**, así que
-no se afirma que sea inviable. Se afirma que sería dar toda la vuelta para
-terminar en el mismo endpoint, y que pierde en todo lo que importa acá:
+### Por qué el navegador no es el recolector principal
 
-1. **Faltarían campos que la página no muestra.** De la API salen `ean`,
-   `ListPrice`, `AvailableQuantity`, `sellerDefault`, `itemId`. El EAN es la
-   llave de emparejamiento entre cadenas, el núcleo analítico de la
-   propuesta, y **no aparece en la página renderizada**. Tampoco si el precio
-   es del supermercado o de un tercero del marketplace (ver §5).
+No es que no funcione: es que pierde en lo que este proyecto necesita.
 
-2. **Costo.** Misma categoría de Metro: 1.795 KB de JSON con 50 productos
-   completos, contra 13.504 KB de HTML sin precios utilizables. Son 1.632
-   hojas al día. Con navegador, cada página cuesta segundos de CPU en vez de
-   milisegundos, y el job de CI pasa de minutos a horas.
+1. **Le faltan campos que la página no muestra.** `ean`, `AvailableQuantity`,
+   `sellerDefault`, `itemId`. El EAN es la llave de emparejamiento entre
+   cadenas — el núcleo analítico — y **no aparece en pantalla**. Tampoco si
+   el precio es del supermercado o de un tercero del marketplace (ver §5).
+   Aun renderizando, habría que ir igual a la API por esos campos.
 
-3. **Fragilidad.** Un `class="price-tag__value"` cambia con cualquier
-   rediseño y el scraper se rompe en silencio. Un campo
-   `commertialOffer.Price` no puede cambiar sin romper la web de la propia
-   cadena, porque su frontend lo consume. Es un contrato más estable.
+2. **Costo.** ~7 s por ficha contra ~0.5 s por 50 productos vía API. Sobre
+   1.632 categorías hoja serían días, no minutos, y el job de CI no cabría.
 
-4. **Cortesía.** Pedir HTML renderizado es ~8x más carga para sus servidores
-   a cambio de menos información.
+3. **Fragilidad.** Depende de texto visible y de clases CSS, que cambian con
+   cualquier rediseño. `commertialOffer.Price` no puede cambiar sin romper la
+   web de la propia cadena.
 
-### Dónde sí se parsea HTML
+4. **Tottus quedaría fuera**, que es justo la cadena que más costó habilitar.
 
-La regla no fue "nunca HTML", fue **ir donde está el dato**. En Tottus, dos
-cosas no están en el JSON y se sacan del HTML:
+### Dónde el navegador SÍ es la única opción: precio con tarjeta
 
-- El árbol de categorías, extraído del `<script id="__NEXT_DATA__">`.
+Es el único dato de la propuesta que la API no expone. VTEX publica `Teasers`
+diciendo que *hay* promoción (`"Promo Oh-Pay"`) pero no el monto. En la ficha
+renderizada sí aparece. Verificado en Metro:
+
+```
+Tarjeta Cencosud
+S/ 17.76     <- SOLO visible con navegador
+S/ 18.50     <- API: commertialOffer.Price
+S/ 22.00     <- API: commertialOffer.ListPrice
+```
+
+Implementado en `canasta/browser.py`, como paso **aparte y opcional**:
+
+```bash
+pip install -r requirements-browser.txt
+python3 -m playwright install chromium
+python3 collect.py --card-prices data/daily/2026-09-19__metro.csv --limit 120
+```
+
+Rellena la columna `card_price` de un CSV ya escrito. Es un paso separado a
+propósito: el navegador es lento y frágil, y la captura de precios —lo único
+que no se recupera hacia atrás— no puede depender de él. Si el navegador
+falla, el panel diario sigue intacto.
+
+Tasa observada: 3 de 4 productos de abarrotes en Metro tienen precio de
+tarjeta; 0 de 4 en Plaza Vea, y 0 de 8 en frescos a granel, que no llevan
+promoción. A diferencia del EAN, **el precio con tarjeta cambia a diario y no
+se cachea**, así que se aplica sobre la canasta definida (~100 SKU), no sobre
+el catálogo entero.
+
+### Dónde se parsea HTML sin navegador
+
+La regla no fue "nunca HTML", fue **ir donde está el dato**. En Tottus:
+
+- El árbol de categorías, del `<script id="__NEXT_DATA__">`.
 - El EAN, con regex sobre `okayToShopBarcodes` en la ficha de producto.
-
-### Lo único que el HTML tiene y el JSON no
-
-El **precio con tarjeta** de la cadena. VTEX expone `Teasers` diciendo que
-*hay* promoción (`"Promo Oh-Pay"`) pero no cuánto; en la página renderizada a
-veces sí se ve el monto. Es el único argumento real a favor de renderizar, y
-está ligado a la decisión §1 de abajo. Si se decide que la canasta debe medir
-precio con tarjeta, ahí sí habría que sumar un navegador para un subconjunto
-pequeño de SKU. Hoy `card_price` queda vacío a propósito en vez de inventarlo.
 
 ---
 
@@ -219,9 +230,11 @@ expone `Teasers` que dicen que *hay* promoción (ej. `"Promo Oh-Pay"`), no
 cuánto. Se guarda el texto del teaser en la columna `teasers` y `card_price`
 queda vacío a propósito, en vez de inventar un número.
 
-**Recomendación:** índice principal con `price`. El precio con tarjeta, si se
-logra, como serie paralela. Si no, tu canasta mide condiciones de
-financiamiento, no de alimentos.
+**Ya no es una limitación técnica: se logró.** `canasta/browser.py` lo extrae
+con navegador (ver la sección anterior). Queda como decisión metodológica, no
+de programación: índice principal con `price`, y el precio con tarjeta como
+**serie paralela** sobre la canasta definida. Si se usara como índice
+principal, la canasta mediría condiciones de financiamiento, no de alimentos.
 
 ### 2. Regla de precios faltantes ← la más importante
 Un SKU se agota, se renombra o desaparece. La fórmula `Canasta = Σ qᵢ·Pᵢ,t`
