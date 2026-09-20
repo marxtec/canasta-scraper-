@@ -14,6 +14,9 @@ del arroz el 1 de agosto. La serie histórica **se acumula hacia adelante**.
 
 Consecuencias que mandan sobre todo el diseño:
 
+0. **El panel mide el canal supermercado, no el gasto del hogar.** Queda
+   fuera el mercado de abastos, el mayorista y el descuento duro. Es la
+   limitación más importante del proyecto: ver **Limitación de cobertura**.
 1. **Un día sin correr es un hueco permanente.** No se rellena después.
 2. **Hay que arrancar antes de cerrar la pregunta de investigación.** El
    diseño se afina en octubre; los precios del 19 de septiembre, no.
@@ -88,12 +91,8 @@ Esto **no** es un fallo del scraper: en Lima, el canal de descuento duro y el
 mayorista no venden online. Mass en particular no tiene e-commerce por
 diseño, que es parte de cómo mantiene sus precios bajos.
 
-**Consecuencia para el paper, y hay que declararla:** el panel cubre el
-**canal supermercado moderno**, no el universo de compra de un hogar limeño.
-Queda fuera el canal de descuento, el mayorista y —sobre todo— el mercado de
-abastos, que en Perú concentra una parte grande del gasto en alimentos. La
-canasta que se construya mide la inflación *de ese canal*, y compararla con
-el IPC del INEI, que sí cubre mercados, exige decir esto explícitamente.
+La consecuencia para el paper es una limitación de cobertura que hay que
+declarar explícitamente: ver **Limitación de cobertura** más abajo.
 
 Tres cosas que costaron depuración y conviene no volver a descubrir:
 
@@ -304,6 +303,78 @@ primero con oferta. En una muestra de Plaza Vea, 5 de 396 filas venían de
 terceros (`THE BLITZ COMPANY`, `Aquago!`). Decidir si esas filas entran al
 índice o se filtran: un precio de tercero no es el precio de la cadena.
 `--audit` lista el reparto de vendedores por archivo.
+
+---
+
+## Limitación de cobertura: qué canal mide este panel
+
+**Esta es la limitación más importante del proyecto y debe ir declarada en el
+paper, no descubrirse en la sustentación.**
+
+El panel mide el **canal supermercado moderno de Lima**. No mide el universo
+de compra de un hogar limeño. Los tres canales que quedan fuera:
+
+| Canal | Quién compra ahí | Por qué no está |
+|---|---|---|
+| **Descuento duro** (Mass) | hogares, compra de reposición | no tienen e-commerce, por diseño |
+| **Mayorista** (Unicachi, GMML Santa Anita, Caquetá) | bodegueros, restaurantes, puestos de mercado | no publican catálogo online |
+| **Mercado de abastos / de barrio** | **hogares, y es el grueso en frescos** | ninguna fuente publica precios a diario |
+
+### Por qué esto sesga la comparación con el INEI
+
+El IPC del INEI **sí** releva mercados minoristas: su canasta recoge el
+precio que paga el hogar, compre donde compre. Este panel solo tiene
+supermercado. Los dos universos no son el mismo.
+
+Eso importa porque supermercado y mercado de barrio **no se mueven igual ni
+al mismo tiempo**, sobre todo en frescos (papa, cebolla, pollo, limón). Si el
+índice construido aquí se despega del IPC, parte de la explicación puede ser
+**de dónde viene el dato**, no inflación diferencial. Atribuir esa brecha a
+un fenómeno económico sin controlar por el canal sería un error de
+interpretación, no de cálculo.
+
+### Distinción que conviene no confundir
+
+- **Mercado mayorista** (Unicachi, Santa Anita): ahí *no* compra el hogar,
+  compran los revendedores. Su precio es un insumo del precio minorista, no
+  el precio final. Unicachi es un caso mixto: mayorista que también atiende
+  al público.
+- **Mercado de abastos / de barrio**: ahí *sí* compra el hogar. Es lo que de
+  verdad falta, y no hay fuente online.
+
+### Una vía si más adelante se quisiera cubrir el canal mayorista
+
+**EMMSA**, la empresa municipal que opera el Gran Mercado Mayorista de Lima
+(Santa Anita), publica precios diarios (verificado 2026-09-20, responde):
+
+```
+https://www.emmsa.com.pe/index.php/precios-diarios/
+https://www.emmsa.com.pe/index.php/boletines/
+```
+
+No se implementó, y no sería "una cadena más" en `config/retailers.yml`: es
+otro formato, otra unidad de medida (precio por kg mayorista, no por SKU
+empaquetado) y **sin EAN**, así que no empareja con el resto del panel.
+Requiere un módulo propio.
+
+Se descartó **SISAP (MIDAGRI)**: `sisap.midagri.gob.pe` no resuelve y
+`sistemas.midagri.gob.pe` tiene el certificado TLS roto (verificado
+2026-09-20).
+
+Para el **mercado de barrio** —el canal que realmente falta— no se encontró
+ninguna fuente que publique precios diarios. Ese dato se levanta a pie, que
+es exactamente lo que hace el INEI y por lo que su operativo es caro. No hay
+atajo por scraping.
+
+### Cómo formularlo en el paper
+
+> El panel cubre el canal de supermercados modernos de Lima Metropolitana
+> (5 cadenas, ~54.000 observaciones diarias). Quedan fuera el canal de
+> descuento duro, el mayorista y el mercado de abastos, por no publicar
+> precios en línea. Los resultados deben leerse como inflación de precios
+> del canal supermercado, no como una medida del costo de vida del hogar
+> limeño, y su comparación con el IPC del INEI —que sí releva mercados
+> minoristas— debe controlar por esta diferencia de cobertura.
 
 ---
 
