@@ -14,6 +14,7 @@ import datetime as dt
 import json
 import re
 import unicodedata
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 # 1.2: card_price y ventana de promo desde los teasers; promo_type; specs de
 # VTEX (vendido_por, origen, octogonos, contenido neto); unit_multiplier.
@@ -331,6 +332,23 @@ def _teaser_names(offer):
     return names
 
 
+def _aplicar_descuento(price, pct):
+    """price menos pct%, con redondeo COMERCIAL a 2 decimales.
+
+    No se usa round(): Python redondea al par mas cercano y ademas arrastra
+    el error del float, asi que 13.50 con 5% da 12.82 cuando la web muestra
+    12.83. Verificado contra la ficha renderizada de Metro. Afectaba al 33%
+    de los precios con tarjeta derivados: un centimo de menos en cada uno.
+    """
+    if not pct or not price:
+        return None
+    try:
+        bruto = Decimal(str(price)) * (1 - Decimal(str(pct)) / 100)
+    except (InvalidOperation, ValueError):
+        return None
+    return float(bruto.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
 def normalize(products, retailer, timestamp):
     """Aplana la respuesta de VTEX. Un item (SKU) = una fila."""
     try:
@@ -374,7 +392,7 @@ def normalize(products, retailer, timestamp):
             on_sale = bool(regular and price and regular > price)
 
             pct, promo_start, promo_end = card_promo(teasers, year)
-            card_price = round(price * (1 - pct / 100), 2) if pct and price else None
+            card_price = _aplicar_descuento(price, pct)
 
             flags = []
             if on_sale:
