@@ -110,3 +110,51 @@ def enrich(rows, cfg, log, session=None):
         max(0, len(pendientes) - len(objetivo)),
     )
     return desde_cache, nuevos
+
+
+def apply_cache_to_csv(path, log):
+    """Rellena la columna ean de un CSV ya escrito, usando solo la cache.
+
+    No toca la red. Existe porque la cache se llena DESPUES de que el CSV se
+    escribio: sin esto, el primer dia del panel queda sin EAN aunque el dato
+    ya este resuelto en disco. Y como el EAN es estatico, aplicarlo hacia
+    atras es correcto: el codigo de barras de ese SKU era el mismo ese dia.
+    """
+    import csv
+
+    from canasta.normalize import COLUMNS
+
+    cache = load_cache()
+    if not cache:
+        log.info("%s: cache de EAN vacia, nada que aplicar", path.name)
+        return 0
+
+    with open(path, encoding="utf-8") as fh:
+        filas = list(csv.DictReader(fh))
+    if not filas:
+        return 0
+
+    n = 0
+    for fila in filas:
+        if fila.get("ean"):
+            continue
+        ean = cache.get(str(fila.get("item_id") or ""))
+        if ean:
+            fila["ean"] = ean
+            n += 1
+
+    if not n:
+        log.info("%s: sin EAN nuevos que aplicar", path.name)
+        return 0
+
+    tmp = path.with_suffix(".csv.tmp")
+    with open(tmp, "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=COLUMNS, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(filas)
+    tmp.replace(path)
+
+    con = sum(1 for f in filas if f.get("ean"))
+    log.info("%s: +%d EAN desde cache -> %d/%d (%.1f%%)",
+             path.name, n, con, len(filas), 100 * con / len(filas))
+    return n

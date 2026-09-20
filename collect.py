@@ -245,6 +245,12 @@ def main():
         log.info("Relleno de EAN sobre %s (%d filas), presupuesto %d",
                  archivos[-1].name, len(filas), args.limit)
         _eans.enrich(filas, cfg, log)
+        # Aplicar la cache recien ampliada a TODOS los CSV de Tottus ya
+        # escritos. Sin esto, los dias anteriores quedan sin EAN aunque el
+        # dato ya este resuelto: el codigo de barras es estatico, asi que
+        # aplicarlo hacia atras es correcto.
+        for csv_previo in archivos:
+            _eans.apply_cache_to_csv(csv_previo, log)
         return 0
 
     if args.card_prices:
