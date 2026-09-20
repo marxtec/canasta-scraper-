@@ -1,0 +1,61 @@
+name: Relleno unico de EAN (Tottus)
+
+# Pasada UNICA para resolver de golpe los ~11.900 EAN de Tottus que faltan.
+#
+# Por que existe: el EAN es estatico -- el codigo de barras de un producto no
+# cambia nunca -- asi que el coste alto es de ARRANQUE, no recurrente. No
+# tiene sentido racionarlo a lo largo de dias: se paga una vez y se acabo.
+#
+# El job diario limita las fichas por corrida porque tiene que terminar
+# rapido. Este no: corre solo cuando se lanza a mano.
+#
+# Duracion: ~3.3 h a 1 peticion/segundo. El limite de un job es 6 h.
+
+on:
+  workflow_dispatch:
+    inputs:
+      budget:
+        description: "Fichas a resolver en esta pasada"
+        required: false
+        default: "13000"
+
+concurrency:
+  group: ean-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330      # 5.5 h; el tope de GitHub es 6
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Resolver EAN pendientes
+        run: python collect.py --backfill-ean --limit ${{ inputs.budget || 13000 }}
+
+      - name: Commitear la cache
+        run: |
+          git config user.name  "canasta-bot"
+          git config user.email "actions@github.com"
+          git add data/ean_tottus.json
+          if git diff --staged --quiet; then
+            echo "Sin EAN nuevos."
+            exit 0
+          fi
+          git commit -m "cache de EAN: relleno $(date -u +%Y-%m-%d)"
+          for intento in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
+            git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep 5
+          done
+          exit 1

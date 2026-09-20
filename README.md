@@ -290,10 +290,17 @@ cobertura es muy desigual y eso condiciona el método:
 
 Tottus no publica EAN en su API de listado, solo en la ficha de producto. Se
 resuelve con `canasta/eans.py`: caché persistente en `data/ean_tottus.json`,
-con presupuesto de `ean_budget_per_run` fichas por corrida (1.500 por
-defecto, a 1 petición/segundo). Las ~11.900 fichas quedan cubiertas en ~8
-días y desde ahí el coste diario cae a casi cero, porque solo se consultan
-los SKU nuevos.
+El arranque **no se raciona**: se resuelve de una sola pasada con el
+workflow *Relleno único de EAN* (~3.3 h a 1 petición/segundo, dentro del
+límite de 6 h de un job), o en local:
+
+```bash
+python3 collect.py --backfill-ean --limit 13000
+```
+
+Como el EAN es estático —el código de barras de un producto no cambia
+nunca— ese coste se paga **una vez**. Después, la corrida diaria solo
+consulta los SKU nuevos (decenas), con tope `ean_budget_per_run`.
 
 **No hay vía masiva** (verificado 2026-09-20): no existe endpoint bulk
 (`/s/product/v1` da 503), el listado no acepta parámetros para pedir más

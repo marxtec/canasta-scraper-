@@ -216,12 +216,35 @@ def main():
     ap.add_argument("--audit", action="store_true", help="calidad de datos")
     ap.add_argument("--card-prices", metavar="CSV",
                     help="rellena card_price en un CSV diario usando navegador")
+    ap.add_argument("--backfill-ean", action="store_true",
+                    help="resuelve de una vez los EAN pendientes de Tottus")
     ap.add_argument("--limit", type=int, default=120,
-                    help="max fichas a abrir con --card-prices (def: 120)")
+                    help="max fichas a abrir con --card-prices/--backfill-ean")
     args = ap.parse_args()
 
     if args.audit:
         audit()
+        return 0
+
+    if args.backfill_ean:
+        # Pasada unica: resuelve los EAN pendientes del ultimo CSV de Tottus
+        # sin el limite del job diario. El EAN es estatico, asi que esto se
+        # paga una sola vez.
+        import csv as _csv
+        from canasta import eans as _eans
+        archivos = sorted(storage.DAILY_DIR.glob("*__tottus.csv"))
+        if not archivos:
+            log.error("No hay CSV de Tottus todavia. Corre la recoleccion primero.")
+            return 1
+        with open(archivos[-1], encoding="utf-8") as fh:
+            filas = list(_csv.DictReader(fh))
+        conf = load_config()
+        cfg = {k: v for k, v in conf.items()
+               if k not in ("retailers", "food_keywords", "excluded_keywords")}
+        cfg["ean_budget_per_run"] = args.limit
+        log.info("Relleno de EAN sobre %s (%d filas), presupuesto %d",
+                 archivos[-1].name, len(filas), args.limit)
+        _eans.enrich(filas, cfg, log)
         return 0
 
     if args.card_prices:

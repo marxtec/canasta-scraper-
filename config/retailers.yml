@@ -172,9 +172,11 @@ max_retries: 4
 # campos, y el sitemap de fichas solo trae URLs y fechas, sin GTIN. Ficha
 # por ficha es la unica forma.
 #
-# A 1500 por corrida las ~11.900 fichas de alimentos quedan cubiertas en
-# ~8 dias. El EAN es estatico: una vez en cache no se vuelve a pedir, asi
-# que despues el coste diario cae a casi cero (solo SKU nuevos).
+# Este presupuesto es solo para la corrida DIARIA, que tiene que terminar
+# rapido. El arranque NO se raciona: se resuelve de una pasada con el
+# workflow "Relleno unico de EAN" (~3.3 h, cabe de sobra en el limite de 6 h
+# de un job). Como el EAN es estatico, ese coste se paga UNA vez; despues el
+# diario solo consulta los SKU nuevos, que son decenas.
 #
 # robots.txt de Tottus permite explicitamente las fichas de producto; solo
 # bloquea /basket, /myaccount, /checkout y /orders. Verificado 2026-09-20.
