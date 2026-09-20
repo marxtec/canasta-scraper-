@@ -71,6 +71,44 @@ retailers:
     enabled: true
     food_categories: []
 
+  # Flora & Fauna: VTEX, sc=1, 198 hojas de alimentos. NO es mayorista ni
+  # supermercado masivo: es tienda organica/premium (hongos deshidratados a
+  # S/29 los 100 g). Se recolecta por el principio de sobre-recolectar --
+  # bajarla cuesta ~7 min en un job paralelo y su serie no se puede
+  # reconstruir despues -- pero da un SEGMENTO DISTINTO.
+  #
+  # NO mezclar sus precios en el indice de canasta basica sin justificarlo:
+  # su surtido no es comparable con Metro o Mass. Sirve como serie aparte
+  # (premium/organico) o como control. Verificado 2026-09-20.
+  - name: florayfauna
+    base_url: https://www.florayfauna.pe
+    platform: vtex
+    sales_channel: 1
+    enabled: true
+    segmento: premium
+    food_categories: []
+
+  # ------------------------------------------------------------------
+  # CADENAS SIN CATALOGO ONLINE -- verificado 2026-09-20, no reinvestigar
+  #
+  # Mass (tiendasmass.com.pe): sitio WordPress corporativo, SIN tienda
+  #   online y SIN precios. www.mass.pe ni siquiera resuelve TLS. Es
+  #   coherente con su modelo de descuento duro: no tienen e-commerce.
+  #   La unica via serian los folletos de ofertas, que son imagenes.
+  # Makro: tienda.makro.com.pe y www.makro.com.pe redirigen a un dominio
+  #   parqueado (ww38.*). Su tienda online ya no existe.
+  # Mayorsa (mayorsa.com.pe): WordPress con WP REST API activa pero SIN
+  #   WooCommerce (namespaces: wp/v2, oembed, wordfence... ningun wc/*).
+  #   Los pocos precios de la portada son un banner, no un catalogo.
+  # Economax: el dominio no resuelve.
+  # Tambo: no es VTEX, es app de delivery (redirige a /pedir).
+  #
+  # Conclusion: en Lima, las cadenas de descuento y mayoristas NO publican
+  # precios online. El panel cubre el canal supermercado moderno, que es
+  # justo donde SI hay dato. Esto es una limitacion del universo observable
+  # y hay que declararla en el paper, no un fallo del scraper.
+  # ------------------------------------------------------------------
+
 # Deteccion de categorias de alimentos por nombre, en minusculas y sin tildes.
 # Verificado contra los arboles de las 5 cadenas activas: 0 falsos positivos.
 # Añadir una palabra aqui amplia la cobertura en TODAS las cadenas a la vez,

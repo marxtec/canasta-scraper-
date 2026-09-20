@@ -67,8 +67,33 @@ Comprimido ocupa ~80 KB por cadena por día.
 | **Wong** | VTEX | 266 | 100% | 100% | `sc=70` (no 1) |
 | **Vivanda** | VTEX | 309 | 100% | 82% | host canónico, no el front público |
 | **Tottus** | Falabella Catalyst | 448 | 100% | caché | cliente propio, sin navegador |
+| Flora & Fauna | VTEX | 198 | 100% | 100% | **segmento premium**, no mezclar |
 
-Las cinco se recolectan en una sola corrida, **1.595 categorías hoja**.
+Las seis se recolectan en una sola corrida, **~1.830 categorías hoja**.
+
+### Cadenas de descuento y mayoristas: no publican precios
+
+Se investigaron y **ninguna tiene catálogo online con precios** (verificado
+2026-09-20, documentado en `config/retailers.yml` para no reinvestigarlo):
+
+| Cadena | Qué hay |
+|---|---|
+| **Mass** | WordPress corporativo, sin tienda online. `www.mass.pe` ni siquiera resuelve TLS |
+| **Makro** | `tienda.makro.com.pe` redirige a dominio parqueado; su tienda ya no existe |
+| **Mayorsa** | WordPress con WP REST API activa pero **sin WooCommerce** |
+| **Economax** | el dominio no resuelve |
+| **Tambo** | no es catálogo, es app de delivery |
+
+Esto **no** es un fallo del scraper: en Lima, el canal de descuento duro y el
+mayorista no venden online. Mass en particular no tiene e-commerce por
+diseño, que es parte de cómo mantiene sus precios bajos.
+
+**Consecuencia para el paper, y hay que declararla:** el panel cubre el
+**canal supermercado moderno**, no el universo de compra de un hogar limeño.
+Queda fuera el canal de descuento, el mayorista y —sobre todo— el mercado de
+abastos, que en Perú concentra una parte grande del gasto en alimentos. La
+canasta que se construya mide la inflación *de ese canal*, y compararla con
+el IPC del INEI, que sí cubre mercados, exige decir esto explícitamente.
 
 Tres cosas que costaron depuración y conviene no volver a descubrir:
 

@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false      # que Tottus falle no debe cancelar Plaza Vea
       matrix:
-        retailer: [plaza_vea, metro, wong, vivanda, tottus]
+        retailer: [plaza_vea, metro, wong, vivanda, tottus, florayfauna]
 
     steps:
       - uses: actions/checkout@v4
