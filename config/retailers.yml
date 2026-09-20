@@ -2,83 +2,122 @@
 #
 # sales_channel: FIJARLO Y NO CAMBIARLO. En VTEX el precio varia segun el
 #   canal/tienda seleccionada. Si cambia a mitad del panel, la serie tiene un
-#   salto que no es inflacion. 1 = canal por defecto.
+#   salto que no es inflacion. OJO: el canal valido NO es el mismo en todas
+#   las cadenas; ver las notas de cada una.
 #
-# food_categories: ids raiz del arbol de categorias. El scraper baja a las hojas
-#   automaticamente (la API de VTEX corta la paginacion ~2500 resultados por
-#   query, por eso se consulta hoja por hoja y no la categoria entera).
+# food_categories: ids raiz del arbol. Vacio = se detectan por nombre con
+#   food_keywords, que es lo preferible: los ids cambian cuando la cadena
+#   reordena su arbol, los nombres casi nunca. El scraper baja solo hasta las
+#   hojas (la API de VTEX corta la paginacion ~2500 resultados por query, por
+#   eso se consulta hoja por hoja y no la categoria entera).
 #
-# enabled: false = no se consulta. Verificar antes de activar.
+# enabled: false = no se consulta.
 
 retailers:
+  # 343 hojas de alimentos. Verificado 2026-09-19.
   - name: plaza_vea
     base_url: https://www.plazavea.com.pe
     platform: vtex
     sales_channel: 1
     enabled: true
-    food_categories: [431, 2, 77]  # Abarrotes, Bebidas, Frutas y Verduras -- VERIFICADO
+    food_categories: []
 
+  # 266 hojas de alimentos. Verificado 2026-09-19.
   - name: metro
     base_url: https://www.metro.pe
     platform: vtex
     sales_channel: 1
     enabled: true
-    food_categories: []         # vacio = descubre desde el arbol -- VERIFICADO que es VTEX
+    food_categories: []
 
-  # Wong ES VTEX y el arbol de categorias responde 200, pero la busqueda
-  # FILTRADA (fq=C:/...) devuelve 401 de forma consistente, incluso con
-  # categorias propias validas. La busqueda SIN filtro si responde 206.
-  # Via posible: paginar sin fq y clasificar por categoryId en post-proceso.
-  # Requiere trabajo aparte -- 2026-09-19
+  # La cuenta Wong rechaza sc=1 y, aunque sc=2 devuelve 200, da catalogo
+  # vacio. Sin el parametro sc entrega el catalogo y el precio publico; se
+  # omite explicitamente para no convertir 200 vacio en una falsa corrida OK.
+  # Verificado 2026-09-19.
   - name: wong
     base_url: https://www.wong.pe
     platform: vtex
-    sales_channel: 1
-    enabled: false
+    sales_channel: null
+    enabled: true
     food_categories: []
 
-  # Vivanda responde 200 pero de forma intermitente (a veces devuelve HTML
-  # en vez de JSON). Probable rate limiting agresivo. Reintentar con
-  # rate_limit_seconds mas alto antes de descartarla. -- 2026-09-19
+  # Vivanda NO es intermitente: www.vivanda.com.pe es un front Next.js que
+  # devuelve HTML en TODA ruta /api/ (no expone el catalogo legacy). La cuenta
+  # VTEX existe y responde en el host canonico de abajo, con arbol propio.
+  # Canales probados: solo 1 y 3 activos, ambos con el mismo precio; se fija 1.
+  # Verificado 2026-09-19.
   - name: vivanda
-    base_url: https://www.vivanda.com.pe
+    base_url: https://vivanda.vtexcommercestable.com.br
     platform: vtex
     sales_channel: 1
-    enabled: false
+    enabled: true
     food_categories: []
 
-  # Tottus (Falabella) devolvio HTTP 503 al probar el endpoint VTEX.
-  # O no es VTEX o tiene proteccion anti-bot. Requiere trabajo aparte.
+  # Tottus (Falabella) usa Catalyst, no VTEX. El menu de categorias se entrega
+  # en __NEXT_DATA__ y el catalogo publico en /s/browse/v1/listing/pe.
+  # El cliente falabella_catalyst pagina esa API sin navegador ni credenciales.
+  # Verificado 2026-09-19.
   - name: tottus
     base_url: https://www.tottus.com.pe
-    platform: vtex
-    sales_channel: 1
-    enabled: false
+    platform: falabella_catalyst
+    sales_channel: null
+    catalog_path: /tottus-pe
+    enabled: true
     food_categories: []
 
-# Palabras clave para reconocer categorias de alimentos cuando food_categories
-# esta vacio. Se compara en minusculas y sin tildes contra el nombre.
+# Deteccion de categorias de alimentos por nombre, en minusculas y sin tildes.
+# Verificado contra los arboles de las 5 cadenas activas: 0 falsos positivos.
+# Añadir una palabra aqui amplia la cobertura en TODAS las cadenas a la vez,
+# que es justo lo que se quiere: la comparacion entre cadenas solo vale si
+# ambas cubren las mismas categorias.
 food_keywords:
   - abarrote
-  - bebida
-  - carne
-  - pescado
-  - marisco
   - fruta
   - verdura
+  - carne
+  - ave
+  - pescado
+  - marisco
   - lacteo
   - huevo
   - panaderia
+  - pasteleria
   - desayuno
   - congelado
-  - fresco
-  - pollo
   - queso
+  - fiambre
   - embutido
+  - bebida
+  - agua
+  - cerveza
+  - vino
+  - licor
+  - pollo
+  - rostizado
+  - comida
+  - plato          # Tottus: "Platos Preparados"
+  - parrill        # Tottus: "Mundo Parrillero" (sufijo, no "parrilla")
+  - saludable
+  - organico
+  - fresco
+  - pack
+  - dulce
+  - galleta
+  - snack
+  - reposteria
+
+# Categorias que el filtro por nombre atrapa pero NO son alimentos, o que son
+# arboles internos de la cadena. Se comparan igual: minusculas y sin tildes.
+excluded_keywords:
+  - mascota
+  - limpieza
+  - belleza
+  - cuidado personal
 
 # Cortesia. No bajar de 0.5s sin una buena razon.
 rate_limit_seconds: 1.5
 page_size: 50
 max_offset: 2450        # tope duro de VTEX; se corta antes para no recibir 500
+max_pages: 100           # tope de seguridad para APIs paginadas no-VTEX
 request_timeout: 60
 max_retries: 4

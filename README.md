@@ -30,12 +30,14 @@ pip install -r requirements.txt
 python3 collect.py --smoke      # prueba rápida, 2 categorías
 python3 collect.py              # corrida completa
 python3 collect.py --audit      # calidad de lo recolectado
+python3 collect.py --retailer metro   # una sola cadena
 ```
 
 ## Estructura
 
 ```
 canasta/vtex.py        Cliente de la API de catálogo VTEX
+canasta/catalyst.py    Cliente de la API de catálogo Catalyst (Tottus)
 canasta/normalize.py   JSON de VTEX -> filas planas (esquema de la slide 6)
 canasta/storage.py     Guardado en dos capas
 collect.py             Orquestador. Es el que corre a diario
@@ -53,17 +55,34 @@ Comprimido ocupa ~80 KB por cadena por día.
 
 ## Estado de las cadenas (verificado 2026-09-19)
 
-| Cadena | Plataforma | Estado | Detalle |
-|---|---|---|---|
-| **Plaza Vea** | VTEX | ✅ Funciona | 99% precio, 100% gramaje, 58% EAN |
-| **Metro** | VTEX | ✅ Funciona | 100% precio, 100% gramaje, 100% EAN |
-| Wong | VTEX | ❌ 401 | El árbol responde, pero la búsqueda filtrada da 401 siempre. La búsqueda *sin* filtro sí responde: vía posible es paginar sin `fq` y clasificar por `categoryId` después |
-| Vivanda | VTEX | ⚠️ Intermitente | Responde 200 pero a veces devuelve HTML en vez de JSON. Probable rate limiting. Reintentar con `rate_limit_seconds` más alto |
-| Tottus | ? | ❌ 503 | Falabella, stack distinto. O no es VTEX o tiene protección anti-bot |
+| Cadena | Plataforma | Hojas | Precio | EAN | Nota |
+|---|---|---|---|---|---|
+| **Plaza Vea** | VTEX | 343 | 99% | 58% | `sc=1` |
+| **Metro** | VTEX | 266 | 100% | 100% | `sc=1` |
+| **Wong** | VTEX | 266 | 100% | 100% | **sin** `sc` (ver abajo) |
+| **Vivanda** | VTEX | 309 | 100% | 82% | host canónico, no el front público |
+| **Tottus** | Falabella Catalyst | 411 | 100% | **0%** | cliente propio, sin navegador |
 
-**Dos cadenas alcanzan para arrancar.** Plaza Vea y Metro permiten la
-comparación entre cadenas, que es el núcleo de la propuesta. Wong y Vivanda
-se pueden sumar después sin perder lo acumulado; Tottus es un proyecto aparte.
+Las cinco se recolectan en una sola corrida, **1.595 categorías hoja**.
+
+Tres cosas que costaron depuración y conviene no volver a descubrir:
+
+- **Wong: el 401 no era el filtro, era el canal.** La API responde literal
+  `"sc 1 is not available for account wongio"`. Pero `sc=2`, que sí responde
+  200, devuelve catálogo vacío: la única forma de obtener su surtido es
+  **omitir** `sc`. Eso deja a Wong en el canal por defecto de la cuenta, o
+  sea sin fijar, lo que contradice la regla de abajo sobre fijar el canal. Es
+  la única opción viable, pero si VTEX cambia ese default la serie de Wong da
+  un salto que no es inflación. Vigilar con `--audit`.
+
+- **Vivanda no era intermitente.** `www.vivanda.com.pe` es un front Next.js
+  que devuelve HTML en *toda* ruta `/api/`. El catálogo vive en la cuenta
+  `vivanda.vtexcommercestable.com.br`, con árbol de categorías propio.
+
+- **Tottus no es VTEX y aun así no necesita navegador.** El menú viene en el
+  `__NEXT_DATA__` del HTML y el catálogo en una API JSON paginada.
+  **No expone EAN**: el emparejamiento con las otras cadenas depende
+  enteramente del fallback por marca + nombre (ver §4 más abajo).
 
 ---
 
@@ -85,6 +104,15 @@ Documentados porque costaron depuración y no están en la documentación obvia:
 4. **El gramaje no viene en `measurementUnit`.** VTEX reporta casi siempre
    `un` / multiplicador 1. El peso real está en el nombre del producto y hay
    que parsearlo. Es la parte más frágil del pipeline: vigilar con `--audit`.
+
+   El modo de fallar que importa **no** es el gramaje ausente, es el gramaje
+   presente y equivocado: sale un número plausible, se cuenta como éxito en
+   cualquier medida de completitud, y después divide el precio. Ejemplo real
+   ya corregido: `"Kit Paella Carmencita Caja 490 g"` daba **240 kg**, porque
+   el parser leía el 490 como "490 cajas". Por eso `--audit` no cuenta campos
+   llenos: marca los precios por kg/l fuera de rango, que es lo único que
+   delata este error. Cuando toques `parse_quantity`, corre `--audit` sobre
+   varios días antes de confiar en el resultado.
 
 ### Mapeo al esquema de la slide 6
 
@@ -128,9 +156,27 @@ varía por tienda/región; si cambia a mitad del panel, la serie tiene un salto
 que no es inflación.
 
 ### 4. Emparejamiento entre cadenas
-Aquí vive el grueso del trabajo analítico. `ean` es la llave limpia (100% en
-Metro, 58% en Plaza Vea). Plan: EAN cuando exista → fallback a marca +
-categoría + precio por unidad base.
+Aquí vive el grueso del trabajo analítico. `ean` es la llave limpia, pero su
+cobertura es muy desigual y eso condiciona el método:
+
+| Metro | Wong | Vivanda | Plaza Vea | Tottus |
+|---|---|---|---|---|
+| 100% | 100% | 82% | 58% | **0%** |
+
+**Tottus no expone EAN en ningún endpoint público de listado**, así que entra
+entero por el fallback. Plan: EAN cuando exista → marca + categoría + precio
+por unidad base. Conviene medir la tasa de acierto del fallback contra los
+pares que *sí* tienen EAN en las otras cadenas, porque esa tasa es el techo
+de calidad de todo lo que se diga sobre Tottus.
+
+### 5. Vendedor del marketplace ≠ la cadena
+Las columnas `seller_id` / `seller_name` existen para esto. VTEX y Catalyst
+devuelven surtido propio y de terceros en la misma lista; el scraper prefiere
+el vendedor propio (`sellerDefault`), pero cuando ninguno lo declara cae al
+primero con oferta. En una muestra de Plaza Vea, 5 de 396 filas venían de
+terceros (`THE BLITZ COMPANY`, `Aquago!`). Decidir si esas filas entran al
+índice o se filtran: un precio de tercero no es el precio de la cadena.
+`--audit` lista el reparto de vendedores por archivo.
 
 ---
 

@@ -13,11 +13,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Una cadena por job, en paralelo. Secuencialmente son ~69 min medidos
+  # (Tottus 25, Plaza Vea 18, el resto ~9 cada una) y el job entero quedaba
+  # al borde del timeout. En paralelo ninguna pasa de ~30 min y, sobre todo,
+  # una cadena caida deja de arrastrar a las otras cuatro.
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-    permissions:
-      contents: write     # necesario para commitear los datos
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false      # que Tottus falle no debe cancelar Plaza Vea
+      matrix:
+        retailer: [plaza_vea, metro, wong, vivanda, tottus]
 
     steps:
       - uses: actions/checkout@v4
@@ -30,8 +36,45 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Recolectar
-        run: python collect.py
+      - name: Recolectar ${{ matrix.retailer }}
+        run: python collect.py --retailer ${{ matrix.retailer }}
+
+      - name: Guardar datos de ${{ matrix.retailer }}
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: datos-${{ matrix.retailer }}
+          path: data/
+          retention-days: 7
+          if-no-files-found: error
+
+  # Un solo job commitea. Cinco jobs empujando a la misma rama se pisan entre
+  # si y el perdedor descarta su dia.
+  commit:
+    needs: scrape
+    if: always()            # commitea lo que SI se recolecto, aunque falte una cadena
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recuperar los datos de todas las cadenas
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artefactos
+
+      - name: Juntar en data/
+        run: |
+          mkdir -p data/raw data/daily
+          # Cada artefacto trae la misma estructura data/{raw,daily}
+          find /tmp/artefactos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
+            [ -d "$dir/raw" ]   && cp -v "$dir"/raw/*   data/raw/   2>/dev/null || true
+            [ -d "$dir/daily" ] && cp -v "$dir"/daily/* data/daily/ 2>/dev/null || true
+          done
+          ls -la data/daily/
 
       - name: Commitear datos del dia
         run: |
@@ -39,12 +82,24 @@ jobs:
           git config user.email "actions@github.com"
           git add data/
           if git diff --staged --quiet; then
-            echo "Sin cambios."
-          else
-            git commit -m "datos $(date -u +%Y-%m-%d)"
-            git push
+            echo "::warning::Sin datos nuevos. Ninguna cadena entrego filas."
+            exit 0
           fi
+          git commit -m "datos $(date -u +%Y-%m-%d)"
+          # Rebase por si alguien empujo mientras corria la recoleccion:
+          # sin esto el push falla y el dia se pierde sin posibilidad de
+          # recuperarlo.
+          for intento in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
+            git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "push fallido, reintento $intento"
+            sleep 5
+          done
+          echo "::error::No se pudo empujar los datos del dia."
+          exit 1
 
-      - name: Avisar si fallo
-        if: failure()
-        run: echo "::error::La recoleccion fallo. Un dia perdido no se recupera."
+      - name: Avisar si alguna cadena fallo
+        if: needs.scrape.result != 'success'
+        run: |
+          echo "::error::Al menos una cadena fallo hoy. Un dia perdido en esa
+          cadena no se recupera: revisar el log del job correspondiente."

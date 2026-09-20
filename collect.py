@@ -21,6 +21,7 @@ import yaml
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from canasta import storage
+from canasta.catalyst import CatalystClient, normalize as normalize_catalyst
 from canasta.normalize import normalize
 from canasta.vtex import VtexClient
 
@@ -40,12 +41,49 @@ def load_config():
         return yaml.safe_load(fh)
 
 
-def run(retailer, cfg, keywords, date_str, timestamp, smoke=False):
-    client = VtexClient(retailer, cfg, log)
+CLIENTS = {
+    "vtex": (VtexClient, normalize),
+    "falabella_catalyst": (CatalystClient, normalize_catalyst),
+}
+
+
+def _avisar_si_cae_el_volumen(retailer, n_filas, date_str, umbral=0.5):
+    """Compara con la ultima corrida de esta cadena y avisa si se desploma.
+
+    Una rotura del parser o un cambio en el arbol de categorias no produce un
+    error: produce menos filas. Sin esta comparacion, la corrida termina en
+    verde con el 10% de los datos y el hueco se descubre semanas despues,
+    cuando ya no se puede rellenar.
+    """
+    import csv
+
+    previos = sorted(storage.DAILY_DIR.glob(f"*__{retailer}.csv"))
+    previos = [f for f in previos if not f.name.startswith(date_str)]
+    if not previos:
+        return
+    with open(previos[-1], encoding="utf-8") as fh:
+        anterior = sum(1 for _ in csv.DictReader(fh))
+    if anterior and n_filas < anterior * umbral:
+        log.warning(
+            "%s: CAIDA DE VOLUMEN. %d filas hoy vs %d en %s (-%.0f%%). "
+            "Revisar el parser ANTES de fiarse de estos datos.",
+            retailer, n_filas, anterior, previos[-1].name,
+            100 * (1 - n_filas / anterior),
+        )
+
+
+def run(retailer, cfg, keywords, excluded, date_str, timestamp, smoke=False):
+    platform = retailer.get("platform")
+    try:
+        client_class, normalizer = CLIENTS[platform]
+    except KeyError as exc:
+        raise ValueError(f"plataforma no soportada: {platform!r}") from exc
+
+    client = client_class(retailer, cfg, log)
     roots = retailer.get("food_categories") or []
 
     if smoke:
-        leaves = client.leaf_categories(roots, keywords)[:2]
+        leaves = client.leaf_categories(roots, keywords, excluded)[:2]
         log.info("SMOKE: solo %d categorias", len(leaves))
         products = []
         for fq, path in leaves:
@@ -53,20 +91,41 @@ def run(retailer, cfg, keywords, date_str, timestamp, smoke=False):
                 p["_category_path"] = path
                 products.append(p)
     else:
-        products = client.collect(roots, keywords)
+        products = client.collect(roots, keywords, excluded)
 
     if not products:
         log.error("%s: 0 productos. No se escribe nada.", retailer["name"])
         return 0
 
-    storage.save_raw(products, retailer["name"], date_str)
-    rows = normalize(products, retailer["name"], timestamp)
-    path = storage.save_daily(rows, retailer["name"], date_str)
+    rows = normalizer(products, retailer["name"], timestamp)
+
+    if not rows:
+        # Distinto de "0 productos": la API respondio, el parser no produjo
+        # nada. Apunta a un cambio de esquema, no a un fallo de red.
+        log.error(
+            "%s: %d productos pero 0 filas normalizadas. Revisar el parser.",
+            retailer["name"], len(products),
+        )
+        return 0
 
     con_precio = sum(1 for r in rows if r["price"])
     con_peso = sum(1 for r in rows if r["net_quantity"])
     con_ean = sum(1 for r in rows if r["ean"])
     en_oferta = sum(1 for r in rows if r["on_sale"])
+    if smoke:
+        log.info(
+            "%s: %d filas validadas (smoke no escribe archivos) | precio %.0f%% | "
+            "peso %.0f%% | ean %.0f%% | oferta %.0f%%",
+            retailer["name"], len(rows), 100 * con_precio / len(rows),
+            100 * con_peso / len(rows), 100 * con_ean / len(rows),
+            100 * en_oferta / len(rows),
+        )
+        return len(rows)
+
+    _avisar_si_cae_el_volumen(retailer["name"], len(rows), date_str)
+
+    storage.save_raw(products, retailer["name"], date_str)
+    path = storage.save_daily(rows, retailer["name"], date_str)
     log.info(
         "%s: %d filas -> %s | precio %.0f%% | peso %.0f%% | ean %.0f%% | oferta %.0f%%",
         retailer["name"], len(rows), path.name,
@@ -77,7 +136,14 @@ def run(retailer, cfg, keywords, date_str, timestamp, smoke=False):
 
 
 def audit():
-    """Tasa de exito del parseo sobre lo ya recolectado."""
+    """Calidad del parseo sobre lo ya recolectado.
+
+    No basta con contar campos vacios: el fallo mas peligroso del pipeline no
+    es el gramaje ausente, es el gramaje PRESENTE y equivocado. Un nombre mal
+    parseado entrega un numero plausible que despues divide el precio, y en
+    un conteo de completitud sale como 100% de exito. Por eso aqui tambien se
+    revisan precios por unidad base fuera de rango.
+    """
     import csv
     from collections import Counter
 
@@ -86,21 +152,50 @@ def audit():
         log.error("No hay CSV en data/daily todavia.")
         return
 
-    for f in files[-4:]:
+    for f in files[-6:]:
         with open(f, encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         if not rows:
             continue
         n = len(rows)
-        sin_peso = [r["product_name"] for r in rows if not r["net_quantity"]]
         print(f"\n=== {f.name} ({n} filas) ===")
-        for campo in ("price", "net_quantity", "ean", "brand"):
+        for campo in ("price", "net_quantity", "ean", "brand", "seller_name"):
             ok = sum(1 for r in rows if r.get(campo))
             print(f"  {campo:<14} {100*ok/n:5.1f}%  ({ok}/{n})")
+
+        sin_peso = [r["product_name"] for r in rows if not r["net_quantity"]]
         if sin_peso:
-            print(f"  -- ejemplos sin gramaje parseado ({len(sin_peso)}):")
-            for nm in sin_peso[:8]:
+            print(f"  -- sin gramaje parseado ({len(sin_peso)}):")
+            for nm in sin_peso[:5]:
                 print(f"       {nm}")
+
+        # Precio por kg/l absurdo = gramaje mal parseado. Los umbrales son
+        # deliberadamente anchos: se busca el error grosero, no el caro.
+        raros = []
+        for r in rows:
+            try:
+                precio = float(r["price"] or 0)
+                qty = float(r["net_quantity"] or 0)
+            except ValueError:
+                continue
+            if precio <= 0 or qty <= 0 or r["unit"] not in ("kg", "l"):
+                continue
+            por_base = precio / qty
+            if por_base < 0.5 or por_base > 300:
+                raros.append((por_base, r["product_name"], precio, qty, r["unit"]))
+        if raros:
+            raros.sort(key=lambda x: -x[0])
+            print(f"  -- precio por unidad base sospechoso ({len(raros)}, "
+                  f"{100*len(raros)/n:.1f}%):")
+            for por_base, nm, precio, qty, unit in raros[:5]:
+                print(f"       S/{por_base:9.2f}/{unit}  (S/{precio} / {qty}{unit})  {nm[:44]}")
+
+        # Un precio que no viene del supermercado no es comparable entre
+        # cadenas: es de un tercero del marketplace.
+        propios = Counter(r.get("seller_name") or "?" for r in rows)
+        if len(propios) > 1:
+            print(f"  -- vendedores: {dict(propios.most_common(4))}")
+
         cats = Counter(r["category"] for r in rows)
         print(f"  categorias: {dict(cats.most_common(5))}")
 
@@ -117,8 +212,12 @@ def main():
         return 0
 
     conf = load_config()
-    cfg = {k: v for k, v in conf.items() if k not in ("retailers", "food_keywords")}
+    cfg = {
+        k: v for k, v in conf.items()
+        if k not in ("retailers", "food_keywords", "excluded_keywords")
+    }
     keywords = conf["food_keywords"]
+    excluded = conf.get("excluded_keywords", [])
 
     now = dt.datetime.now(LIMA)
     date_str = now.strftime("%Y-%m-%d")
@@ -135,7 +234,7 @@ def main():
     total, fallos = 0, []
     for retailer in targets:
         try:
-            n = run(retailer, cfg, keywords, date_str, timestamp, args.smoke)
+            n = run(retailer, cfg, keywords, excluded, date_str, timestamp, args.smoke)
             total += n
             if n == 0:
                 fallos.append(retailer["name"])
