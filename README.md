@@ -313,6 +313,66 @@ emparejar cadenas, que es análisis posterior y sí se puede hacer hacia atrás.
 Plan de emparejamiento: EAN cuando exista → fallback a marca + categoría +
 precio por unidad base.
 
+### 4b. Cuántos productos son realmente comparables
+
+Medido sobre el primer día del panel (19-09-2026, 53.958 filas). **Este es el
+dato que define el tamaño posible de la canasta.**
+
+De los **24.137 productos únicos** (identificados por EAN de 12+ dígitos):
+
+| Presente en | Productos | ¿Sirve para comparar? |
+|---|---|---|
+| 1 sola cadena | 13.073 | no |
+| 2 cadenas | 6.346 | sí, pero limitado |
+| 3 cadenas | 2.418 | sí |
+| 4 cadenas | 1.383 | sí |
+| **Las 5 cadenas** | **917** | **el caso ideal** |
+
+Visto desde cada cadena:
+
+| Cadena | Productos | En 2+ | En 3+ | **En las 5** |
+|---|---|---|---|---|
+| Wong | 12.407 | 7.029 (57%) | 3.382 (27%) | 917 (7.4%) |
+| Tottus | 12.315 | 5.499 (45%) | 3.912 (32%) | 917 (7.4%) |
+| Plaza Vea | 11.859 | 5.786 (49%) | 3.584 (30%) | 918 (7.7%) |
+| Metro | 9.525 | 6.837 (72%) | 3.328 (35%) | 917 (9.6%) |
+| Vivanda | 7.852 | 4.964 (63%) | 3.183 (41%) | 917 (11.7%) |
+
+Los grupos son **anidados**, no excluyentes: los 917 están dentro de los
+"en 3+", que están dentro de los "en 2+". Decir "6.837 comparables en Metro"
+es un criterio laxo — la mayoría de esos está en solo 2 cadenas, y a menudo
+son Metro y Wong, que son la misma empresa (Cencosud).
+
+#### Por qué la mitad del catálogo no es comparable
+
+Dos causas, ninguna es un fallo del scraper:
+
+- **Marca propia y granel.** El pan de la panadería de Metro, los "Bell's"
+  de Plaza Vea, el pollo por kilo. No llevan código de barras común: cada
+  cadena les asigna un código interno (los `2200…`, `2050…`) que no existe
+  fuera de su sistema. Explica por qué Plaza Vea y Tottus quedan más abajo.
+- **Surtido exclusivo.** Productos que esa cadena vende y las otras no.
+
+#### Qué implica para la canasta
+
+**Los 917 son la base recomendada.** Un ítem de canasta necesita precio en
+todas las cadenas todos los días; si no, hay que imputar precios faltantes
+(§2), que es el error más fácil de cometer y el más difícil de detectar. Con
+cobertura completa ese problema casi no aparece.
+
+Son el **8.5% del catálogo promedio** (10.792 productos por cadena). Suena
+poco y no lo es: el INEI construye su canasta de alimentos con unas pocas
+decenas de productos representativos. Recolectar 10.000 para usar 900 es
+exactamente el diseño buscado — ver el principio de sobre-recolección
+arriba: el 91.5% restante queda acumulado por si la canasta se redefine.
+
+**Advertencia importante:** 917 es la foto de **un solo día**. Cuando se
+exija presencia estable durante semanas —que es lo que necesita una serie
+temporal— ese número va a caer: productos que se agotan, que la cadena deja
+de listar, que cambian de código. La canasta definitiva se define **sobre el
+panel acumulado**, no sobre los datos de hoy. Conviene recalcular esta tabla
+cada par de semanas.
+
 ### 5. Vendedor del marketplace ≠ la cadena
 Las columnas `seller_id` / `seller_name` existen para esto. VTEX y Catalyst
 devuelven surtido propio y de terceros en la misma lista; el scraper prefiere
