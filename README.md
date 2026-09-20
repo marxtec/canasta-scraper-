@@ -6,7 +6,7 @@ Johao Mendoza · Marx Rojas · Joyssie Rivas
 
 ---
 
-## Lo único que hay que entender antes de tocar nada OJO
+## Lo único que hay que entender antes de tocar nada
 
 **La historia de precios no se puede scrapear hacia atrás.** La web de un
 súper muestra el precio de hoy; no existe un endpoint que devuelva el precio
