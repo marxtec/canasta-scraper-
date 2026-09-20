@@ -17,7 +17,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from canasta.catalyst import _offer_prices, _price_number
 from canasta.eans import load_cache, save_cache
-from canasta.normalize import _best_seller, normalize, parse_quantity
+from canasta.normalize import (_best_seller, card_promo, normalize,
+                               parse_quantity, promo_window)
 from canasta.vtex import matches_food
 
 
@@ -125,7 +126,8 @@ def test_normalize_fila_completa():
     assert fila["net_quantity"] == 5.0 and fila["unit"] == "kg"
     assert fila["category"] == "Abarrotes"
     assert fila["seller_name"] == "Metro"
-    assert fila["card_price"] is None      # VTEX no lo expone: no se inventa
+    assert fila["card_price"] is None      # sin teaser de tarjeta: no se inventa
+    assert fila["promo_type"] == "descuento"
 
 
 def test_normalize_descarta_item_sin_oferta():
@@ -165,6 +167,62 @@ def test_cache_ean_ida_y_vuelta(tmp=None):
     assert c["1"] == "7750001"
     assert c["2"] is None          # memoria negativa: no reintentar cada dia
     assert load_cache(d / "noexiste.json") == {}
+
+
+def test_card_promo_desde_teaser():
+    """El porcentaje de tarjeta SI viene en el teaser de Cencosud. Antes se
+    creia que solo el navegador lo daba."""
+    assert card_promo(
+        ["[TCENCO] Set26 - Supermercado - Con 5% Dscto Con TC Metro del 01al30 Setiembre"],
+        2026,
+    ) == (5, "2026-09-01", "2026-09-30")
+    # varios teasers: gana el mayor descuento y la ventana es la de ESE
+    assert card_promo(
+        ["[TCENCO] Con 10% Dscto Con TC Wong del 01al30 Setiembre",
+         "Wong - Abarrotes - 20% dscto Con TC BBVA Wong del 18al20 Setiembre"],
+        2026,
+    ) == (20, "2026-09-18", "2026-09-20")
+    # sin porcentaje no se inventa
+    assert card_promo(["Promo Oh-Pay"], 2026) == (None, None, None)
+    # un descuento que no menciona tarjeta no es precio con tarjeta
+    assert card_promo(["Con 10% Dscto en la segunda unidad"], 2026) == (None, None, None)
+
+
+def test_promo_window():
+    assert promo_window("del 28al02 Setiembre", 2026) == ("2026-09-28", "2026-10-02")
+    assert promo_window("del 20al31 Diciembre", 2026) == ("2026-12-20", "2026-12-31")
+    assert promo_window("del 10 al 14 de octubre", 2026) == ("2026-10-10", "2026-10-14")
+    assert promo_window("sin fechas", 2026) == (None, None)
+    assert promo_window("del 31al32 Setiembre", 2026) == (None, None)   # fecha invalida
+
+
+def test_normalize_card_price_y_specs():
+    productos = [{
+        "productId": "1", "brand": "X", "link": "http://x/p",
+        "_category_path": "Abarrotes > Arroz",
+        "Vendido por": ["Marcas Aliadas"],
+        "Octogonos": ["AZUCAR", "SODIO"],
+        "Descuentos": ["Descuentos exclusivos", "Promo paga x lleva y"],
+        "items": [{
+            "itemId": "11", "nameComplete": "Arroz X 1kg", "ean": "7750001",
+            "unitMultiplier": 1.0,
+            "sellers": [{"sellerId": "1", "sellerName": "Metro", "sellerDefault": True,
+                         "commertialOffer": {
+                             "Price": 18.5, "ListPrice": 22.0, "IsAvailable": True,
+                             "Teasers": [{"<Name>k__BackingField":
+                                          "[TCENCO] Set26 - Con 4% Dscto Con TC Metro del 01al30 Setiembre"}],
+                         }}],
+        }],
+    }]
+    fila = normalize(productos, "metro", "2026-09-20 08:00:00-0500")[0]
+    assert fila["card_price"] == 17.76      # el caso real del README: 18.50 con 4%
+    assert fila["promo_start"] == "2026-09-01"
+    assert fila["promo_end"] == "2026-09-30"
+    assert fila["promo_type"] == "descuento;tarjeta;paga_x_lleva_y"
+    assert fila["vendido_por"] == "Marcas Aliadas"
+    assert fila["octogonos"] == "AZUCAR;SODIO"
+    assert fila["unit_multiplier"] == 1.0
+    assert fila["origen"] is None           # no viene: no se inventa
 
 
 if __name__ == "__main__":

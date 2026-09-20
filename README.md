@@ -33,6 +33,7 @@ pip install -r requirements.txt
 python3 collect.py --smoke      # prueba rápida, 2 categorías
 python3 collect.py              # corrida completa
 python3 collect.py --audit      # calidad de lo recolectado
+python3 collect.py --reprocess  # re-normaliza todo desde el crudo (parser nuevo)
 python3 tests/test_scraper.py   # tests (sin red, sin dependencias extra)
 python3 collect.py --retailer metro   # una sola cadena
 ```
@@ -45,19 +46,32 @@ canasta/catalyst.py    Cliente de la API de catálogo Catalyst (Tottus)
 canasta/eans.py        Caché persistente de EAN (solo Tottus lo necesita)
 canasta/browser.py     Playwright: precio con tarjeta (paso aparte, opcional)
 canasta/normalize.py   JSON de VTEX -> filas planas (esquema de la slide 6)
-canasta/storage.py     Guardado en dos capas
+canasta/storage.py     Guardado en tres capas (crudo, CSV, arbol)
 collect.py             Orquestador. Es el que corre a diario
 tests/test_scraper.py  Tests del parser y la normalización
 config/retailers.yml   Cadenas, canal de venta, categorías
 data/raw/              JSON crudo comprimido
 data/daily/            CSV normalizado, una fila por SKU por día
+data/trees/            Árbol de categorías y hojas recorridas, por cadena y día
 data/ean_tottus.json   Caché de EAN. VERSIONARLA: si se pierde, no converge
 ```
 
 **Por qué se guarda el JSON crudo:** el día que encuentres un bug en el
 parser —y lo vas a encontrar— vas a poder reprocesar las semanas anteriores.
 Sin él, un error detectado en la semana 6 obliga a tirar las semanas 1 a 5.
-Comprimido ocupa ~80 KB por cadena por día.
+Comprimido ocupa ~80 KB por cadena por día. Ya se pagó solo una vez: la
+versión 1.2 del parser extrajo precio con tarjeta, vigencia de promos y
+especificaciones que estaban en el crudo desde el día uno, con
+`python3 collect.py --reprocess`.
+
+**Por qué se guarda el árbol de categorías:** cada día desaparecen ~440
+productos del panel. Sin el árbol no se puede distinguir "la cadena lo
+deslistó" de "la cadena reorganizó sus categorías y el scraper dejó de
+verlo". Para medir cuánto dura una oferta esa diferencia lo es todo. Es lo
+único que no se recupera del crudo. La guardia de volumen compara filas por
+categoría raíz y hojas recorridas contra la corrida anterior, no solo el
+total: una hoja de 300 productos que se cae es −2.5% del total y el umbral
+global no la ve.
 
 ---
 
@@ -160,7 +174,11 @@ Documentados porque costaron depuración y no están en la documentación obvia:
 | `available` | `IsAvailable`, `AvailableQuantity` |
 | `ean` | `items[].ean` |
 | `on_sale` | derivado: `regular_price > price` |
-| `card_price` | **no disponible como número** (ver abajo) |
+| `card_price` | derivado del **porcentaje del teaser** en Cencosud (ver abajo); vacío en el resto |
+| `promo_start` / `promo_end` | vigencia parseada del teaser (`del 01al30 Setiembre`) |
+| `promo_type` | `descuento` · `tarjeta` · `paga_x_lleva_y` (esta última no mueve el precio unitario: sin ella `on_sale` la ignora) |
+| `vendido_por`, `origen`, `octogonos`, `contenido_neto_declarado` | especificaciones que VTEX cuelga como claves sueltas del producto |
+| `unit_multiplier` | peso de una unidad en el carrito para peso variable (`kg`, 0.16 = un plátano). El precio sigue siendo por kilo |
 
 ---
 
@@ -207,15 +225,31 @@ No es que no funcione: es que pierde en lo que este proyecto necesita.
 
 4. **Tottus quedaría fuera**, que es justo la cadena que más costó habilitar.
 
-### Dónde el navegador SÍ es la única opción: precio con tarjeta
+### Precio con tarjeta: la API sí lo da (corregido 2026-09-20)
 
-Es el único dato de la propuesta que la API no expone. VTEX publica `Teasers`
-diciendo que *hay* promoción (`"Promo Oh-Pay"`) pero no el monto. En la ficha
-renderizada sí aparece. Verificado en Metro:
+Se creyó que era el único dato que la API no exponía. **No es así en
+Cencosud:** el teaser trae el porcentaje y la vigencia, y con eso basta:
+
+```
+[TCENCO] Set26 - Supermercado - Con 4% Dscto Con TC Metro del 01al30 Setiembre
+                                    ^^                        ^^^^^^^^^^^^^^^^^
+card_price = 18.50 × (1 − 0.04) = 17.76   <- exactamente lo que muestra la web
+```
+
+Verificado contra la ficha renderizada en Metro (S/17.76 con tarjeta, S/18.50
+`Price`, S/22.00 `ListPrice`). Cubre el 43% del catálogo de Metro y el 22% de
+Wong, con ventanas que van del mes entero (`01al30`) al fin de semana
+(`18al20`). Plaza Vea solo publica `"con Tarjeta Oh!"` como especificación,
+sin porcentaje (185 productos): ahí sigue haciendo falta el navegador.
+
+### Dónde el navegador sigue siendo la única opción
+
+Para las cadenas que no publican el porcentaje. Antes de la corrección se
+verificó en Metro que el navegador sí lo lee:
 
 ```
 Tarjeta Cencosud
-S/ 17.76     <- SOLO visible con navegador
+S/ 17.76     <- visible con navegador (hoy también derivable del teaser)
 S/ 18.50     <- API: commertialOffer.Price
 S/ 22.00     <- API: commertialOffer.ListPrice
 ```
@@ -255,16 +289,15 @@ paper. El scraper ya recoge lo necesario para cualquiera de las opciones.
 
 ### 1. ¿Cuál es *el* precio?
 Hay tres: normal, oferta y con tarjeta de la cadena. El scraper guarda los
-dos primeros. **El precio con tarjeta no se puede extraer como número:** VTEX
-expone `Teasers` que dicen que *hay* promoción (ej. `"Promo Oh-Pay"`), no
-cuánto. Se guarda el texto del teaser en la columna `teasers` y `card_price`
-queda vacío a propósito, en vez de inventar un número.
+tres donde existen: `card_price` se deriva del porcentaje del teaser en
+Cencosud (43% de Metro, 22% de Wong) y viene en el listado de Tottus (CMR);
+en Plaza Vea y Vivanda queda vacío porque no publican el monto, y no se
+inventa. `canasta/browser.py` sigue disponible para esos casos.
 
-**Ya no es una limitación técnica: se logró.** `canasta/browser.py` lo extrae
-con navegador (ver la sección anterior). Queda como decisión metodológica, no
-de programación: índice principal con `price`, y el precio con tarjeta como
-**serie paralela** sobre la canasta definida. Si se usara como índice
-principal, la canasta mediría condiciones de financiamiento, no de alimentos.
+Queda como decisión metodológica, no de programación: índice principal con
+`price`, y el precio con tarjeta como **serie paralela**. Si se usara como
+índice principal, la canasta mediría condiciones de financiamiento, no de
+alimentos.
 
 ### 2. Regla de precios faltantes ← la más importante
 Un SKU se agota, se renombra o desaparece. La fórmula `Canasta = Σ qᵢ·Pᵢ,t`

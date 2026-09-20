@@ -119,14 +119,15 @@ jobs:
 
       - name: Juntar en data/
         run: |
-          mkdir -p data/raw data/daily
-          # Cada artefacto trae la misma estructura data/{raw,daily} y, en el
-          # caso de Tottus, la cache de EAN en la raiz de data/. La cache DEBE
-          # volver al repo: si se pierde, cada corrida vuelve a pedir miles de
-          # fichas de producto desde cero y nunca converge.
+          mkdir -p data/raw data/daily data/trees
+          # Cada artefacto trae la misma estructura data/{raw,daily,trees} y,
+          # en el caso de Tottus, la cache de EAN en la raiz de data/. La cache
+          # DEBE volver al repo: si se pierde, cada corrida vuelve a pedir
+          # miles de fichas de producto desde cero y nunca converge.
           find /tmp/artefactos -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
             [ -d "$dir/raw" ]   && cp -v "$dir"/raw/*   data/raw/   2>/dev/null || true
             [ -d "$dir/daily" ] && cp -v "$dir"/daily/* data/daily/ 2>/dev/null || true
+            [ -d "$dir/trees" ] && cp -v "$dir"/trees/* data/trees/ 2>/dev/null || true
             find "$dir" -maxdepth 1 -name '*.json' -exec cp -v {} data/ \; 2>/dev/null || true
           done
           echo "--- daily ---"; ls -la data/daily/

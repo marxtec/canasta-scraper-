@@ -75,6 +75,11 @@ class CatalystClient:
         self.session.headers.update(
             {"User-Agent": USER_AGENT, "Accept": "application/json"}
         )
+        # Lo ultimo que se bajo, para que collect.py lo guarde junto a los
+        # datos. Sin esto, cuando un producto desaparece no se puede saber si
+        # la cadena lo deslisto o si movio la categoria y dejamos de verlo.
+        self.last_tree = None
+        self.last_leaves = []
 
     def _get(self, url, params=None, expect_json=True):
         """GET con reintentos solo para fallos transitorios."""
@@ -147,6 +152,7 @@ class CatalystClient:
     def leaf_categories(self, roots, keywords, excluded=()):
         """Devuelve categoria, ruta legible de las hojas de alimentos."""
         tree = self.category_tree()
+        self.last_tree = tree
         if not tree:
             return []
 
@@ -191,6 +197,7 @@ class CatalystClient:
 
         for node in selected:
             walk(node, [])
+        self.last_leaves = leaves
         return leaves
 
     def products_in_category(self, category_id):
@@ -250,6 +257,12 @@ def normalize(products, retailer, timestamp):
         quantity, unit = parse_quantity(name)
         category_path = product.get("_category_path", "")
         discount = (product.get("discountBadge") or {}).get("label")
+        on_sale = bool(regular and price and regular > price)
+        flags = []
+        if on_sale:
+            flags.append("descuento")
+        if card:
+            flags.append("tarjeta")
         rows.append({
             "timestamp": timestamp,
             "retailer": retailer,
@@ -261,10 +274,11 @@ def normalize(products, retailer, timestamp):
             "category_path": category_path,
             "net_quantity": quantity,
             "unit": unit,
+            "unit_multiplier": None,
             "price": price,
             "regular_price": regular,
             "card_price": card,
-            "on_sale": bool(regular and price and regular > price),
+            "on_sale": on_sale,
             # La API de listado no publica inventario por SKU. Un producto sin
             # precio no se considera disponible; fuera de ese caso se deja
             # vacio en vez de afirmar stock sin evidencia.
@@ -273,9 +287,18 @@ def normalize(products, retailer, timestamp):
             "ean": None,
             "url": product.get("url"),
             "teasers": json.dumps([discount], ensure_ascii=False) if discount else None,
+            "promo_type": ";".join(flags) or None,
+            # Catalyst no publica vigencia de la promo en el listado.
+            "promo_start": None,
+            "promo_end": None,
             # Catalyst tambien mezcla marketplace con el surtido propio.
             "seller_id": product.get("sellerId"),
             "seller_name": product.get("sellerName"),
+            # Especificaciones: solo en la ficha, no en el listado.
+            "vendido_por": None,
+            "origen": None,
+            "octogonos": None,
+            "contenido_neto_declarado": None,
             "scraper_version": SCRAPER_VERSION,
         })
     return rows

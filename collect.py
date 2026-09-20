@@ -5,6 +5,7 @@
     python3 collect.py --retailer plaza_vea # una sola
     python3 collect.py --smoke              # prueba rapida, 2 categorias
     python3 collect.py --audit              # calidad del ultimo CSV
+    python3 collect.py --reprocess          # re-normaliza todo desde el crudo
 
 Este script debe correr TODOS LOS DIAS. La historia de precios no se puede
 recuperar hacia atras: un dia sin correr es un hueco permanente en la serie.!
@@ -47,29 +48,61 @@ CLIENTS = {
 }
 
 
-def _avisar_si_cae_el_volumen(retailer, n_filas, date_str, umbral=0.5):
+def _avisar_si_cae_el_volumen(retailer, rows, leaves, date_str,
+                              umbral=0.5, umbral_cat=0.15, minimo_cat=50):
     """Compara con la ultima corrida de esta cadena y avisa si se desploma.
 
     Una rotura del parser o un cambio en el arbol de categorias no produce un
     error: produce menos filas. Sin esta comparacion, la corrida termina en
     verde con el 10% de los datos y el hueco se descubre semanas despues,
     cuando ya no se puede rellenar.
+
+    El umbral global del 50% detecta un colapso, no una hoja que se cayo: una
+    categoria de 300 productos que desaparece es -2.5% del total y no suena.
+    Por eso se compara ademas por categoria raiz y por hoja recorrida: es lo
+    que delata el cambio el mismo dia, cuando todavia se puede revisar.
     """
     import csv
+    from collections import Counter
 
     previos = sorted(storage.DAILY_DIR.glob(f"*__{retailer}.csv"))
     previos = [f for f in previos if not f.name.startswith(date_str)]
     if not previos:
         return
     with open(previos[-1], encoding="utf-8") as fh:
-        anterior = sum(1 for _ in csv.DictReader(fh))
-    if anterior and n_filas < anterior * umbral:
+        anteriores = list(csv.DictReader(fh))
+    n_ant, n_hoy = len(anteriores), len(rows)
+    if n_ant and n_hoy < n_ant * umbral:
         log.warning(
             "%s: CAIDA DE VOLUMEN. %d filas hoy vs %d en %s (-%.0f%%). "
             "Revisar el parser ANTES de fiarse de estos datos.",
-            retailer, n_filas, anterior, previos[-1].name,
-            100 * (1 - n_filas / anterior),
+            retailer, n_hoy, n_ant, previos[-1].name,
+            100 * (1 - n_hoy / n_ant),
         )
+
+    ant_cat = Counter(r.get("category") for r in anteriores)
+    hoy_cat = Counter(r.get("category") for r in rows)
+    for cat, n_c_ant in ant_cat.items():
+        n_c_hoy = hoy_cat.get(cat, 0)
+        if n_c_ant >= minimo_cat and n_c_hoy < n_c_ant * (1 - umbral_cat):
+            log.warning(
+                "%s: categoria '%s' cae de %d a %d filas (-%.0f%%). "
+                "Puede ser la cadena o puede ser el arbol: comparar data/trees.",
+                retailer, cat, n_c_ant, n_c_hoy, 100 * (1 - n_c_hoy / n_c_ant),
+            )
+
+    fecha_ant = previos[-1].name.split("__")[0]
+    arbol_ant = storage.load_tree(retailer, fecha_ant)
+    if arbol_ant and leaves:
+        rutas_ant = {path for _, path in arbol_ant.get("leaves", [])}
+        rutas_hoy = {path for _, path in leaves}
+        perdidas = sorted(rutas_ant - rutas_hoy)
+        if perdidas:
+            log.warning(
+                "%s: %d hojas de %s ya no se recorren hoy (%d nuevas). Ej.: %s",
+                retailer, len(perdidas), fecha_ant, len(rutas_hoy - rutas_ant),
+                "; ".join(x[:50] for x in perdidas[:5]),
+            )
 
 
 def run(retailer, cfg, keywords, excluded, date_str, timestamp, smoke=False):
@@ -92,6 +125,11 @@ def run(retailer, cfg, keywords, excluded, date_str, timestamp, smoke=False):
                 products.append(p)
     else:
         products = client.collect(roots, keywords, excluded)
+        # El arbol se guarda aunque no haya productos: si el catalogo vino
+        # vacio, el arbol es justo lo que explica por que.
+        if client.last_tree:
+            storage.save_tree(client.last_tree, client.last_leaves,
+                              retailer["name"], date_str)
 
     if not products:
         log.error("%s: 0 productos. No se escribe nada.", retailer["name"])
@@ -131,7 +169,7 @@ def run(retailer, cfg, keywords, excluded, date_str, timestamp, smoke=False):
         )
         return len(rows)
 
-    _avisar_si_cae_el_volumen(retailer["name"], len(rows), date_str)
+    _avisar_si_cae_el_volumen(retailer["name"], rows, client.last_leaves, date_str)
 
     storage.save_raw(products, retailer["name"], date_str)
     path = storage.save_daily(rows, retailer["name"], date_str)
@@ -209,6 +247,60 @@ def audit():
         print(f"  categorias: {dict(cats.most_common(5))}")
 
 
+def reprocess(solo_retailer=None):
+    """Re-normaliza todos los CSV diarios desde el JSON crudo.
+
+    Es la razon de ser de la capa de crudo: cuando el parser cambia -- por un
+    bug o porque se extraen campos nuevos -- los dias anteriores se rehacen
+    en vez de tirarse. Sobrescribe data/daily/ y vuelve a aplicar la cache de
+    EAN de Tottus, que es lo unico que no vive en el crudo.
+
+    El timestamp original no esta en el crudo: se rescata del CSV existente.
+    """
+    import csv
+
+    conf = load_config()
+    cfg = {k: v for k, v in conf.items()
+           if k not in ("retailers", "food_keywords", "excluded_keywords")}
+    por_nombre = {r["name"]: r for r in conf["retailers"]}
+
+    archivos = sorted(storage.RAW_DIR.glob("*.json.gz"))
+    if solo_retailer:
+        archivos = [f for f in archivos if f.name.endswith(f"__{solo_retailer}.json.gz")]
+    if not archivos:
+        log.error("No hay crudo que reprocesar.")
+        return 1
+
+    for raw in archivos:
+        date_str, nombre = raw.name[:-len(".json.gz")].split("__", 1)
+        retailer = por_nombre.get(nombre)
+        if not retailer:
+            log.warning("%s: cadena '%s' no esta en la config, se salta", raw.name, nombre)
+            continue
+        _, normalizer = CLIENTS[retailer["platform"]]
+
+        csv_previo = storage.DAILY_DIR / f"{date_str}__{nombre}.csv"
+        timestamp, n_antes = f"{date_str} 00:00:00-0500", 0
+        if csv_previo.exists():
+            with open(csv_previo, encoding="utf-8") as fh:
+                filas_previas = list(csv.DictReader(fh))
+            n_antes = len(filas_previas)
+            if filas_previas and filas_previas[0].get("timestamp"):
+                timestamp = filas_previas[0]["timestamp"]
+
+        rows = normalizer(storage.load_raw(raw), nombre, timestamp)
+        path = storage.save_daily(rows, nombre, date_str)
+        if retailer.get("ean_from_product_page"):
+            eans.apply_cache_to_csv(path, log)
+
+        aviso = ""
+        if n_antes and abs(len(rows) - n_antes) > n_antes * 0.02:
+            aviso = f"  <- OJO: antes tenia {n_antes}"
+        log.info("%s: %d filas reprocesadas (v%s)%s", path.name, len(rows),
+                 rows[0]["scraper_version"] if rows else "?", aviso)
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--retailer", help="solo esta cadena")
@@ -218,6 +310,8 @@ def main():
                     help="rellena card_price en un CSV diario usando navegador")
     ap.add_argument("--backfill-ean", action="store_true",
                     help="resuelve de una vez los EAN pendientes de Tottus")
+    ap.add_argument("--reprocess", action="store_true",
+                    help="re-normaliza data/daily desde data/raw con el parser actual")
     ap.add_argument("--limit", type=int, default=120,
                     help="max fichas a abrir con --card-prices/--backfill-ean")
     args = ap.parse_args()
@@ -225,6 +319,9 @@ def main():
     if args.audit:
         audit()
         return 0
+
+    if args.reprocess:
+        return reprocess(args.retailer)
 
     if args.backfill_ean:
         # Pasada unica: resuelve los EAN pendientes del ultimo CSV de Tottus

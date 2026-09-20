@@ -68,6 +68,11 @@ class VtexClient:
         self.session.headers.update(
             {"User-Agent": USER_AGENT, "Accept": "application/json"}
         )
+        # Lo ultimo que se bajo, para que collect.py lo guarde junto a los
+        # datos. Sin esto, cuando un producto desaparece no se puede saber si
+        # la cadena lo deslisto o si movio la categoria y dejamos de verlo.
+        self.last_tree = None
+        self.last_leaves = []
 
     def _get(self, url, params=None):
         """GET con reintentos y backoff exponencial.
@@ -143,6 +148,7 @@ class VtexClient:
         y cambian cuando la cadena reordena su arbol; los nombres no.
         """
         tree = self.category_tree()
+        self.last_tree = tree
         if not tree:
             self.log.error(
                 "%s: el arbol de categorias vino vacio. Revisar base_url.",
@@ -198,6 +204,7 @@ class VtexClient:
 
         for node in selected:
             walk(node, [], [])
+        self.last_leaves = leaves
         return leaves
 
     def products_in_category(self, fq):

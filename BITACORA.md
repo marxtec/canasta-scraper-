@@ -387,3 +387,168 @@ MODELAMIENTO
 - **Remedir la tasa de entrada a oferta en días hábiles.** Decide si el Modelo B
   es viable a 7 días o hay que alargar la ventana.
 - Decidir si el Modelo C entra o queda como extensión.
+
+---
+
+## 2026-09-20 · ¿Qué cambiar en el scraper para el nuevo objetivo?
+
+Respuesta corta: **poco, y casi todo son adiciones**. La cadencia diaria, la
+sobre-recolección, la capa de crudo, el canal fijo y la caché de EAN fueron
+diseñados para "medir inflación" y sirven igual o mejor para "cómo se forma el
+precio": el Modelo B no existe sin panel diario, y la capa de crudo es lo que
+permitió encontrar todo lo de abajo sin volver a scrapear.
+
+### Lo que el crudo ya contiene y el README dice que no
+
+Revisado sobre `data/raw/2026-09-20__{plaza_vea,metro,vivanda}.json.gz`.
+
+**1. El precio con tarjeta SÍ está en la API.** Los teasers de Metro traen el
+porcentaje y la vigencia:
+
+```
+[TCENCO] Set26 - Supermercado - Con 5% Dscto Con TC Metro del 01al30 Setiembre   2.135
+[TCENCO] Set26 - Supermercado - Con 10% Dscto Con TC Metro del 01al30 Setiembre  1.388
+[TCENCO] Set26 - Supermercado - Con 8% Dscto ...                                   315
+[TCENCO] Set26 - Supermercado - Con 4% Dscto ...                                   127
+```
+
+`card_price = price x (1 - pct)`. El ejemplo del README (S/17.76 con tarjeta
+vs S/18.50) es exactamente 4%, el tier que aparece ahí. **`browser.py` es
+innecesario para Cencosud** (Metro y, casi seguro, Wong). La sección "card_price
+no disponible como número" del README está equivocada para estas cadenas.
+
+**2. Los teasers traen ventana de vigencia** (`del 01al30`, `del 17al28`).
+Es `promo_end`: para el Modelo B, saber cuándo termina la oferta.
+
+**3. Un tipo de promo invisible hoy.** Plaza Vea `"Promo paga x lleva y"` en
+156 productos: el precio unitario no cambia, `on_sale = False`, el panel no la
+ve. `"con Tarjeta Oh!"` en 185: flag sin monto.
+
+**4. Features ya descargadas y no extraídas:**
+
+| Campo | Cobertura | Uso |
+|---|---|---|
+| Metro `Octogonos` | 37% | Feature: lo ultraprocesado se promociona distinto |
+| Metro `Origen` Nacional/Importado | 75% | Feature |
+| Plaza Vea `Vendido por: Marcas Aliadas` | **13%** | Terceros del marketplace |
+| Vivanda `Contenido Neto` | 33% | Validar el parser de gramaje contra dato declarado |
+| `measurementUnit=kg, unitMultiplier=0.25` | ~200/cadena | Peso variable: el multiplicador es el peso real; el parser hoy lo trata como 1 kg |
+
+**5. `referenceId` NO rescata EANs faltantes**: 0 casos en las tres cadenas.
+Confirma que el emparejamiento por modelo es necesario; no hay atajo.
+
+### Cambios al scraper — lo irreversible, hacer ya
+
+**A. Guardar el árbol de categorías por corrida.** Se baja cada día y se
+descarta. Cuando un producto desaparece (~442/día) no se puede distinguir
+"la cadena lo deslistó" de "reorganizó el árbol y el scraper dejó de verlo".
+Para el Modelo B, un hueco por reorganización trunca la duración de la oferta.
+Pesa KB. Es lo único de esta lista que no se recupera después.
+
+**B. Guardia de volumen por categoría raíz, no global.** El 50% detecta un
+colapso, no una hoja que se cayó (-5%). Comparar hojas y filas por raíz contra
+la corrida anterior, avisar a -15%. Va en `_avisar_si_cae_el_volumen`.
+
+**Verificar:** cruzar `Vendido por: Marcas Aliadas` (13%) con `seller_name`.
+El README midió 5 de 396 filas de terceros; si `_best_seller` no captura esos
+1.599, hay precios de terceros entrando como precio de Plaza Vea y contaminan
+el Modelo A.
+
+### Cambios a `normalize` — recuperables, reprocesando el crudo
+
+- `card_price` derivado del % del teaser (Cencosud).
+- `promo_end` parseado del teaser.
+- `promo_type`: `descuento` / `paga_x_lleva_y` / `tarjeta`.
+- Columnas nuevas: `octogonos`, `origen`, `vendido_por`, `contenido_neto_declarado`.
+- Peso variable: usar `unitMultiplier` cuando `measurementUnit == 'kg'`.
+
+Todo se aplica hacia atrás sobre los `.json.gz` existentes.
+
+### Retirar
+
+**`browser.py` sale del camino crítico.** Su única justificación era el precio
+con tarjeta, y está en la API para Cencosud. Queda como opcional para los 185
+de "Tarjeta Oh!".
+
+### Abierto
+
+- Verificar `Marcas Aliadas` vs `seller_name` antes de tocar nada.
+- Confirmar que los teasers de Wong tienen el mismo formato que Metro.
+- Corregir el README: la sección de `card_price` y la de navegador.
+
+---
+
+## 2026-09-20 · Aplicar los cambios al scraper (todo menos retirar `browser.py`)
+
+Se aplicaron los puntos 1–8 de la entrada anterior. `browser.py` se queda por
+decisión del equipo.
+
+### Tres verificaciones previas, una me corrigió
+
+| Duda | Resultado |
+|---|---|
+| ¿Los 1.599 "Marcas Aliadas" de Plaza Vea contaminan `seller_name`? | **No.** `_best_seller` ya los separa: en 793 Plaza Vea es el vendedor real (la etiqueta es marketing) y los ~800 restantes salen con su tercero. Terceros reales: ~7%, no el 1% del README. Sin cambio en el código. |
+| ¿Wong tiene el mismo formato de teaser que Metro? | **Sí**, con variantes (`20% dscto Con TC BBVA Wong`) y ventanas de **fin de semana** (`del 18al20`). |
+| ¿`unitMultiplier=0.25` significa que el parser pone 1 kg donde son 250 g? | **No, estaba equivocado.** `Plátano x kg, mult=0.16, price=2.99`: S/2.99 es por kilo (S/18.7/kg sería absurdo); el multiplicador es cuánto pesa una unidad en el carrito. El parser hace lo correcto. Se guarda el multiplicador como columna, no se toca `net_quantity`. |
+
+### Lo que cambió
+
+**`normalize.py` → v1.2, 22 → 30 columnas.**
+- `card_price` derivado del `%` del teaser cuando menciona tarjeta. Test de
+  regresión con el caso real del README: S/18.50 con 4% = S/17.76.
+- `promo_start` / `promo_end` desde `del 01al30 Setiembre`. Si hay varios
+  teasers gana el mayor descuento y la ventana es la de ese mismo teaser.
+- `promo_type`: `descuento` · `tarjeta` · `paga_x_lleva_y`.
+- `vendido_por`, `origen`, `octogonos`, `contenido_neto_declarado` desde las
+  especificaciones sueltas de VTEX, tal cual las publica la cadena.
+- `unit_multiplier`.
+
+**`storage.py` → tercera capa `data/trees/`.** Árbol completo + hojas
+recorridas por cadena y día. `vtex.py` y `catalyst.py` exponen `last_tree`
+y `last_leaves`; `collect.py` los guarda aunque el catálogo venga vacío.
+
+**`collect.py` → guardia de volumen en tres niveles.** Global (50%), por
+categoría raíz (15%, mínimo 50 filas) y por hoja recorrida contra el árbol de
+la corrida anterior. Probado offline: dispara con Lácteos −40% y una hoja
+perdida, calla con el total a −17%.
+
+**`collect.py --reprocess`.** Re-normaliza `data/daily/` desde `data/raw/`
+con el parser actual, rescatando el timestamp del CSV existente y volviendo a
+aplicar la caché de EAN de Tottus. Es el comando que faltaba para que la capa
+de crudo cumpla su promesa.
+
+**`scrape.yml`** copia `data/trees/` al commit del CI. Sin esto los árboles
+se generarían en el runner y se perderían.
+
+**README** corregido: `card_price` sí está en la API para Cencosud; la
+sección del navegador queda para las cadenas que no publican el porcentaje.
+
+### Resultado del reprocesamiento (10 archivos, mismas filas que antes)
+
+```
+cadena      card_price  promo_end   pxl  vend_por  origen  octog  cont.neto
+metro              43%        43%  0.0%        0%     75%    37%        0%
+plaza_vea           0%         0%  1.3%      100%     15%     0%       33%
+tottus              3%         0%  0.0%        0%      0%     0%        0%
+vivanda             0%         0%  0.0%        0%     13%     0%       33%
+wong               22%        22%  0.0%        0%     71%    34%        0%
+```
+
+Los 156 `paga_x_lleva_y` de Plaza Vea que antes eran invisibles ahora están
+etiquetados (65 con descuento, 10 con descuento y tarjeta, 81 solos).
+
+### Lo que esto habilita
+
+- **Modelo B** tiene `promo_end`: para el 43% de Metro y el 22% de Wong sabe
+  cuándo termina la oferta en vez de adivinarlo.
+- **Modelo A** tiene `octogonos`, `origen` y `vendido_por` como features, y
+  puede filtrar terceros con `seller_name`.
+- El panel deja de subcontar promociones en Plaza Vea.
+- Un cambio en el árbol de una cadena se detecta el mismo día.
+
+### Abierto
+
+- Sin commitear: el push sigue bloqueado hasta que Marx dé acceso.
+- Apareció `resumen_bitacora.tex` sin versionar en la raíz; no lo creé yo.
+- Primera corrida real con `data/trees/` será la del cron de mañana: revisar
+  que el commit del CI los incluya.

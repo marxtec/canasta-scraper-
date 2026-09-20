@@ -10,16 +10,22 @@ que parsearlo de ahi. Es la parte mas fragil del pipeline: revisar la tasa de
 exito con `python3 collect.py --audit`.
 """
 
+import datetime as dt
 import json
 import re
+import unicodedata
 
-SCRAPER_VERSION = "1.1"
+# 1.2: card_price y ventana de promo desde los teasers; promo_type; specs de
+# VTEX (vendido_por, origen, octogonos, contenido neto); unit_multiplier.
+SCRAPER_VERSION = "1.2"
 
 COLUMNS = [
     "timestamp", "retailer", "product_id", "item_id", "product_name", "brand",
-    "category", "category_path", "net_quantity", "unit", "price",
-    "regular_price", "card_price", "on_sale", "available", "available_qty",
-    "ean", "url", "teasers", "seller_id", "seller_name", "scraper_version",
+    "category", "category_path", "net_quantity", "unit", "unit_multiplier",
+    "price", "regular_price", "card_price", "on_sale", "available",
+    "available_qty", "ean", "url", "teasers", "promo_type", "promo_start",
+    "promo_end", "seller_id", "seller_name", "vendido_por", "origen",
+    "octogonos", "contenido_neto_declarado", "scraper_version",
 ]
 
 # Techo de cordura para kg/l. Una canasta de alimentos no tiene envases de
@@ -97,6 +103,97 @@ _BONUS = re.compile(
     r"(\d+(?:[.,]\d+)?)\s*(" + _UNIT_ALT + r")\b",
     re.IGNORECASE,
 )
+
+
+# Promocion con tarjeta, tal como la publica VTEX en los teasers de Cencosud:
+#   "[TCENCO] Set26 - Supermercado - Con 5% Dscto Con TC Metro del 01al30 Setiembre"
+#   "Wong - Abarrotes Bebibles - 20% dscto Con TC BBVA Wong del 10al14 Setiembre"
+# El monto no viene, pero el porcentaje si, y basta: card_price = price*(1-pct).
+# Verificado contra la ficha renderizada en Metro: S/18.50 con "4% Dscto" da
+# S/17.76, que es lo que muestra la web. Esto vuelve innecesario el navegador
+# para Metro y Wong; Plaza Vea solo publica "con Tarjeta Oh!" sin porcentaje.
+_CARD_PCT = re.compile(r"(\d{1,2})\s*%\s*dscto", re.IGNORECASE)
+_CARD_HINT = re.compile(r"\bTC\b|tarjeta", re.IGNORECASE)
+
+# "del 01al30 Setiembre", "del 18al20 Setiembre", "del 10 al 14 de octubre".
+# La vigencia es lo mas valioso del teaser: dice CUANDO termina la oferta.
+_PROMO_WINDOW = re.compile(
+    r"\bdel\s*(\d{1,2})\s*al\s*(\d{1,2})\s*(?:de\s+)?([a-záéíóú]+)",
+    re.IGNORECASE,
+)
+_MESES = {
+    "enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6,
+    "julio": 7, "agosto": 8, "setiembre": 9, "septiembre": 9, "octubre": 10,
+    "noviembre": 11, "diciembre": 12,
+}
+
+
+def _plain(text):
+    nfkd = unicodedata.normalize("NFKD", text or "")
+    return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+
+def promo_window(text, year):
+    """(inicio, fin) en ISO desde "del 01al30 Setiembre", o (None, None).
+
+    El teaser no trae el anio; se toma el de la corrida. Si el dia final es
+    menor que el inicial ("del 28al02") la ventana cruza de mes.
+    """
+    m = _PROMO_WINDOW.search(text or "")
+    if not m:
+        return None, None
+    d1, d2 = int(m.group(1)), int(m.group(2))
+    mes = _MESES.get(_plain(m.group(3)))
+    if not mes:
+        return None, None
+    mes2, anio2 = (mes + 1, year) if d2 < d1 else (mes, year)
+    if mes2 > 12:
+        mes2, anio2 = 1, year + 1
+    try:
+        return dt.date(year, mes, d1).isoformat(), dt.date(anio2, mes2, d2).isoformat()
+    except ValueError:
+        return None, None
+
+
+def card_promo(teasers, year):
+    """(pct, inicio, fin) de la mejor promo de tarjeta entre los teasers.
+
+    Si hay varias (Wong suele tener la mensual y una de fin de semana) se
+    queda con la de mayor descuento, y la ventana es la de ESE teaser, para
+    que card_price y promo_end describan la misma promocion.
+    """
+    best = None
+    for t in teasers or []:
+        if not _CARD_HINT.search(t):
+            continue
+        m = _CARD_PCT.search(t)
+        if not m:
+            continue
+        pct = int(m.group(1))
+        if 0 < pct < 100 and (best is None or pct > best[0]):
+            best = (pct, t)
+    if not best:
+        return None, None, None
+    pct, t = best
+    start, end = promo_window(t, year)
+    return pct, start, end
+
+
+def _specs(product):
+    """{clave sin tildes: "v1;v2"} de las especificaciones de VTEX.
+
+    VTEX no las agrupa: cuelgan como claves sueltas del producto, cada una
+    con una lista de strings ("Octogonos": ["AZUCAR"], "Vendido por":
+    ["Marcas Aliadas"]). El nombre exacto varia por cadena, por eso se
+    normaliza la clave y se consulta por variantes.
+    """
+    out = {}
+    for k, v in product.items():
+        if isinstance(v, list) and v and all(isinstance(x, str) for x in v):
+            joined = ";".join(x.strip() for x in v if x.strip())
+            if joined:
+                out[_plain(k)] = joined
+    return out
 
 
 def _base_measures(name):
@@ -236,12 +333,24 @@ def _teaser_names(offer):
 
 def normalize(products, retailer, timestamp):
     """Aplana la respuesta de VTEX. Un item (SKU) = una fila."""
+    try:
+        year = int(str(timestamp)[:4])
+    except ValueError:
+        year = dt.date.today().year
+
     rows = []
     for p in products:
         brand = p.get("brand")
         cat_path = p.get("_category_path", "")
         category = cat_path.split(" > ")[0] if cat_path else None
         link = p.get("link") or p.get("linkText")
+
+        specs = _specs(p)
+        # Plaza Vea publica el tipo de promo como especificacion, no como
+        # teaser. "Paga x lleva y" no mueve el precio unitario, asi que sin
+        # esto on_sale la ignora y el panel subcuenta promociones.
+        paga_lleva = "paga x lleva" in specs.get("descuentos", "").lower()
+        tarjeta_oh = "tarjeta" in specs.get("descuentos exclusivos", "").lower()
 
         for item in p.get("items") or []:
             offer, seller = _best_seller(item)
@@ -262,6 +371,18 @@ def normalize(products, retailer, timestamp):
             qty, unit = parse_quantity(name)
             teasers = _teaser_names(offer)
             ean = (item.get("ean") or "").strip()
+            on_sale = bool(regular and price and regular > price)
+
+            pct, promo_start, promo_end = card_promo(teasers, year)
+            card_price = round(price * (1 - pct / 100), 2) if pct and price else None
+
+            flags = []
+            if on_sale:
+                flags.append("descuento")
+            if pct or tarjeta_oh:
+                flags.append("tarjeta")
+            if paga_lleva:
+                flags.append("paga_x_lleva_y")
 
             rows.append({
                 "timestamp": timestamp,
@@ -274,22 +395,35 @@ def normalize(products, retailer, timestamp):
                 "category_path": cat_path,
                 "net_quantity": qty,
                 "unit": unit,
+                # Para peso variable (measurementUnit=kg) es cuanto pesa una
+                # unidad en el carrito: un platano 0.16, una bandeja 0.25. El
+                # precio sigue siendo por kilo; esto permite calcular el
+                # precio por pieza sin tocar net_quantity.
+                "unit_multiplier": item.get("unitMultiplier"),
                 "price": price,
                 "regular_price": regular,
-                # card_price: VTEX no lo expone como numero limpio. Los teasers
-                # dicen que HAY promo de tarjeta, no cuanto. Se deja vacio a
-                # proposito en vez de inventarlo.
-                "card_price": None,
-                "on_sale": bool(regular and price and regular > price),
+                # Derivado del porcentaje del teaser (Cencosud). Vacio si la
+                # cadena no publica el porcentaje: no se inventa.
+                "card_price": card_price,
+                "on_sale": on_sale,
                 "available": bool(offer.get("IsAvailable")),
                 "available_qty": offer.get("AvailableQuantity"),
                 "ean": ean or None,
                 "url": link,
                 "teasers": json.dumps(teasers, ensure_ascii=False) if teasers else None,
+                "promo_type": ";".join(flags) or None,
+                "promo_start": promo_start,
+                "promo_end": promo_end,
                 # Se guardan para poder auditar despues si algun precio vino
                 # de un tercero del marketplace y no de la cadena.
                 "seller_id": seller.get("sellerId"),
                 "seller_name": seller.get("sellerName"),
+                # Especificaciones que VTEX ya entrega y antes se descartaban.
+                # Tal cual las publica la cadena: el scraper no corrige.
+                "vendido_por": specs.get("vendido por"),
+                "origen": specs.get("origen") or specs.get("pais de origen"),
+                "octogonos": specs.get("octogonos"),
+                "contenido_neto_declarado": specs.get("contenido neto"),
                 "scraper_version": SCRAPER_VERSION,
             })
     return rows
