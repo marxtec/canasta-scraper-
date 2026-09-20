@@ -30,6 +30,7 @@ pip install -r requirements.txt
 python3 collect.py --smoke      # prueba rápida, 2 categorías
 python3 collect.py              # corrida completa
 python3 collect.py --audit      # calidad de lo recolectado
+python3 tests/test_scraper.py   # tests (sin red, sin dependencias extra)
 python3 collect.py --retailer metro   # una sola cadena
 ```
 
@@ -43,6 +44,7 @@ canasta/browser.py     Playwright: precio con tarjeta (paso aparte, opcional)
 canasta/normalize.py   JSON de VTEX -> filas planas (esquema de la slide 6)
 canasta/storage.py     Guardado en dos capas
 collect.py             Orquestador. Es el que corre a diario
+tests/test_scraper.py  Tests del parser y la normalización
 config/retailers.yml   Cadenas, canal de venta, categorías
 data/raw/              JSON crudo comprimido
 data/daily/            CSV normalizado, una fila por SKU por día

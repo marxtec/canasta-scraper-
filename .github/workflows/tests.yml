@@ -1,0 +1,36 @@
+name: Tests
+
+# Corre en cada push y PR. No toca la red: valida el parser y la
+# normalizacion, que es donde un error contamina datos en silencio.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Tests
+        run: python tests/test_scraper.py
+      - name: La config debe ser YAML valido y coherente
+        run: |
+          python - <<'PY'
+          import yaml
+          conf = yaml.safe_load(open("config/retailers.yml"))
+          activos = [r for r in conf["retailers"] if r.get("enabled")]
+          assert activos, "ninguna cadena activa"
+          for r in conf["retailers"]:
+              for campo in ("name", "base_url", "platform", "enabled"):
+                  assert campo in r, f"{r.get('name')}: falta {campo}"
+              assert r["platform"] in ("vtex", "falabella_catalyst"), r["platform"]
+          assert conf["food_keywords"], "sin food_keywords"
+          print(f"config OK: {len(activos)} cadenas activas de {len(conf['retailers'])}")
+          PY
