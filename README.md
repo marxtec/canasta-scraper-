@@ -133,6 +133,80 @@ Documentados porque costaron depuración y no están en la documentación obvia:
 
 ---
 
+## Por qué no se scrapea el HTML de las páginas
+
+Sí es *web scraping*: son endpoints internos, no documentados, sin API key ni
+términos de uso que los habiliten — los mismos que la web usa para pintarse.
+En la literatura esto es *API scraping* o *scraping de API no documentada*, y
+es una técnica de scraping, no una alternativa a ella. De hecho en Tottus se
+parsea HTML directamente (ver abajo). Lo que no se hace es reconstruir los
+datos desde el HTML **renderizado**, y la razón principal no es de estilo.
+
+### El precio no está en el HTML
+
+Las cinco webs son aplicaciones React/Next.js: el servidor manda un esqueleto
+y el precio lo pinta JavaScript, pidiéndolo a la misma API que usa este
+scraper. Medido con un GET simple (verificado 2026-09-19):
+
+| Página | HTML | Precios en el HTML |
+|---|---|---|
+| Vivanda portada | 921 KB | **102** (~90 productos de carrusel) |
+| Vivanda ficha de producto | 301 KB | **0** |
+| Plaza Vea portada | 79 KB | **0** |
+| Plaza Vea categoría | 66 KB | **0** |
+| Metro portada | 4.508 KB | **0** |
+| Metro categoría | 13.504 KB | **0** |
+| Tottus categoría | — | HTTP 503 |
+
+La única página que entrega precios es una portada promocional con ~90
+productos. Los listados de categoría y las fichas —las que harían falta para
+recorrer las 1.632 categorías hoja— dan **cero**.
+
+### ¿Sería imposible entonces? No, pero sería peor
+
+Con un navegador headless (Playwright, Selenium) los precios aparecerían:
+ejecutaría el JavaScript que llama a la API. **Esa vía no se probó**, así que
+no se afirma que sea inviable. Se afirma que sería dar toda la vuelta para
+terminar en el mismo endpoint, y que pierde en todo lo que importa acá:
+
+1. **Faltarían campos que la página no muestra.** De la API salen `ean`,
+   `ListPrice`, `AvailableQuantity`, `sellerDefault`, `itemId`. El EAN es la
+   llave de emparejamiento entre cadenas, el núcleo analítico de la
+   propuesta, y **no aparece en la página renderizada**. Tampoco si el precio
+   es del supermercado o de un tercero del marketplace (ver §5).
+
+2. **Costo.** Misma categoría de Metro: 1.795 KB de JSON con 50 productos
+   completos, contra 13.504 KB de HTML sin precios utilizables. Son 1.632
+   hojas al día. Con navegador, cada página cuesta segundos de CPU en vez de
+   milisegundos, y el job de CI pasa de minutos a horas.
+
+3. **Fragilidad.** Un `class="price-tag__value"` cambia con cualquier
+   rediseño y el scraper se rompe en silencio. Un campo
+   `commertialOffer.Price` no puede cambiar sin romper la web de la propia
+   cadena, porque su frontend lo consume. Es un contrato más estable.
+
+4. **Cortesía.** Pedir HTML renderizado es ~8x más carga para sus servidores
+   a cambio de menos información.
+
+### Dónde sí se parsea HTML
+
+La regla no fue "nunca HTML", fue **ir donde está el dato**. En Tottus, dos
+cosas no están en el JSON y se sacan del HTML:
+
+- El árbol de categorías, extraído del `<script id="__NEXT_DATA__">`.
+- El EAN, con regex sobre `okayToShopBarcodes` en la ficha de producto.
+
+### Lo único que el HTML tiene y el JSON no
+
+El **precio con tarjeta** de la cadena. VTEX expone `Teasers` diciendo que
+*hay* promoción (`"Promo Oh-Pay"`) pero no cuánto; en la página renderizada a
+veces sí se ve el monto. Es el único argumento real a favor de renderizar, y
+está ligado a la decisión §1 de abajo. Si se decide que la canasta debe medir
+precio con tarjeta, ahí sí habría que sumar un navegador para un subconjunto
+pequeño de SKU. Hoy `card_price` queda vacío a propósito en vez de inventarlo.
+
+---
+
 ## Decisiones metodológicas pendientes
 
 Estas **no** son de programación y hay que cerrarlas antes de escribir el
