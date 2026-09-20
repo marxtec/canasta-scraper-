@@ -7,7 +7,7 @@
     python3 collect.py --audit              # calidad del ultimo CSV
 
 Este script debe correr TODOS LOS DIAS. La historia de precios no se puede
-recuperar hacia atras: un dia sin correr es un hueco permanente en la serie.
+recuperar hacia atras: un dia sin correr es un hueco permanente en la serie.!
 """
 
 import argparse
