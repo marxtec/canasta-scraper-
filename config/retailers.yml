@@ -165,7 +165,22 @@ request_timeout: 60
 max_retries: 4
 
 # Fichas de producto que se consultan por corrida para resolver EAN (solo
-# Tottus). El EAN es estatico: una vez en cache no se vuelve a pedir. A 400
-# por dia el catalogo de alimentos queda cubierto en ~2 semanas, mientras los
-# PRECIOS se capturan completos desde el primer dia.
-ean_budget_per_run: 400
+# Tottus: las otras cuatro cadenas lo traen en el listado, gratis).
+#
+# No hay via masiva, verificado 2026-09-20: no existe endpoint bulk
+# (/s/product/v1 da 503), el listado no acepta parametros para pedir mas
+# campos, y el sitemap de fichas solo trae URLs y fechas, sin GTIN. Ficha
+# por ficha es la unica forma.
+#
+# A 1500 por corrida las ~11.900 fichas de alimentos quedan cubiertas en
+# ~8 dias. El EAN es estatico: una vez en cache no se vuelve a pedir, asi
+# que despues el coste diario cae a casi cero (solo SKU nuevos).
+#
+# robots.txt de Tottus permite explicitamente las fichas de producto; solo
+# bloquea /basket, /myaccount, /checkout y /orders. Verificado 2026-09-20.
+ean_budget_per_run: 1500
+
+# Ritmo para las fichas de EAN. Mas rapido que el del catalogo (1.5s) porque
+# son paginas estaticas y sueltas, pero sigue siendo 1 peticion por segundo:
+# menos que una persona navegando. No bajar de 1.0 sin una buena razon.
+ean_rate_limit_seconds: 1.0

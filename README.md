@@ -290,9 +290,16 @@ cobertura es muy desigual y eso condiciona el método:
 
 Tottus no publica EAN en su API de listado, solo en la ficha de producto. Se
 resuelve con `canasta/eans.py`: caché persistente en `data/ean_tottus.json`,
-con presupuesto de `ean_budget_per_run` fichas por corrida (400 por defecto).
-El catálogo de alimentos queda cubierto en ~2 semanas y desde ahí el coste
-diario es casi cero, porque solo se consultan los SKU nuevos. Los **precios**
+con presupuesto de `ean_budget_per_run` fichas por corrida (1.500 por
+defecto, a 1 petición/segundo). Las ~11.900 fichas quedan cubiertas en ~8
+días y desde ahí el coste diario cae a casi cero, porque solo se consultan
+los SKU nuevos.
+
+**No hay vía masiva** (verificado 2026-09-20): no existe endpoint bulk
+(`/s/product/v1` da 503), el listado no acepta parámetros para pedir más
+campos, y el sitemap de fichas trae solo URLs y fechas, sin GTIN. El
+`robots.txt` de Tottus sí permite explícitamente las fichas de producto;
+solo bloquea `/basket`, `/myaccount`, `/checkout` y `/orders`. Los **precios**
 se capturan completos desde el primer día: el EAN solo hace falta al
 emparejar cadenas, que es análisis posterior y sí se puede hacer hacia atrás.
 

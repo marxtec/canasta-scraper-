@@ -19,7 +19,9 @@ jobs:
   # una cadena caida deja de arrastrar a las otras cuatro.
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Tottus es el techo: ~25 min de catalogo + ~25 min de fichas de EAN.
+    # El resto termina en menos de 20.
+    timeout-minutes: 75
     strategy:
       fail-fast: false      # que Tottus falle no debe cancelar Plaza Vea
       matrix:

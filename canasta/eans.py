@@ -100,7 +100,7 @@ def enrich(rows, cfg, log, session=None):
         if ean:
             row["ean"] = ean
             nuevos += 1
-        time.sleep(cfg.get("rate_limit_seconds", 1.5))
+        time.sleep(cfg.get("ean_rate_limit_seconds", cfg.get("rate_limit_seconds", 1.5)))
 
     save_cache(cache)
     log.info(
