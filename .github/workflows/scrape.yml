@@ -2,9 +2,21 @@ name: Recoleccion diaria de precios
 
 on:
   schedule:
-    # 13:00 UTC = 08:00 Lima. Misma hora siempre: si la hora de captura
-    # cambia, la serie tiene ruido que no es inflacion.
-    - cron: "0 13 * * *"
+    # VARIOS INTENTOS A PROPOSITO.
+    #
+    # GitHub NO garantiza que un workflow programado se ejecute: los encola y
+    # puede descartarlos en horas de carga alta. Verificado en este repo el
+    # 2026-09-20: el cron de las 13:00 UTC no disparo ni una sola vez.
+    #
+    # La hora en punto es la peor (todos programan ahi), asi que se usan
+    # minutos impares. Y se intenta cuatro veces: el job se salta solo si los
+    # datos de hoy ya estan en el repo, asi que los intentos extra no
+    # recolectan dos veces. Es la unica forma de que un dia no se pierda por
+    # un encolamiento de GitHub.
+    - cron: "7 13 * * *"    # 08:07 Lima  <- intento principal
+    - cron: "23 15 * * *"   # 10:23 Lima  <- red de seguridad
+    - cron: "41 18 * * *"   # 13:41 Lima
+    - cron: "13 22 * * *"   # 17:13 Lima  <- ultimo intento del dia
   workflow_dispatch:      # permite lanzarlo a mano desde la pestana Actions
 
 # Evita que dos corridas se pisen si una se atrasa
@@ -13,11 +25,46 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Decide si hay que recolectar. Con varios cron al dia, este guardia es lo
+  # que evita recolectar dos veces: si los CSV de hoy ya estan en el repo, los
+  # intentos posteriores no hacen nada.
+  decidir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      recolectar: ${{ steps.check.outputs.recolectar }}
+      fecha: ${{ steps.check.outputs.fecha }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          # Fecha de Lima (UTC-5), no la del runner
+          FECHA=$(TZ=America/Lima date +%Y-%m-%d)
+          echo "fecha=$FECHA" >> "$GITHUB_OUTPUT"
+          # Se exige que esten TODAS las cadenas activas, no solo alguna:
+          # si una corrida quedo a medias, el siguiente intento la completa.
+          FALTAN=0
+          for R in plaza_vea metro wong vivanda tottus; do
+            if [ ! -f "data/daily/${FECHA}__${R}.csv" ]; then
+              echo "falta: ${FECHA}__${R}.csv"
+              FALTAN=1
+            fi
+          done
+          if [ "$FALTAN" = "1" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "recolectar=si" >> "$GITHUB_OUTPUT"
+            echo "::notice::Recolectando datos de $FECHA"
+          else
+            echo "recolectar=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::Los datos de $FECHA ya estan completos. No se hace nada."
+          fi
+
   # Una cadena por job, en paralelo. Secuencialmente son ~69 min medidos
   # (Tottus 25, Plaza Vea 18, el resto ~9 cada una) y el job entero quedaba
   # al borde del timeout. En paralelo ninguna pasa de ~30 min y, sobre todo,
   # una cadena caida deja de arrastrar a las otras cuatro.
   scrape:
+    needs: decidir
+    if: needs.decidir.outputs.recolectar == 'si'
     runs-on: ubuntu-latest
     # Tottus es el techo: ~25 min de catalogo + ~25 min de fichas de EAN.
     # El resto termina en menos de 20.
@@ -53,8 +100,10 @@ jobs:
   # Un solo job commitea. Cinco jobs empujando a la misma rama se pisan entre
   # si y el perdedor descarta su dia.
   commit:
-    needs: scrape
-    if: always()            # commitea lo que SI se recolecto, aunque falte una cadena
+    needs: [decidir, scrape]
+    # Commitea lo que SI se recolecto, aunque falte una cadena. Se salta si no
+    # habia nada que recolectar.
+    if: always() && needs.decidir.outputs.recolectar == 'si'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
