@@ -1,4 +1,4 @@
-# Canasta de la semana en Lima
+# Canasta de la semana en Lima:D
 
 Panel diario de precios de alimentos en supermercados de Lima.
 Propuesta 2 — Analítica de la Web, Universidad del Pacífico, 2026-II.
