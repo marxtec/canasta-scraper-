@@ -70,9 +70,13 @@ Comprimido ocupa ~80 KB por cadena por día.
 | **Wong** | VTEX | 266 | 100% | 100% | `sc=70` (no 1) |
 | **Vivanda** | VTEX | 309 | 100% | 82% | host canónico, no el front público |
 | **Tottus** | Falabella Catalyst | 448 | 100% | caché | cliente propio, sin navegador |
-| Flora & Fauna | VTEX | 198 | 100% | 100% | **segmento premium**, no mezclar |
 
-Las seis se recolectan en una sola corrida, **~1.830 categorías hoja**.
+Las cinco se recolectan en una sola corrida, **1.632 categorías hoja**.
+
+Se evaluó **Flora & Fauna** (VTEX, funciona, 198 hojas) y se **descartó**: es
+tienda orgánica/premium, no supermercado de canasta básica. Queda en
+`config/retailers.yml` como `enabled: false` por si más adelante interesa una
+serie del segmento premium.
 
 ### Cadenas de descuento y mayoristas: no publican precios
 

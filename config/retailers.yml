@@ -71,20 +71,18 @@ retailers:
     enabled: true
     food_categories: []
 
-  # Flora & Fauna: VTEX, sc=1, 198 hojas de alimentos. NO es mayorista ni
-  # supermercado masivo: es tienda organica/premium (hongos deshidratados a
-  # S/29 los 100 g). Se recolecta por el principio de sobre-recolectar --
-  # bajarla cuesta ~7 min en un job paralelo y su serie no se puede
-  # reconstruir despues -- pero da un SEGMENTO DISTINTO.
-  #
-  # NO mezclar sus precios en el indice de canasta basica sin justificarlo:
-  # su surtido no es comparable con Metro o Mass. Sirve como serie aparte
-  # (premium/organico) o como control. Verificado 2026-09-20.
+  # Flora & Fauna: tecnicamente funciona (VTEX, sc=1, 198 hojas, 100% precio
+  # y EAN) pero se EXCLUYE a proposito: es tienda organica/premium (hongos
+  # deshidratados a S/29 los 100 g), no un supermercado de canasta basica.
+  # Su surtido no es comparable con el de Metro o Plaza Vea y meterlo al
+  # panel ensuciaria el indice. Se deja configurada y desactivada por si el
+  # dia de manana interesa una serie del segmento premium.
+  # Verificado y descartado 2026-09-20.
   - name: florayfauna
     base_url: https://www.florayfauna.pe
     platform: vtex
     sales_channel: 1
-    enabled: true
+    enabled: false
     segmento: premium
     food_categories: []
 
