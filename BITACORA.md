@@ -721,3 +721,106 @@ acumulado, sin cambiar umbrales.
 La rigidez de precios (0,44 % de cambio diario entre sábado y domingo)
 no entra en el preregistro porque no hay ninguna transición entre días
 hábiles: la primera será la del 21 al 22 de septiembre.
+
+---
+
+## 2026-09-21 · Cierre: la maquinaria de análisis, construida y probada
+
+El panel tiene dos días y en noviembre tendrá sesenta. El encargo no era
+producir resultados finales sino dejar **todo el análisis construido,
+probado y listo** para volver a correrlo sin tocar una línea. Esto es lo
+que quedó.
+
+### Qué se construyó
+
+Paquete `analisis/`, aparte del recolector (que no se tocó: `collect.py`,
+`vtex.py`, `catalyst.py`, `eans.py`, `storage.py` y `retailers.yml` están
+intactos; `browser.py` solo ganó un *context manager* de arranque que
+reutiliza la auditoría). Dependencias en `requirements-analisis.txt`; el
+scraper sigue con requests + PyYAML.
+
+| Bloque | Módulo | Qué deja |
+|---|---|---|
+| 1 | `oferta_real.py` | referencia = mediana móvil 45 d, `oferta_real`, `tachado_permanente`, `fiable` (21 obs.) |
+| 2 | `rigidez.py` | tasas de cambio/oferta/catálogo por transición, hábil vs fin de semana, tamaño y bimodalidad, positivos del Modelo B a 7/14/30 d |
+| 3 | `dispersion.py` | pares, brecha con masa en cero, SD log (G&T), descomposición de varianza en dos órdenes, evolución diaria, `.tex` y figuras |
+| 4 | `auditoria_validez.py` + workflow semanal | muestra reproducible, ficha en navegador, concordancia, vendedor, bloqueos; acumulado |
+| 5 | `precios_faltantes.py` | huecos por tipo (usa `data/trees/`), canasta bajo tres reglas y contraste |
+| 7 | `run_all.py` | todo lo anterior de una pasada, pega tablas en el informe, veredicto SOLIDO/PROVISIONAL |
+
+Tests: 68 en verde (`pytest tests/`), todos sin red y con series sintéticas;
+`test_analisis_e2e.py` fabrica un panel de 40 días en un directorio
+temporal y exige que lo que hoy sale provisional pase a fiable.
+`collect.py --smoke` sigue funcionando en las cinco cadenas (212 filas).
+
+### Qué se midió y qué salió (2 días: sábado 19 y domingo 20)
+
+- **Dispersión** (EAN de fabricante, 51.988 obs. EAN-cadena-día). Masa en
+  cero 25,0 % de 18.078 EAN-días; Metro–Wong idéntico 66,6 %, Plaza
+  Vea–Vivanda 24,6 %, Plaza Vea–Tottus 44,9 %; brecha mediana 5,8 % (13,8 %
+  en los 918 de 5 cadenas, p90 41,4 %); SD log 0,062 (0,074 en 5 cadenas)
+  contra 0,13–0,16 de G&T 2017. El producto explica el 98,7 % de la
+  varianza; de la intra-producto, cadena 3,5 %, cadena×categoría 1,3 %,
+  grupo 0,6 %, idiosincrático 94,6 %. Estable entre los dos días.
+- **Criterio de EAN.** Excluir los códigos internos (prefijo 2) cambia
+  Metro–Wong de 67,7 % a 66,6 % y deja los demás pares igual: los 1.218
+  códigos internos que Metro y Wong comparten son catálogo Cencosud, no
+  productos de fabricante. `--incluir-internos` replica la bitácora del
+  20-09 exactamente (11.019 / 906 / 67,7 %).
+- **Rigidez.** 0,44 % de cambio entre sábado y domingo (0,27 % sube,
+  0,17 % baja) sobre 52.451 SKU; 230 cambios, mediana |Δ| 14,2 %, 23,9 % en
+  la banda ±15–25 %, coeficiente de bimodalidad 0,19 (no bimodal). **Cero
+  transiciones hábiles: no publicable.** La entrada del 20-09 citó 0,48 %
+  en un párrafo y 0,27 % + 0,17 % en la tabla; la cifra reproducible con
+  `rigidez.py` (precio 0 excluido) es 0,44 %.
+- **Oferta real.** 0 % del panel evaluable (hacen falta 21 días por
+  producto). Cartel declarado el 20-09: 24,9 % (Plaza Vea 34,1 %, Wong
+  29,3 %, Metro 28,6 %, Tottus 16,9 %, Vivanda 13,3 %).
+- **Huecos.** SPSA publica precio sin stock: Plaza Vea 25,8 % y Vivanda
+  33,1 % de sus SKU-día; Cencosud < 1 %; Tottus no publica stock. Con
+  disponibilidad exigida la base de 5 cadenas cae de 915 a 701. Las tres
+  reglas de faltantes difieren < 0,001 puntos (8 celdas faltantes de
+  7.010): el contraste aún no dice nada.
+- **Auditoría** (prueba con 3 fichas por cadena, CSV del día anterior).
+  15/15 fichas leídas, 0 bloqueos —Tottus renderizó, al contrario de lo
+  medido el 19-09 en páginas de categoría—, 14/14 con precio en pantalla
+  coinciden al céntimo con `price`, 3/3 `card_price` de Metro coinciden con
+  "Tarjeta Cencosud". Wong pinta un precio con tarjeta sin etiqueta (53,91
+  = 59,90 × 0,9, aplicado sobre el regular, no sobre el de oferta) en un
+  producto sin `card_price`: la cobertura de esa columna en Wong está
+  subestimada. No entra al acumulado porque no fue el mismo día.
+
+### Qué quedó abierto
+
+- **La primera transición hábil** (21→22 de septiembre) es la que da la
+  primera tasa de rigidez publicable y el primer dato del horizonte del
+  Modelo B. Revisar el cron del 21-09 (`data/trees/2026-09-21__*`).
+- **La auditoría semanal** arranca el miércoles 23-09 a las 16:37 Lima con
+  N = 50. Verificar que el workflow encuentre Chromium en el runner
+  (`playwright install --with-deps`).
+- **Wong y el precio con tarjeta sin etiqueta**: decidir si `normalize.py`
+  debe derivar `card_price` también cuando el teaser no menciona tarjeta
+  pero la ficha lo muestra. Es cambio al scraper: no se hizo.
+- **`available=False` en dispersión**: hoy entra (es lo que la cadena
+  publica); `--solo-disponibles` casi no cambia nada (masa en cero 25,0 →
+  26,4 %). Decidir cuál va al paper cuando haya más días.
+- **Tope de arrastre** (7 vs 14 días): se fija con la distribución real de
+  rachas, hoy censurada al 92–100 %.
+- El informe se compiló en local sin `hyperref` (MiKTeX no pudo instalar
+  `kvoptions` sin red); el documento no cambió en eso y en Overleaf carga.
+  El texto que comenta las tablas pegadas hay que revisarlo a mano al
+  recalcular: `run_all` solo reemplaza el bloque entre marcadores.
+
+### Cifras a recalcular cuando haya más días (y cuántos)
+
+| Cifra | Hoy | Deja de ser provisional con |
+|---|---|---|
+| Estabilidad de dispersión, pares, masa en cero, R² | 2 días | 10 días |
+| Rigidez en días hábiles, tamaño y bimodalidad | 0 transiciones | 5 transiciones hábiles (≈1 semana) |
+| Tasa de positivos del Modelo B a 7 / 14 / 30 d | sin origen completo | 8 / 15 / 31 días |
+| `oferta_real` y `tachado_permanente` por cadena (H3) | 0 % evaluable | 21 días observados por producto (≈3 semanas) |
+| Contraste entre reglas de faltantes | < 0,001 puntos | 14 días |
+| Concordancia API vs pantalla | 0 evaluables mismo día | primera corrida semanal del mismo día |
+
+Todo se rehace con `python -m analisis.run_all`; el veredicto que imprime
+al final es el que manda.
