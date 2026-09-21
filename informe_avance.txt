@@ -1,0 +1,1044 @@
+% =====================================================================
+%  Informe de avance -- Analitica de la Web, Universidad del Pacifico
+%  Formato: IEEE conference (IEEEtran), dos columnas, en espanol.
+%
+%  Compilar con:  pdflatex informe_avance.tex   (renombrar .txt -> .tex)
+%  Requiere: IEEEtran.cls (viene con cualquier TeX Live / MiKTeX).
+%
+%  Todas las cifras del proyecto propio se calculan con
+%      python -m analisis.run_all
+%  sobre data/daily/ y corresponden, en esta version, al panel del 19 y
+%  20 de septiembre de 2026 (2 dias, fin de semana). Las tablas entre los
+%  marcadores %>>> / %<<< las pega ese comando; el texto que las comenta
+%  hay que revisarlo a mano al recalcular. Las cifras de terceros fueron
+%  verificadas contra el texto de cada articulo el 20-09-2026.
+% =====================================================================
+
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-noshorthands]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% columna de parrafo para las tablas comparativas
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\begin{document}
+
+\title{Cómo se forma el precio en la web del retail limeño:\\
+un panel diario de cinco supermercados}
+
+\author{
+\IEEEauthorblockN{Johao Mendoza}
+\IEEEauthorblockA{Universidad del Pacífico\\Lima, Perú}
+\and
+\IEEEauthorblockN{Marx Rojas}
+\IEEEauthorblockA{Universidad del Pacífico\\Lima, Perú}
+\and
+\IEEEauthorblockN{Joyssie Rivas}
+\IEEEauthorblockA{Universidad del Pacífico\\Lima, Perú}
+}
+
+\maketitle
+
+\begin{abstract}
+% El resumen se redactara al cierre de la investigacion, cuando el panel
+% acumulado permita afirmar resultados y no solo evidencia preliminar de
+% dos dias. Se deja el entorno vacio a proposito para que el documento
+% compile y para no presentar como definitivo lo que todavia no lo es.
+\end{abstract}
+
+\begin{IEEEkeywords}
+web scraping, precios en línea, dispersión de precios, rigidez de precios,
+supermercados, Perú, código EAN, resolución de entidades
+\end{IEEEkeywords}
+
+% =====================================================================
+\section{Introducción}
+% =====================================================================
+
+\subsection{El problema}
+
+Un hogar limeño que compra comida toma tres decisiones cada semana: si
+compra ahora o espera, en qué cadena compra, y si la quincena le alcanza.
+Para tomarlas necesita saber cuánto cuesta \emph{su} canasta, en soles, por
+tienda, hoy y hace siete días, y si el precio que ve es una oferta pasajera
+o un alza que llegó para quedarse. Ese dato no existe como información
+pública.
+
+El Índice de Precios al Consumidor (IPC) que publica el INEI no lo es: se
+conoce cuando el mes ya terminó, es un promedio ponderado de cientos de
+rubros, no está expresado en soles de una bolsa concreta, no distingue
+cadenas y mezcla alimentos con servicios. La página web de un supermercado
+tampoco: muestra el precio de hoy, no el de ayer, y no permite comparar con
+la cadena de enfrente sin abrir dos pestañas y anotar a mano. El hueco está
+entre ambos.
+
+\subsection{Lo que la web hace posible}
+
+Las cinco cadenas de supermercados con presencia en línea en Lima
+---Plaza Vea y Vivanda (Supermercados Peruanos, grupo Intercorp), Metro y
+Wong (Cencosud) y Tottus (Falabella)--- exponen su catálogo completo a
+través de interfaces internas no documentadas: las mismas que sus propias
+páginas consultan para dibujarse. Cuatro de ellas corren sobre la
+plataforma VTEX; Tottus, sobre Catalyst de Falabella. Esas interfaces
+devuelven, por cada producto, el precio de venta, el precio regular o
+``tachado'', la disponibilidad, el vendedor y, en la mayoría de los casos,
+el código de barras EAN.
+
+Ese último campo es la pieza que convierte cinco catálogos en un solo
+panel. El EAN lo asigna el fabricante, no la tienda, y por tanto identifica
+exactamente el mismo producto físico ---misma marca, mismo gramaje, mismo
+envase--- en las cinco cadenas. Los identificadores internos de cada
+cadena no son comparables entre sí; el EAN sí lo es. Su cobertura, sin
+embargo, es desigual: Metro y Wong lo publican en el 100\,\% de sus
+productos, Vivanda en el 82\,\%, Plaza Vea en el 58\,\% y Tottus solo en la
+ficha individual de cada producto, no en el listado. Esa asimetría es en sí
+misma un hallazgo sobre la observabilidad del retail peruano desde su capa
+web.
+
+El proyecto recolecta diariamente el catálogo completo de alimentos de las
+cinco cadenas: 1\,632 categorías hoja, unas 54\,000 filas por día, con el
+JSON crudo conservado para poder reprocesar. La serie histórica de precios
+no se puede reconstruir hacia atrás ---la web muestra el precio de hoy y no
+existe un endpoint que devuelva el del mes pasado---, de modo que la
+recolección arrancó el 19 de septiembre de 2026, antes de cerrar el diseño
+analítico, y se sobre-recolecta a propósito: bajar 10\,000 productos cuesta
+casi lo mismo que bajar 100 y permite redefinir la canasta más adelante sin
+haber perdido nada.
+
+\subsection{La pregunta}
+
+La formulación inicial del proyecto apuntaba a construir un índice de
+precios en línea comparable con el IPC de alimentos del INEI. Esa
+comparación resulta inviable en el horizonte del curso ---con el panel
+iniciado en septiembre, para diciembre existen dos o tres observaciones
+mensuales del índice oficial--- y además está confundida por el canal: el
+INEI releva mercados de abastos, donde el hogar limeño compra el grueso de
+sus alimentos frescos, y este panel solo observa el supermercado moderno.
+Una brecha entre ambos no podría atribuirse a inflación diferencial sin
+antes controlar de dónde viene el dato.
+
+El panel, en cambio, sí permite responder una pregunta que la literatura
+peruana no ha abordado y que no depende de acumular meses:
+
+\begin{quote}
+\emph{¿El precio de un mismo producto físico en la web de los supermercados
+de Lima se fija por cadena, por grupo corporativo, o por competencia?}
+\end{quote}
+
+La estructura del mercado la vuelve contrastable. Hay tres grupos
+corporativos y cinco cadenas; dos de los grupos operan dos cadenas cada
+uno. Si el precio se fija a nivel de grupo, Metro y Wong deberían publicar
+precios idénticos, y también Plaza Vea y Vivanda. Si se fija por cadena,
+cada una debería diferir de todas las demás. Si lo que disciplina el precio
+es la competencia, las cadenas de posicionamiento similar deberían
+parecerse entre sí más que a sus hermanas de grupo.
+
+\subsection{Evidencia preliminar}
+
+\textbf{Todas las cifras de esta subsección son provisionales: están
+medidas sobre los dos primeros días del panel (19 y 20 de septiembre de
+2026, sábado y domingo) y se recalculan con \texttt{analisis/run\_all.py}
+sobre el panel acumulado.} Tomando los EAN de fabricante (12 o más
+dígitos, sin el prefijo 2 de los códigos internos de tienda) presentes en
+al menos dos cadenas el mismo día, y agregando por mediana cuando varios
+SKU comparten EAN en una cadena, la Tabla~\ref{tab:identidad} muestra la
+fracción de observaciones EAN--día con precio \emph{idéntico} al céntimo
+entre cada par de cadenas; la Tabla~\ref{tab:brecha}, la distribución
+completa de la brecha entre el precio máximo y el mínimo, con la masa
+puntual en cero; y la Tabla~\ref{tab:varianza}, la descomposición de la
+varianza del log-precio por niveles anidados.
+
+% >>> TABLAS GENERADAS por analisis/run_all.py -- NO EDITAR A MANO (se regeneran)
+% Generado por analisis/dispersion.py -- NO EDITAR A MANO.
+% Panel: 2 dia(s), ultimo 2026-09-20. Criterio: EAN de fabricante (12+ d\'igitos, sin prefijo 2).
+
+\begin{table}[htbp]
+\caption{Precio id\'entico entre pares de cadenas para el mismo EAN, todos los d\'ias del panel (2 d\'ias, \'ultimo 2026-09-20)}
+\label{tab:identidad}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Par & Relaci\'on & EAN-d\'ias & Id\'entico & Brecha med. \\
+\midrule
+Metro + Wong & mismo grupo & 8\,442 & 66.6\,\% & 0.0\,\% \\
+Wong + Vivanda & competidores & 3\,972 & 46.5\,\% & 1.8\,\% \\
+Plaza Vea + Tottus & competidores & 6\,171 & 44.9\,\% & 1.4\,\% \\
+Metro + Vivanda & competidores & 3\,745 & 34.0\,\% & 3.7\,\% \\
+Metro + Plaza Vea & competidores & 4\,575 & 27.5\,\% & 5.3\,\% \\
+Wong + Plaza Vea & competidores & 4\,665 & 24.7\,\% & 6.1\,\% \\
+Plaza Vea + Vivanda & mismo grupo & 7\,948 & 24.6\,\% & 2.9\,\% \\
+Metro + Tottus & competidores & 6\,659 & 18.2\,\% & 6.3\,\% \\
+Wong + Tottus & competidores & 6\,842 & 15.1\,\% & 7.1\,\% \\
+Vivanda + Tottus & competidores & 4\,956 & 14.4\,\% & 5.6\,\% \\
+\bottomrule\end{tabular}\end{table}
+
+\begin{table*}[t]
+\caption{Distribuci\'on de la brecha m\'ax/m\'in del precio por EAN-d\'ia y masa en cero, todos los d\'ias del panel}
+\label{tab:brecha}
+\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+Subconjunto & EAN-d\'ias & Masa en 0 & p10 & p25 & p50 & p75 & p90 & SD log \\
+\midrule
+$\geq 2$ cadenas & 18\,078 & 25.0\,\% & 0.0\,\% & 0.0\,\% & 5.8\,\% & 16.3\,\% & 30.4\,\% & 0.062 \\
+$\geq 3$ cadenas & 9\,420 & 11.4\,\% & 0.0\,\% & 3.5\,\% & 10.4\,\% & 21.7\,\% & 35.0\,\% & 0.071 \\
+las 5 cadenas & 1\,821 & 5.7\,\% & 2.1\,\% & 6.1\,\% & 13.8\,\% & 26.3\,\% & 41.4\,\% & 0.074 \\
+\bottomrule\end{tabular}
+\par\smallskip\raggedright\scriptsize SD log: desviaci\'on est\'andar media del log-precio dentro del EAN-d\'ia; referencia de Gorodnichenko y Talavera (2017): 0.13--0.16.
+\end{table*}
+
+\begin{table}[htbp]
+\caption{Descomposici\'on de la varianza de $\log$(precio) por efectos fijos anidados, todos los d\'ias del panel}
+\label{tab:varianza}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Orden & Nivel & $R^2$ acum. & $R^2$ incr. & \% var. intra-prod. \\
+\midrule
+A & dia & 0.00\,\% & 0.00\,\% & -- \\
+ & producto & 98.74\,\% & 98.74\,\% & -- \\
+ & categoria & 98.74\,\% & 0.00\,\% & -- \\
+ & grupo & 98.75\,\% & 0.01\,\% & 0.6\,\% \\
+ & cadena & 98.79\,\% & 0.04\,\% & 3.5\,\% \\
+ & cadena $\times$ categoria & 98.81\,\% & 0.02\,\% & 1.3\,\% \\
+\midrule
+B & dia & 0.00\,\% & 0.00\,\% & -- \\
+ & categoria & 39.63\,\% & 39.63\,\% & -- \\
+ & grupo & 39.67\,\% & 0.04\,\% & -- \\
+ & cadena & 39.93\,\% & 0.26\,\% & -- \\
+ & cadena $\times$ categoria & 40.55\,\% & 0.62\,\% & -- \\
+ & producto & 98.81\,\% & 58.26\,\% & -- \\
+\bottomrule\end{tabular}
+\par\smallskip\raggedright\scriptsize Orden A: producto (EAN$\times$d\'ia) primero; la categor\'ia queda absorbida. Orden B: sin producto hasta el final. $n$ = 51\,988 observaciones EAN$\times$cadena$\times$d\'ia.
+\end{table}
+% <<< TABLAS GENERADAS
+
+Cuatro cosas saltan a la vista sobre esos dos días. Primero, los grupos
+corporativos no se comportan igual: Cencosud sirve el mismo precio en Metro
+y Wong en el 66,6\,\% de los 8\,442 EAN--día comparables, lo que sugiere un
+motor de precios compartido, mientras que SPSA lo hace entre Plaza Vea y
+Vivanda, posicionada como premium, solo en el 24,6\,\%. Segundo, la
+competencia parece disciplinar el precio más que la propiedad común: Plaza
+Vea coincide con Tottus (44,9\,\%) casi el doble de veces que con su propia
+hermana. Tercero, hay una masa puntual en cero: en el 25,0\,\% de los
+18\,078 EAN--día con dos o más cadenas el precio es idéntico en
+\emph{todas} ellas, y fuera de esa masa la dispersión es sustancial: entre
+los 918 productos presentes en las cinco cadenas la brecha mediana es del
+13,8\,\% y el percentil 90 del 41,4\,\%. La desviación estándar del
+log-precio dentro del EAN--día es 0,062 (0,074 en los 918), por debajo del
+rango de 0,13--0,16 que Gorodnichenko y Talavera \cite{gorodnichenko2017}
+reportan para bienes idénticos en mercados en línea. Cuarto, y es lo que
+convierte lo anterior en algo más que descripción: el producto explica el
+98,7\,\% de la varianza del log-precio, y de la varianza que queda
+\emph{dentro} del producto ---la dispersión entre cadenas--- la parte
+sistemática es pequeña: la cadena explica el 3,5\,\%, la interacción
+cadena~$\times$~categoría el 1,3\,\% y el grupo corporativo el 0,6\,\%; el
+94,6\,\% restante es idiosincrático del par producto--cadena. Las dos
+fechas dan valores casi idénticos (masa en cero 24,9 y 25,0\,\%; Metro--Wong
+66,4 y 66,7\,\%), lo que confirma que el pipeline es estable, no que el
+hallazgo aguante en el tiempo: para eso hacen falta semanas. Las cuatro
+hipótesis que estas cifras sugieren quedaron preregistradas en la bitácora
+del proyecto el 21 de septiembre, antes de tener el panel.
+
+\subsection{Alcance y aporte}
+
+El trabajo tiene dos partes. La \emph{analítica} describe la dispersión
+de precios entre cadenas, su relación con la estructura de propiedad, la
+rigidez de los precios y la intensidad promocional, y culmina en la canasta
+en soles por cadena que motivó el proyecto. La de \emph{modelamiento}
+operacionaliza las dos decisiones del comprador que son problemas de
+predicción: el \textbf{Modelo A} responde en qué cadena conviene comprar
+un producto dado y para qué productos vale la pena comparar; el
+\textbf{Modelo B} responde si conviene comprarlo hoy o esperar, estimando
+la probabilidad de que entre en oferta en los próximos días. Como paso
+previo a ambas partes, el emparejamiento de productos entre cadenas
+---trivial cuando hay EAN, y un problema de resolución de entidades cuando
+no lo hay--- se resuelve con un modelo entrenado sobre las etiquetas que el
+propio EAN regala; ese emparejamiento es preprocesamiento, no el
+modelamiento del proyecto.
+
+El panel mide el canal de supermercados modernos de Lima Metropolitana.
+Quedan fuera el descuento duro, el mayorista y el mercado de abastos, por no
+publicar precios en línea. Los resultados deben leerse como formación de
+precios del canal supermercado, no como una medida del costo de vida del
+hogar limeño.
+
+% =====================================================================
+\section{Estado del arte}
+% =====================================================================
+
+El método de copiar precios de la web y convertirlos en un índice tiene
+más de una década, y para alimentos ya se aplicó en Polonia y en el propio
+Perú. Lo que no existe es un trabajo que use ese panel para preguntar cómo
+se forma el precio entre cadenas de un mismo mercado. Se revisan seis
+fuentes: tres fundacionales del método (Billion Prices Project, el caso
+polaco y el caso peruano) y tres que sustentan los análisis específicos de
+este proyecto (rigidez con datos scrapeados, dispersión entre vendedores en
+línea y fijación uniforme de precios en cadenas). Para cada una se detalla
+el problema, la base de datos, la técnica de scraping, las técnicas
+analíticas, la metodología y los resultados. La Tabla~\ref{tab:sota}
+resume la comparación y el hueco que cada una deja.
+
+% ---------------------------------------------------------------------
+\subsection{Cavallo y Rigobon (2016): el método global}
+% ---------------------------------------------------------------------
+
+\textbf{Nombre.} \emph{The Billion Prices Project: Using Online Prices for
+Measurement and Research}. \textbf{Autores.} Alberto Cavallo y Roberto
+Rigobon. \textbf{Año.} 2016, \emph{Journal of Economic Perspectives}
+\cite{cavallo2016bpp}.
+
+\textbf{Problema.} Los índices oficiales de precios son costosos, llegan
+con rezago y en algunos países no son confiables. ¿Pueden los precios
+publicados en línea por los minoristas servir como fuente alternativa para
+medir inflación e investigar el comportamiento de los precios?
+
+\textbf{Base de datos.} Al año 2010 el proyecto recolectaba cinco millones
+de precios diarios de más de 300 minoristas en 50 países, cubriendo
+alimentos, electrónica, ropa y otros bienes.
+
+\textbf{Técnica de scraping.} Software propio que descarga diariamente
+las páginas públicas de cada minorista y extrae precio, descripción,
+categoría e identificador de producto mediante reglas específicas por
+sitio. Es scraping del HTML renderizado, mantenido por un equipo dedicado.
+
+\textbf{Técnicas y metodología.} Índices de precios diarios encadenados por
+categoría y país, comparados con el IPC oficial; estadísticas de frecuencia
+y duración de cambios de precio; contrastes de la ley de un solo precio
+entre países para productos idénticos.
+
+\textbf{Resultados.} Los índices en línea siguen al IPC oficial en la
+mayoría de los países; en Argentina, el índice en línea reveló que la
+inflación oficial estaba subestimada. Los precios en línea permiten estudiar
+rigidez y ofertas con una granularidad que los datos oficiales no ofrecen.
+
+\textbf{Hueco.} No incluye Perú y el microdato no es público. El proyecto
+presente reproduce el método sobre una fuente propia.
+
+% ---------------------------------------------------------------------
+\subsection{Jaworski (2021): alimentos y nowcast en Polonia}
+% ---------------------------------------------------------------------
+
+\textbf{Nombre.} \emph{Measuring food inflation during the COVID-19
+pandemic in real time using online data: a case study of Poland}.
+\textbf{Autor.} Krystian Jaworski. \textbf{Año.} 2021, \emph{British Food
+Journal} \cite{jaworski2021}.
+
+\textbf{Problema.} Los confinamientos de 2020 impidieron el levantamiento
+manual de precios en tiendas físicas. ¿Se puede medir la inflación de
+alimentos con precisión usando solo precios en línea?
+
+\textbf{Base de datos.} Precios diarios de una de las mayores cadenas de
+supermercados de Polonia, de julio de 2015 a agosto de 2020: unos 20\,000
+productos únicos scrapeados, de los que 205 se seleccionan como
+representativos de las partidas del IPC de alimentos.
+
+\textbf{Técnica de scraping.} Marco totalmente automatizado de descarga
+diaria de las fichas de producto de la tienda en línea de la cadena.
+
+\textbf{Técnicas y metodología.} Selección de un producto representativo
+por partida, índice de Laspeyres con las ponderaciones oficiales de la
+oficina estadística (CSO), agregación a las categorías del IPC y
+comparación con la serie oficial.
+
+\textbf{Resultados.} Correlación de 0,96 con la inflación interanual
+oficial de alimentos (0,71 en variación mensual); el índice mensual puede
+obtenerse dos semanas antes del cierre del período y unos 30 días antes de
+la publicación oficial; RMSE de 0,005 durante la pandemia frente a 0,006 en
+la muestra completa.
+
+\textbf{Hueco.} Una sola cadena: no hay comparación entre cadenas ni
+análisis de dispersión. El índice es nacional, no un tablero por tienda.
+
+% ---------------------------------------------------------------------
+\subsection{Bueno (2024): ya corre en el Perú}
+% ---------------------------------------------------------------------
+
+\textbf{Nombre.} \emph{Inflation and Price Dynamics Analysis Using
+High-Frequency Data from Supermarkets: Evidence from Peru}.
+\textbf{Autor.} Gonzalo Bueno, Banco Central de Reserva del Perú.
+\textbf{Año.} 2024, \emph{BIS IFC Bulletin} n.º~66 \cite{bueno2024}.
+
+\textbf{Problema.} El BCRP carecía de índices de alta frecuencia para
+monitorear la inflación y entender la formación de precios durante el
+episodio inflacionario 2020--2024.
+
+\textbf{Base de datos.} Precios diarios de las páginas web de dos
+supermercados desde abril de 2020; unos 134\,000 registros de variedades de
+producto, con nombre, precio, marca y categoría. Se registran hasta tres
+precios por producto: el regular, el ``online'' o con descuento, y el precio
+con tarjeta de la cadena.
+
+\textbf{Técnica de scraping.} Web scraping de los listados de producto de
+cada sitio. Cada producto se identifica por su nombre normalizado; un cambio
+de nombre genera una serie nueva. El propio autor señala que un algoritmo
+para encontrar nombres similares ``no se ha implementado todavía''.
+
+\textbf{Técnicas y metodología.} Clasificación manual a la COICOP en doce
+divisiones; imputación de datos faltantes; media móvil de 30 días y filtro
+de precio regular para separar promociones de cambios permanentes; índices
+por división; frecuencia, tamaño y duración de los cambios de precio.
+
+\textbf{Resultados.} Los precios web alcanzaron su pico después que el
+índice oficial pero descendieron más rápido; la duración de los precios cae
+cuando sube la inflación; en alimentos, el 65,7\,\% de los cambios de precio
+son al alza; la distribución de cambios es bimodal, con picos en
+$\pm$20\,\%, y poca densidad en cambios pequeños.
+
+\textbf{Hueco.} Es el antecedente directo, y deja abiertos los tres
+problemas que este proyecto ataca: la identificación de productos (usa el
+nombre, no el EAN), la comparación entre cadenas (no la analiza) y la
+canasta en soles por tienda.
+
+% ---------------------------------------------------------------------
+\subsection{Cavallo (2018): rigidez de precios con datos scrapeados}
+% ---------------------------------------------------------------------
+
+\textbf{Nombre.} \emph{Scraped Data and Sticky Prices}. \textbf{Autor.}
+Alberto Cavallo. \textbf{Año.} 2018, \emph{Review of Economics and
+Statistics} \cite{cavallo2018sticky}.
+
+\textbf{Problema.} Las estadísticas de rigidez de precios de la literatura
+provienen de datos de escáner y del IPC, que promedian precios en el tiempo
+e imputan valores faltantes. ¿Cuánto de lo que se sabe sobre rigidez es un
+artefacto de medición?
+
+\textbf{Base de datos.} Precios diarios scrapeados de grandes minoristas
+en línea en cinco países (Argentina, Brasil, Chile, Colombia y Estados
+Unidos), con estadísticas descriptivas adicionales de 181 minoristas en 31
+países.
+
+\textbf{Técnica de scraping.} La infraestructura del Billion Prices
+Project: descarga diaria de páginas de producto, sin promedios temporales
+ni imputación, de modo que cada observación es un precio efectivamente
+publicado ese día.
+
+\textbf{Técnicas y metodología.} Frecuencia y duración de cambios de
+precio, distribución del tamaño de los cambios y funciones de riesgo
+(\emph{hazard}), comparadas con las mismas estadísticas calculadas sobre
+datos de escáner y del IPC para los mismos minoristas.
+
+\textbf{Resultados.} Los precios en línea muestran duraciones más largas,
+menos cambios cercanos a cero y funciones de riesgo inicialmente
+crecientes. El promedio temporal y la imputación en los datos de escáner y
+del IPC explican por completo las diferencias con la literatura previa.
+
+\textbf{Hueco.} Es el marco para medir rigidez con este tipo de datos; no
+compara cadenas ni estudia la estructura de propiedad.
+
+% ---------------------------------------------------------------------
+\subsection{Gorodnichenko y Talavera (2017): dispersión entre vendedores}
+% ---------------------------------------------------------------------
+
+\textbf{Nombre.} \emph{Price Setting in Online Markets: Basic Facts,
+International Comparisons, and Cross-Border Integration}.
+\textbf{Autores.} Yuriy Gorodnichenko y Oleksandr Talavera. \textbf{Año.}
+2017, \emph{American Economic Review} \cite{gorodnichenko2017}.
+
+\textbf{Problema.} ¿Cómo se fijan los precios en mercados en línea, donde
+el costo de cambiarlos es casi nulo y el comprador puede comparar
+vendedores con unos clics? ¿Se cumple la ley de un solo precio?
+
+\textbf{Base de datos.} Cinco años de cotizaciones de un sitio comparador
+de precios líder en Estados Unidos y Canadá: más de 115\,000 bienes y cerca
+de 20 millones de cotizaciones, con identificador único de producto
+(equivalente al código de barras), identificador de vendedor, reputación y
+reseñas. Predominan bienes durables: software, electrónica, herramientas,
+componentes de cómputo, fotografía.
+
+\textbf{Técnica de scraping.} Recolección diaria de los listados del
+comparador, que agrupa a múltiples vendedores bajo un mismo identificador de
+producto; esto permite comparar precios de bienes idénticos entre
+vendedores y entre países sin emparejar nombres.
+
+\textbf{Técnicas y metodología.} Frecuencia y tamaño de cambios de
+precio, sincronización entre vendedores, dispersión (desviación estándar
+del logaritmo del precio por producto y semana), traspaso del tipo de
+cambio y velocidad de convergencia, con regresiones que relacionan estas
+medidas con características del bien, del vendedor y del mercado.
+
+\textbf{Resultados.} Los precios en línea cambian con más frecuencia (una
+vez cada tres semanas o menos) y en menor magnitud (alrededor de 4\,\%) que
+en tiendas físicas (cada cuatro o cinco meses, alrededor de 10\,\%). La
+dispersión es sustancial y persistente incluso para bienes definidos al
+nivel de código de barras: la desviación estándar del log-precio en una
+semana está entre 0,13 y 0,16. El traspaso del tipo de cambio es del
+60--75\,\% con vida media de dos a dos meses y medio.
+
+\textbf{Hueco.} Vendedores en línea puros y bienes durables, no cadenas de
+supermercados con tiendas físicas ni alimentos. Su medida de dispersión es
+el punto de comparación natural para la de este proyecto.
+
+% ---------------------------------------------------------------------
+\subsection{DellaVigna y Gentzkow (2019): fijación uniforme de precios}
+% ---------------------------------------------------------------------
+
+\textbf{Nombre.} \emph{Uniform Pricing in U.S. Retail Chains}.
+\textbf{Autores.} Stefano DellaVigna y Matthew Gentzkow. \textbf{Año.}
+2019, \emph{Quarterly Journal of Economics} \cite{dellavigna2019}.
+
+\textbf{Problema.} Las cadenas minoristas operan tiendas en mercados con
+demanda y competencia muy distintas. ¿Ajustan sus precios a cada tienda,
+como predice la teoría, o fijan precios uniformes en toda la cadena?
+
+\textbf{Base de datos.} Datos de escáner de Nielsen para cadenas de
+alimentos, farmacias y grandes superficies en Estados Unidos, con precios
+por tienda, producto y semana, junto con características demográficas y de
+competencia local. No usa scraping: es la única fuente de esta revisión con
+datos de transacciones.
+
+\textbf{Técnicas y metodología.} Medidas de similitud de precios entre
+tiendas de una misma cadena para productos idénticos; estimación de
+elasticidades de demanda por tienda; cálculo del beneficio que la cadena
+sacrifica respecto de un precio óptimo por tienda.
+
+\textbf{Resultados.} La mayoría de las cadenas cobra precios casi
+uniformes en todas sus tiendas pese a la variación en demanda y
+competencia. La cadena mediana renuncia a unos 16 millones de dólares
+anuales frente al precio óptimo por tienda. Las diferencias de precio
+\emph{entre} cadenas, en cambio, sí son consistentes con la optimización.
+Los autores atribuyen la uniformidad a inercia gerencial y a preocupación
+por la imagen de marca.
+
+\textbf{Hueco.} Estudia uniformidad entre tiendas de una cadena, no entre
+cadenas distintas de un mismo grupo corporativo, que es exactamente la
+variación que este proyecto observa en Lima.
+
+% ---------------------------------------------------------------------
+% Tabla comparativa a doble columna
+% ---------------------------------------------------------------------
+\begin{table*}[t]
+\caption{Comparación de las fuentes revisadas}
+\label{tab:sota}
+\centering
+\scriptsize
+\begin{tabular}{@{}P{2.3cm}P{2.6cm}P{2.6cm}P{2.9cm}P{3.1cm}P{2.9cm}@{}}
+\toprule
+\textbf{Fuente} & \textbf{Base de datos} & \textbf{Scraping} & \textbf{Técnicas} & \textbf{Resultado clave} & \textbf{Hueco que deja} \\
+\midrule
+Cavallo y Rigobon (2016) \cite{cavallo2016bpp}
+ & 5 M precios/día, 300+ minoristas, 50 países
+ & HTML diario, reglas por sitio (BPP)
+ & Índices encadenados vs.\ IPC; rigidez; ley de un solo precio
+ & Los índices en línea siguen al IPC; revelan subestimación en Argentina
+ & No hay Perú; microdato no público \\
+\addlinespace
+Jaworski (2021) \cite{jaworski2021}
+ & 1 cadena, Polonia, 2015--2020; 20\,000 productos, 205 en el índice
+ & Fichas de producto, diario, automatizado
+ & Laspeyres con pesos oficiales, mapeo a IPC
+ & Correlación 0,96; adelanto de $\sim$30 días; RMSE 0,005
+ & Una sola cadena; sin dispersión ni tablero por tienda \\
+\addlinespace
+Bueno (2024) \cite{bueno2024}
+ & 2 supermercados, Perú, desde 2020; 134\,000 variedades; tres precios
+ & Listados web, diario; producto = nombre normalizado
+ & COICOP, imputación, media móvil 30 d, filtro de precio regular, duración
+ & Pico web posterior al oficial, caída más rápida; 65,7\,\% de cambios al alza
+ & Sin EAN (emparejamiento pendiente); sin comparación entre cadenas \\
+\addlinespace
+Cavallo (2018) \cite{cavallo2018sticky}
+ & Minoristas en línea, 5 países; 181 minoristas / 31 países
+ & BPP, diario, sin promedios ni imputación
+ & Frecuencia, duración, tamaño, funciones de riesgo vs.\ escáner e IPC
+ & Duraciones más largas; menos cambios $\approx$0; sesgo de medición explica la literatura
+ & No compara cadenas ni estructura de propiedad \\
+\addlinespace
+Gorodnichenko y Talavera (2017) \cite{gorodnichenko2017}
+ & Comparador de precios, EE.UU.--Canadá, 5 años; 115\,000 bienes, 20 M cotizaciones
+ & Listados diarios; id de producto compartido entre vendedores
+ & Dispersión (SD log-precio), sincronización, traspaso, convergencia
+ & SD log-precio 0,13--0,16 por bien y semana; cambios cada $\le$3 semanas de $\sim$4\,\%
+ & Vendedores en línea puros, durables; no supermercados \\
+\addlinespace
+DellaVigna y Gentzkow (2019) \cite{dellavigna2019}
+ & Escáner Nielsen, cadenas EE.UU.; precio por tienda--producto--semana
+ & No usa scraping
+ & Similitud entre tiendas, elasticidades, beneficio sacrificado
+ & Precios casi uniformes dentro de la cadena; \$16 M/año sacrificados (mediana)
+ & Uniformidad entre tiendas, no entre cadenas de un mismo grupo \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Síntesis}
+
+Las seis fuentes establecen que el método es sólido y que ya se ha aplicado
+al Perú, y dejan tres huecos que este proyecto ocupa. El primero es
+metodológico: Bueno \cite{bueno2024} identifica productos por nombre y deja
+explícitamente pendiente el emparejamiento de nombres similares; aquí el EAN
+resuelve la identidad para la mayor parte del catálogo y, además, provee
+las etiquetas para entrenar un modelo que la extienda al resto. El segundo
+es de diseño: ninguna de las fuentes compara cadenas de un mismo mercado ni
+explota la estructura de propiedad como variable; DellaVigna y Gentzkow
+\cite{dellavigna2019} estudian uniformidad \emph{dentro} de una cadena, y
+el caso limeño permite estudiarla \emph{entre} cadenas de un mismo grupo.
+El tercero es de entregable: ninguna produce la canasta en soles por tienda
+que motiva el proyecto.
+
+% =====================================================================
+\section{Bases teóricas}
+% =====================================================================
+
+\subsection{Ley de un solo precio y dispersión}
+
+La ley de un solo precio sostiene que, en ausencia de fricciones, un bien
+idéntico debe venderse al mismo precio en todos los puntos de venta de un
+mismo mercado: si no fuera así, los compradores migrarían al vendedor
+barato hasta igualar los precios. La evidencia empírica la contradice de
+manera sistemática, y la teoría explica por qué. Stigler \cite{stigler1961}
+mostró que buscar el mejor precio cuesta tiempo, y que mientras ese costo
+sea positivo la dispersión persiste en equilibrio: el vendedor caro
+sobrevive porque no todos los compradores lo comparan. Varian
+\cite{varian1980} formalizó un mecanismo complementario: ante compradores
+informados y no informados, la estrategia óptima del vendedor es aleatorizar
+el precio entre un nivel alto y ofertas periódicas, de modo que la dispersión
+aparece incluso entre vendedores idénticos y se manifiesta como promociones.
+
+Para este proyecto, la dispersión se mide como la brecha entre el precio
+máximo y el mínimo de un mismo EAN entre cadenas en un mismo día, y también
+como la desviación estándar del logaritmo del precio, que es la medida de
+Gorodnichenko y Talavera \cite{gorodnichenko2017} y permite compararse
+con su rango de 0,13--0,16. La hipótesis de trabajo es que la dispersión
+no es aleatoria sino que se estructura por grupo corporativo y por
+posicionamiento de la cadena.
+
+\subsection{Rigidez de precios y promociones}
+
+Los precios no se ajustan continuamente. Nakamura y Steinsson
+\cite{nakamura2008} documentaron, sobre el microdato del IPC de Estados
+Unidos, que la frecuencia mediana de cambio de precio depende críticamente
+de si se cuentan o no las ofertas: excluyéndolas, los precios regulares
+duran entre ocho y once meses; incluyéndolas, mucho menos. La distinción
+entre precio regular y precio de oferta es por tanto central, y Kehoe y
+Midrigan \cite{kehoe2015} argumentaron que las ofertas son transitorias
+por construcción ---el precio vuelve al regular--- y no transmiten
+información macroeconómica del mismo modo que un cambio permanente.
+
+Este panel observa directamente ambos precios: el de venta y el
+``tachado''. La variable \texttt{on\_sale} marca la diferencia, y a partir
+de septiembre de 2026 se registra también la vigencia de las promociones
+con tarjeta que las cadenas del grupo Cencosud publican en sus teasers.
+Esto permite medir la duración de los precios y de las ofertas con el
+método de Cavallo \cite{cavallo2018sticky}, sin promedios temporales ni
+imputación, y estudiar si los cambios de precio se sincronizan entre
+cadenas del mismo grupo. Un precio que no cambia es también un dato: entre
+el sábado 19 y el domingo 20 de septiembre cambió el 0,44\,\% de los 52\,451
+SKU seguidos (0,27\,\% subió, 0,17\,\% bajó; entre 0,03\,\% en Vivanda y
+0,89\,\% en Metro), y de los 230 cambios el 23,9\,\% cayó en la banda de
+$\pm$15--25\,\% donde Bueno \cite{bueno2024} encontró sus picos, sin que la
+distribución resulte bimodal según el coeficiente de Sarle
+\cite{pfister2013} (0,19, umbral 0,56). \textbf{Esa tasa no es publicable
+como rigidez}: los supermercados hacen \emph{repricing} en días hábiles y
+el panel no tiene todavía ninguna transición entre dos días hábiles. El
+módulo \texttt{analisis/rigidez.py} separa las transiciones hábiles de las
+que cruzan fin de semana o feriado y recalcula todo sobre el panel
+acumulado.
+
+Esta distinción también afecta a la variable \texttt{on\_sale}: es el
+cartel de la tienda, y un producto con el precio tachado nueve de cada
+diez días no está en oferta, tiene un ancla. Siguiendo el filtro de
+precio regular de Bueno \cite{bueno2024} y la distinción de Nakamura y
+Steinsson \cite{nakamura2008}, se define \texttt{oferta\_real} como un
+precio al menos 10\,\% por debajo de la mediana móvil de 45 días del propio
+producto, con el cartel presente menos de la mitad de los días de la
+ventana; el resto del cartel es \emph{tachado permanente}. La medida exige
+21 días observados por producto, así que en este informe el 100\,\% del
+panel es todavía no evaluable: el 24,9\,\% de filas con cartel del 20 de
+septiembre es un techo, no una tasa de ofertas.
+
+\subsection{Fijación uniforme de precios en cadenas}
+
+Una cadena que opera muchas tiendas enfrenta la decisión de fijar un precio
+por tienda, ajustado a la demanda y la competencia locales, o un precio
+único para toda la cadena. La teoría de la discriminación de precios
+predice lo primero; DellaVigna y Gentzkow \cite{dellavigna2019} encontraron
+lo segundo, y estimaron que la cadena mediana de Estados Unidos sacrifica
+alrededor de 16 millones de dólares anuales por hacerlo. Sus explicaciones
+---inercia gerencial, simplicidad operativa, preocupación por la imagen de
+marca--- son conductuales y organizacionales, no de optimización.
+
+El caso limeño extiende esa pregunta un nivel hacia arriba: no si una
+cadena fija precios uniformes entre sus tiendas, sino si un \emph{grupo}
+fija precios uniformes entre sus \emph{cadenas}. La evidencia preliminar
+sugiere que la respuesta difiere por grupo, lo que a su vez sugiere que la
+uniformidad no es una regularidad del mercado sino una decisión de cada
+organización. Que Metro y Wong compartan el precio en dos de cada tres
+productos, y Plaza Vea y Vivanda en menos de uno de cada cuatro, es
+consistente con que Cencosud opere un motor de precios único y SPSA
+mantenga una diferenciación deliberada por formato.
+
+\subsection{La canasta en soles}
+
+El entregable de cierre del proyecto no es un índice sino un monto: cuánto
+cuesta una bolsa de referencia en cada cadena, cada día,
+
+\begin{equation}
+\text{Canasta}_{c,t} = \sum_{i} q_i \, P_{i,c,t},
+\end{equation}
+
+donde $q_i$ son las cantidades físicas de la bolsa, $P_{i,c,t}$ el precio
+del producto $i$ en la cadena $c$ el día $t$, y la suma recorre los
+productos con precio observado en todas las cadenas. Se distingue del IPC
+oficial, que es un índice de Laspeyres ponderado por gasto
+\cite{cpimanual2020} y que Jaworski \cite{jaworski2021} replicó con
+precios en línea: un índice mide variación relativa y sirve para comparar
+con el oficial; la canasta mide soles y responde a la pregunta del
+comprador. Por las razones expuestas en la introducción, la comparación con
+el IPC queda como anexo descriptivo y no como objetivo del proyecto.
+
+La fórmula exige un precio por producto y día. Cuando un producto se agota
+o desaparece hay que decidir entre arrastrar el último precio observado (la
+práctica del INEI), imputar o sustituir; sin regla explícita la canasta sube
+y baja por agotamientos y no por precios. La regla se midió, se implementó
+y se decidió de forma provisional (\texttt{analisis/precios\_faltantes.py}).
+La medición mostró que el problema no es el agotamiento sino la publicación
+de precios sin stock: en los dos primeros días, Plaza Vea y Vivanda listan
+con precio el 25,8\,\% y el 33,1\,\% de sus SKU--día declarados no
+disponibles, Cencosud menos del 1\,\% y Tottus no publica stock. Un precio
+al que no se puede comprar no es un precio, y exigir disponibilidad reduce
+la base de productos con precio en las cinco cadenas de 915 a 701. La regla
+adoptada es arrastre del último precio con tope de siete días para agotados
+y deslistados, exclusión con índice encadenado de composición emparejada
+pasado el tope, y arrastre sin tope cuando el hueco se debe a un cambio del
+árbol de categorías de la cadena, que el panel detecta porque guarda el
+árbol de cada día. La imputación por la variación mediana de la categoría
+se calcula como prueba de robustez. Con dos días las tres reglas difieren
+en menos de 0,001 puntos de índice; el criterio de revisión, fijado antes
+de ver el resultado, es que si con catorce o más días la divergencia supera
+0,5 puntos en alguna cadena, la divergencia se publica y la regla principal
+pasa a ser la exclusión emparejada.
+
+\subsection{Modelos predictivos sobre el panel}
+
+La parte de modelamiento no predice el precio de mañana: con más del 99\,\%
+de los precios sin cambio de un día al siguiente, un modelo que predijera
+``igual que hoy'' acertaría casi siempre sin haber aprendido nada. Los dos
+modelos responden, en cambio, las dos decisiones del comprador que la
+propuesta original planteó y que son problemas de aprendizaje supervisado
+sobre el panel ya procesado.
+
+\textbf{Modelo A: ¿en qué cadena?} Es un problema de sección transversal.
+Para cada producto presente en dos o más cadenas, la variable objetivo es
+la brecha relativa de precio entre cadenas (regresión) o la cadena más
+barata (clasificación multiclase). Las variables explicativas son atributos
+del producto ---categoría, marca, marca propia frente a nacional, cantidad
+neta y unidad, nivel de precio, intensidad promocional de la categoría,
+sellos de advertencia nutricional, origen--- y nunca los precios de las
+otras cadenas, que harían trivial la predicción. La línea base explícita
+es la regla ``la cadena más barata es siempre la misma'': en los dos
+primeros días Plaza Vea es la más barata frente a Metro en el 56,6\,\% de
+los pares y frente a Wong en el 60,8\,\%, así que un modelo que no supere
+esa regla no aporta nada. El interés no está solo en acertar sino en
+explicar: el modelo cuantifica cuánto de la dispersión se debe a la
+cadena, cuánto a la categoría y cuánto a su interacción, que es donde la
+descomposición de varianza (Tabla~\ref{tab:varianza}) sitúa lo no obvio.
+La extensión natural del modelo es la marca propia: hoy queda fuera porque
+no lleva EAN de fabricante, y entra en cuanto el emparejamiento por modelo
+(Sección~\ref{sec:entidades}) la vincule entre cadenas; es justo donde el
+efecto del grupo corporativo debería ser más fuerte.
+
+\textbf{Modelo B: ¿compro ahora o espero?} Es un problema longitudinal. La
+variable objetivo es si el producto entra en \emph{oferta real} en una
+ventana de $h$ días a partir de hoy,
+$\Pr(\texttt{oferta\_real}_{t+1..t+h}=1)$, o alternativamente la caída de
+precio esperada en esa ventana. Se usa \texttt{oferta\_real} y no el
+cartel \texttt{on\_sale} porque el cartel confunde dos cosas que el
+comprador distingue: una rebaja transitoria que vale la pena esperar y un
+precio tachado permanente que no lo es; un modelo entrenado sobre el
+cartel aprendería a predecir el ancla, no la oferta. El horizonte $h$ no
+se fija a ojo: \texttt{analisis/rigidez.py} mide la tasa de positivos a
+7, 14 y 30 días sobre los orígenes con ventana completa dentro del panel.
+Con dos días no hay ninguno; la extrapolación geométrica desde la tasa
+diaria de entrada al cartel del fin de semana ---que no es una medida---
+daría entre 0,0\,\% (Vivanda) y 1,5\,\% (Wong) de positivos a 7 días y
+entre 0,0 y 6,4\,\% a 30, lo que anticipa que 7 días es demasiado corto y
+que el candidato es 30. Las variables
+explicativas se construyen sobre la historia del panel: días desde la
+última oferta, duración típica de las ofertas en la categoría y la marca,
+precio actual frente a la mediana histórica del propio producto y frente a
+las competidoras, si la cadena hermana ya bajó el precio, día de la semana y
+quincena, y ---para las cadenas que la publican--- la fecha de fin de la
+promoción vigente. Este modelo es el que justifica la recolección diaria:
+sin historia no existe. Su riesgo principal es el desbalance de clases,
+porque las entradas a oferta son raras a horizonte corto; se mitiga
+alargando la ventana, ponderando las clases y evaluando con métricas
+insensibles al desbalance. Como extensión, la duración de una oferta una
+vez iniciada se modela como tiempo hasta el evento, en la tradición de los
+modelos de riesgo proporcional \cite{cox1972} y en línea con el análisis
+de duración de precios de Bueno \cite{bueno2024}.
+
+\textbf{Técnica y evaluación.} Ambos modelos se implementan con
+\emph{gradient boosting} sobre árboles de decisión \cite{friedman2001,
+chen2016}, que maneja sin transformación variables categóricas de alta
+cardinalidad, valores faltantes e interacciones no lineales, y que en datos
+tabulares de este tamaño es el punto de referencia. Frente a cada uno se
+reporta una línea base ---la regla ``la cadena más barata es siempre la
+misma'' para A, y ``nunca entra en oferta'' para B--- porque sin ella no
+puede afirmarse que el modelo aporta. Ambos usan validación temporal: se
+entrena con el pasado y se evalúa con el futuro, nunca al revés, para que
+las métricas reflejen el uso real. El Modelo B se reporta con el área bajo
+la curva precisión--exhaustividad (PR-AUC) y no con exactitud ni con
+ROC-AUC: con positivos del orden del 1\,\% la exactitud de ``nunca entra
+en oferta'' roza el 99\,\% y el ROC-AUC se infla con los negativos fáciles,
+mientras que la curva precisión--exhaustividad es la que resulta
+informativa con clases desbalanceadas \cite{saito2015}. La interpretación se
+hace con valores de Shapley \cite{lundberg2017}, que descomponen cada
+predicción en la contribución de cada variable y permiten conectar el
+modelo con las hipótesis de la parte analítica: si el efecto de la cadena
+domina o si son las interacciones cadena--categoría las que explican la
+brecha.
+
+\subsection{Web scraping como método de medición}
+
+El scraping de precios en línea es un método de medición con antecedentes
+consolidados \cite{cavallo2016bpp,cavallo2018sticky} y precedente en el
+Perú \cite{bueno2024}. Su validez depende de tres decisiones. La primera
+es qué superficie se lee: el HTML renderizado que ve el usuario o la
+interfaz interna que la página consulta para dibujarse. Este proyecto usa
+la segunda ---lo que en la literatura se denomina \emph{API scraping}---
+y la subsección siguiente justifica la elección con números. La segunda
+decisión es la frecuencia: diaria, porque un día no recolectado es un hueco
+permanente en la serie. La tercera es la cortesía: identificación explícita
+en el \emph{User-Agent}, un límite de una petición cada 1,5 segundos y
+respeto del \texttt{robots.txt} de cada cadena.
+
+Una consecuencia metodológica del scraping, señalada por Cavallo
+\cite{cavallo2018sticky}, es que cada observación es un precio publicado
+ese día y no un promedio: eso evita los sesgos de los datos de escáner
+pero obliga a conservar el crudo, porque un error de interpretación
+detectado semanas después solo se corrige reprocesando.
+
+\subsection{HTML renderizado frente a interfaz interna: qué se observa}
+
+Que el retail limeño sea observable desde su capa web no es obvio, y la
+respuesta depende de la superficie que se lea. La Tabla~\ref{tab:htmlapi}
+resume lo medido el 19 de septiembre de 2026 sobre una página de categoría
+de cada plataforma, con un cliente HTTP simple, con un navegador sin cabeza
+(Chromium vía Playwright) y con la interfaz interna de catálogo.
+
+\begin{table}[htbp]
+\caption{Qué entrega cada superficie de una página de categoría (medido
+el 19-09-2026)}
+\label{tab:htmlapi}
+\centering
+\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}P{1.5cm}P{1.7cm}P{2.0cm}P{2.6cm}@{}}
+\toprule
+Cadena & HTTP simple & Navegador sin cabeza & Interfaz interna \\
+\midrule
+Plaza Vea (VTEX) & 0 precios & 64 precios, 7,1 s & 50 productos por petición, $\sim$0,5 s \\
+Metro (VTEX)     & 60 precios, en JSON embebido & 26 precios, 15,0 s & ídem \\
+Tottus (Catalyst) & HTTP 503 & bloqueado (DOM vacío) & 50 productos por petición, sin navegador \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Tres cosas se siguen de ahí. El HTML de Metro sí trae precios, pero dentro
+de un JSON embebido y no en el texto visible: una búsqueda del formato
+\texttt{S/ 17.90} da cero y hace creer que no están. Tottus bloquea el
+renderizado pero no la interfaz: su protección anti-bot reacciona al
+navegador, no a la petición, de modo que para esa cadena el navegador es
+estrictamente peor. Y el navegador no entrega los campos que hacen posible
+el panel: el EAN ---la llave de identidad entre cadenas--- no aparece en
+pantalla, ni tampoco la cantidad disponible ni el vendedor real; a $\sim$7
+segundos por ficha frente a $\sim$0,5 segundos por 50 productos, recorrer
+1\,632 categorías hoja tomaría días y no minutos. El único dato que la
+interfaz parecía no dar, el precio con tarjeta de la cadena, resultó estar
+en ella para Cencosud: el porcentaje y la vigencia de la promoción vienen en
+los \emph{teasers} de VTEX, y el precio derivado coincide al céntimo con el
+que muestra la ficha renderizada; en Plaza Vea y Vivanda, que solo publican
+la etiqueta sin porcentaje, sigue haciendo falta el navegador.
+
+\subsection{Auditoría de validez: ¿el precio de la interfaz es el que ve el comprador?}
+
+Leer la interfaz interna obliga a demostrar que el precio que devuelve es
+el que el comprador ve en pantalla. Eso se convirtió en un procedimiento
+medible y acumulable (\texttt{analisis/auditoria\_validez.py}): una muestra
+aleatoria reproducible (semilla fija, guardada en cada fila) de $N$ productos
+por cadena del último día recolectado, estratificada por categoría y por
+presencia de cartel de oferta; cada ficha se abre con el navegador, se leen
+los precios visibles en el bloque del producto, el precio con tarjeta si lo
+hay y el vendedor mostrado, y se comparan con \texttt{price},
+\texttt{regular\_price} y \texttt{card\_price} del panel. Se registran
+la tasa de concordancia exacta al céntimo, las discrepancias con su
+magnitud, los casos en que el navegador no pudo leer ---un bloqueo de
+Tottus es un resultado, no un fallo--- y si el vendedor mostrado es la
+cadena o un tercero del \emph{marketplace}, que es el riesgo declarado de
+contaminación del Modelo A. La auditoría corre cada semana en un flujo de
+trabajo independiente del de recolección y acumula sus resultados, de modo
+que la concordancia se reporta sobre el acumulado y no solo sobre la última
+muestra; es válida únicamente cuando la ficha se abre el mismo día del
+panel, y el procedimiento lo marca cuando no es así.
+
+La primera corrida de prueba (21 de septiembre de 2026, tres fichas por
+cadena sobre el panel del día anterior) leyó las 15 fichas sin ningún
+bloqueo, incluidas las de Tottus; en las 14 que mostraban precio, el
+\texttt{price} del panel apareció exacto en pantalla, y los tres precios
+con tarjeta derivados del \emph{teaser} en Metro coincidieron al céntimo
+con la etiqueta ``Tarjeta Cencosud'' de la ficha. Como la ficha se abrió
+un día después del panel, esas 14 coincidencias no entran todavía en la
+concordancia acumulada. La misma corrida mostró que Wong pinta el precio
+con tarjeta sin etiqueta de texto, en un caso sin que el panel tuviera
+\texttt{card\_price}: la cobertura de esa columna está subestimada en
+Wong, y la auditoría es lo que lo detecta.
+
+\subsection{Resolución de entidades}
+\label{sec:entidades}
+
+Comparar precios entre cadenas exige saber que dos listados describen el
+mismo producto físico. Cuando ambas cadenas publican el EAN, la identidad
+es exacta. Cuando no ---marca propia, granel, panadería, y el 41\,\% del
+catálogo de Plaza Vea--- el problema es de resolución de entidades:
+decidir si ``Tostadas Integrales 142 g'' y ``Tostada Integral BAUDUCCO
+Paquete de 142g'' son el mismo producto. Fellegi y Sunter
+\cite{fellegi1969} formalizaron el problema como una decisión bajo
+incertidumbre a partir de la similitud de los atributos de cada par. Las
+representaciones vectoriales de texto entrenadas con pares de oraciones
+\cite{reimers2019} permiten hoy capturar similitud semántica que el
+emparejamiento de cadenas de caracteres no ve: singulares y plurales,
+marcas presentes en un nombre y ausentes en el otro, sinónimos.
+
+Lo que hace tratable el problema en este proyecto es que el EAN
+proporciona la verdad de campo: los pares de productos que lo comparten
+entre cadenas son positivos etiquetados ---alrededor de 31\,000--- y los
+pares de misma categoría con EAN distinto son negativos, sin anotar nada a
+mano. Sobre esos pares se evalúa cualquier método de emparejamiento con
+precisión y exhaustividad, y la medición preliminar muestra que la
+similitud de tokens sola recupera menos de una cuarta parte de los pares
+verdaderos. Bueno \cite{bueno2024} dejó este problema explícitamente
+pendiente; aquí es el paso previo al análisis.
+
+\subsection{Nota metodológica: reproducibilidad de las cifras}
+
+Toda cifra del proyecto propio que aparece en este informe se calcula con
+un solo comando, \texttt{python -m analisis.run\_all}, sobre los archivos
+diarios del repositorio: ese comando descubre por sí mismo qué días hay,
+regenera cada derivado, pega las tablas en este documento entre marcadores
+y termina declarando qué resultados son sólidos y cuáles provisionales, con
+el número de días que faltan para que dejen de serlo. En la versión
+presente el panel tiene dos días, ambos de fin de semana: son sólidos los
+niveles de dispersión (coincidencia por pares, masa en cero, descomposición
+de varianza), medidos sobre el panel entero; son provisionales su
+estabilidad en el tiempo (hacen falta 10 días), la rigidez en días hábiles
+(no hay todavía ninguna transición hábil), la distinción entre oferta real
+y tachado permanente (21 días observados por producto) y el contraste entre
+reglas de precios faltantes (14 días). Todas deben rehacerse con ese
+comando antes de la versión final, y el texto que las comenta, revisarse.
+
+% =====================================================================
+\begin{thebibliography}{00}
+% =====================================================================
+
+\bibitem{cavallo2016bpp}
+A. Cavallo y R. Rigobon, ``The Billion Prices Project: Using online
+prices for measurement and research,'' \emph{Journal of Economic
+Perspectives}, vol.~30, n.º~2, pp.~151--178, 2016,
+doi: 10.1257/jep.30.2.151.
+
+\bibitem{jaworski2021}
+K. Jaworski, ``Measuring food inflation during the COVID-19 pandemic in
+real time using online data: a case study of Poland,'' \emph{British Food
+Journal}, vol.~123, n.º~13, pp.~260--280, 2021,
+doi: 10.1108/BFJ-06-2020-0532.
+
+\bibitem{bueno2024}
+G. Bueno, ``Inflation and price dynamics analysis using high-frequency
+data from supermarkets: evidence from Peru,'' en \emph{IFC Bulletin
+No.~66: Statistics and beyond: new data for decision making in central
+banks}, Bank for International Settlements, 2024. [En línea]. Disponible:
+\url{https://www.bis.org/ifc/publ/ifcb66_42.pdf}
+
+\bibitem{cavallo2018sticky}
+A. Cavallo, ``Scraped data and sticky prices,'' \emph{Review of Economics
+and Statistics}, vol.~100, n.º~1, pp.~105--119, 2018,
+doi: 10.1162/REST\_a\_00652.
+
+\bibitem{gorodnichenko2017}
+Y. Gorodnichenko y O. Talavera, ``Price setting in online markets: Basic
+facts, international comparisons, and cross-border integration,''
+\emph{American Economic Review}, vol.~107, n.º~1, pp.~249--282, 2017,
+doi: 10.1257/aer.20141127.
+
+\bibitem{dellavigna2019}
+S. DellaVigna y M. Gentzkow, ``Uniform pricing in U.S. retail chains,''
+\emph{Quarterly Journal of Economics}, vol.~134, n.º~4, pp.~2011--2084,
+2019, doi: 10.1093/qje/qjz019.
+
+\bibitem{stigler1961}
+G. J. Stigler, ``The economics of information,'' \emph{Journal of
+Political Economy}, vol.~69, n.º~3, pp.~213--225, 1961.
+
+\bibitem{varian1980}
+H. R. Varian, ``A model of sales,'' \emph{American Economic Review},
+vol.~70, n.º~4, pp.~651--659, 1980.
+
+\bibitem{nakamura2008}
+E. Nakamura y J. Steinsson, ``Five facts about prices: A reevaluation of
+menu cost models,'' \emph{Quarterly Journal of Economics}, vol.~123,
+n.º~4, pp.~1415--1464, 2008.
+
+\bibitem{kehoe2015}
+P. Kehoe y V. Midrigan, ``Prices are sticky after all,'' \emph{Journal of
+Monetary Economics}, vol.~75, pp.~35--53, 2015.
+
+\bibitem{cpimanual2020}
+IMF, ILO, Eurostat, UNECE, OECD y World Bank, \emph{Consumer Price Index
+Manual: Concepts and Methods}. Washington, DC: International Monetary
+Fund, 2020.
+
+\bibitem{fellegi1969}
+I. P. Fellegi y A. B. Sunter, ``A theory for record linkage,''
+\emph{Journal of the American Statistical Association}, vol.~64,
+n.º~328, pp.~1183--1210, 1969.
+
+\bibitem{friedman2001}
+J. H. Friedman, ``Greedy function approximation: A gradient boosting
+machine,'' \emph{Annals of Statistics}, vol.~29, n.º~5, pp.~1189--1232,
+2001.
+
+\bibitem{chen2016}
+T. Chen y C. Guestrin, ``XGBoost: A scalable tree boosting system,'' en
+\emph{Proc. 22nd ACM SIGKDD Int. Conf. Knowledge Discovery and Data
+Mining}, 2016, pp.~785--794.
+
+\bibitem{lundberg2017}
+S. M. Lundberg y S.-I. Lee, ``A unified approach to interpreting model
+predictions,'' en \emph{Advances in Neural Information Processing Systems
+30}, 2017, pp.~4765--4774.
+
+\bibitem{cox1972}
+D. R. Cox, ``Regression models and life-tables,'' \emph{Journal of the
+Royal Statistical Society: Series B}, vol.~34, n.º~2, pp.~187--220, 1972.
+
+\bibitem{reimers2019}
+N. Reimers e I. Gurevych, ``Sentence-BERT: Sentence embeddings using
+Siamese BERT-networks,'' en \emph{Proc. EMNLP-IJCNLP}, 2019,
+pp.~3982--3992.
+
+\bibitem{pfister2013}
+R. Pfister, K. A. Schwarz, M. Janczyk, R. Dale y J. B. Freeman, ``Good
+things peak in pairs: A note on the bimodality coefficient,''
+\emph{Frontiers in Psychology}, vol.~4, art.~700, 2013,
+doi: 10.3389/fpsyg.2013.00700.
+
+\bibitem{saito2015}
+T. Saito y M. Rehmsmeier, ``The precision-recall plot is more informative
+than the ROC plot when evaluating binary classifiers on imbalanced
+datasets,'' \emph{PLoS ONE}, vol.~10, n.º~3, e0118432, 2015,
+doi: 10.1371/journal.\allowbreak pone.0118432.
+
+\end{thebibliography}
+
+\end{document}

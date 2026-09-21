@@ -353,7 +353,7 @@ def tablas_tex(res_pares, dist, dec, n_dias, fecha, incluir_internos):
     L.append(f"\\caption{{Precio id\\'entico entre pares de cadenas para el mismo EAN, "
              f"{nota} ({n_dias} d\\'ias, \\'ultimo {fecha})}}")
     L.append("\\label{tab:identidad}")
-    L.append("\\centering\\footnotesize")
+    L.append("\\centering\\scriptsize\\setlength{\\tabcolsep}{3pt}")
     L.append("\\begin{tabular}{@{}llrrr@{}}")
     L.append("\\toprule")
     L.append("Par & Relaci\\'on & EAN-d\\'ias & Id\\'entico & Brecha med. \\\\")
@@ -365,11 +365,11 @@ def tablas_tex(res_pares, dist, dec, n_dias, fecha, incluir_internos):
     L.append("\\bottomrule\\end{tabular}\\end{table}")
     L.append("")
     # brecha
-    L.append("\\begin{table}[htbp]")
+    L.append("\\begin{table*}[t]")
     L.append(f"\\caption{{Distribuci\\'on de la brecha m\\'ax/m\\'in del precio por EAN-d\\'ia "
              f"y masa en cero, {nota}}}")
     L.append("\\label{tab:brecha}")
-    L.append("\\centering\\footnotesize")
+    L.append("\\centering\\scriptsize\\setlength{\\tabcolsep}{4pt}")
     L.append("\\begin{tabular}{@{}lrrrrrrrrr@{}}")
     L.append("\\toprule")
     L.append("Subconjunto & EAN-d\\'ias & Masa en 0 & p10 & p25 & p50 & p75 & p90 & SD log \\\\")
@@ -386,14 +386,14 @@ def tablas_tex(res_pares, dist, dec, n_dias, fecha, incluir_internos):
     L.append("\\par\\smallskip\\raggedright\\scriptsize SD log: desviaci\\'on est\\'andar media del "
              "log-precio dentro del EAN-d\\'ia; referencia de Gorodnichenko y Talavera (2017): "
              f"{REFERENCIA_GT[0]:.2f}--{REFERENCIA_GT[1]:.2f}.")
-    L.append("\\end{table}")
+    L.append("\\end{table*}")
     L.append("")
     # varianza
     L.append("\\begin{table}[htbp]")
     L.append(f"\\caption{{Descomposici\\'on de la varianza de $\\log$(precio) por efectos fijos "
              f"anidados, {nota}}}")
     L.append("\\label{tab:varianza}")
-    L.append("\\centering\\footnotesize")
+    L.append("\\centering\\scriptsize\\setlength{\\tabcolsep}{3pt}")
     L.append("\\begin{tabular}{@{}llrrr@{}}")
     L.append("\\toprule")
     L.append("Orden & Nivel & $R^2$ acum. & $R^2$ incr. & \\% var. intra-prod. \\\\")

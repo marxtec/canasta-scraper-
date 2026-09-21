@@ -29,13 +29,15 @@ def actualizar_informe(path, tex):
     """Sustituye el bloque entre marcadores; si no hay marcadores no toca nada."""
     if not path.exists():
         return False
-    texto = path.read_text(encoding="utf-8")
+    crudo = path.read_bytes().decode("utf-8")
+    fin_linea = "\r\n" if "\r\n" in crudo else "\n"       # se respeta el del archivo
+    texto = crudo.replace("\r\n", "\n")
     if MARCA_INI not in texto or MARCA_FIN not in texto:
         return False
     patron = re.compile(re.escape(MARCA_INI) + r".*?" + re.escape(MARCA_FIN), re.DOTALL)
     nuevo = patron.sub(lambda _: f"{MARCA_INI}\n{tex.strip()}\n{MARCA_FIN}", texto)
     if nuevo != texto:
-        path.write_text(nuevo, encoding="utf-8", newline="\n")
+        path.write_bytes(nuevo.replace("\n", fin_linea).encode("utf-8"))
     return True
 
 

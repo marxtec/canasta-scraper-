@@ -137,7 +137,8 @@ def test_tex_es_balanceado():
     res, _ = D.pares(obs)
     tex = D.tablas_tex(res, D.distribucion_brecha(ed), D.descomposicion(obs), 1,
                        "2026-09-19", False)
-    assert tex.count("\\begin{table}") == 3 == tex.count("\\end{table}")
+    assert tex.count("\\begin{table}") == 2 == tex.count("\\end{table}")
+    assert tex.count("\\begin{table*}") == 1 == tex.count("\\end{table*}")
     assert tex.count("\\begin{tabular}") == tex.count("\\end{tabular}")
     assert "tab:identidad" in tex and "tab:varianza" in tex
 

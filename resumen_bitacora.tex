@@ -1,0 +1,207 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\title{Resumen de la bitácora de diseño\\\large Proyecto \emph{canasta-scraper}}
+\author{Analítica de la Web}
+\date{20 de septiembre de 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Este documento resume las decisiones registradas en \texttt{BITACORA.md}: qué se
+decidió, con qué evidencia y qué quedó abierto. Los números citados se midieron
+sobre los datos del 19 y 20 de septiembre de 2026 y deben recalcularse sobre el
+panel acumulado antes de entrar al paper.
+\end{abstract}
+
+\section{Qué es el EAN}
+
+El \textbf{EAN} (\emph{European Article Number}, hoy parte del estándar GS1) es el
+código numérico de 13 dígitos (a veces 8 o 12) que aparece bajo el código de
+barras de un producto envasado. Lo asigna el fabricante, no la tienda, y por eso
+tiene dos propiedades que lo vuelven central para el proyecto:
+
+\begin{itemize}[nosep]
+  \item \textbf{Es único por producto físico.} Un mismo EAN en Metro, Wong, Plaza
+        Vea, Vivanda o Tottus identifica exactamente la misma presentación
+        (misma marca, mismo gramaje, mismo envase). Es la \emph{llave de
+        emparejamiento} entre cadenas: los \texttt{productId} de cada tienda no
+        son comparables entre sí, el EAN sí.
+  \item \textbf{Es estático.} El código de barras no cambia con el tiempo, así
+        que basta consultarlo una vez por SKU y guardarlo en caché
+        (\texttt{data/ean\_tottus.json}), a diferencia del precio, que hay que
+        capturar todos los días.
+\end{itemize}
+
+No todas las cadenas lo publican igual: Metro lo expone en el 100\,\% de sus
+productos, Plaza Vea en el 58\,\%, y Tottus solo en la ficha de producto, no en el
+listado. Los productos sin EAN (marca propia, granel, panadería) son justamente
+la parte del catálogo que no se puede emparejar por ahora. Además, el EAN
+\emph{regala etiquetas}: pares con el mismo EAN son ``mismo producto'' y pares con
+distinto EAN son ``distinto producto'', lo que permite entrenar y evaluar un
+modelo de emparejamiento sin anotar nada a mano.
+
+\section{Mapa del pipeline}
+
+Flujo: \texttt{config/retailers.yml} $\rightarrow$ \texttt{collect.py} $\rightarrow$
+cliente (\texttt{vtex} $|$ \texttt{falabella\_catalyst}) $\rightarrow$
+\texttt{normalize} $\rightarrow$ \texttt{storage}. Se guarda en dos capas: JSON crudo
+comprimido y CSV normalizado. Las categorías de alimentos se filtran
+\textbf{por nombre}, no por id.
+
+Tres piezas donde vive la dificultad real:
+\begin{enumerate}[nosep]
+  \item \texttt{parse\_quantity()}: el gramaje se extrae del nombre; el modo de
+        falla peligroso es el gramaje \emph{presente y equivocado}.
+  \item \texttt{eans.py}: caché persistente y versionada; si se pierde, nunca converge.
+  \item \texttt{storage.py}: el crudo existe para reprocesar cuando aparezca un bug.
+\end{enumerate}
+
+\textbf{Principio de fondo:} lo único irrecuperable es el precio de hoy. Todo lo
+demás (EAN, gramaje, emparejamiento, precio con tarjeta) se repara después sobre
+el crudo. De ahí la tolerancia a fallos: una cadena caída no tumba la corrida.
+
+\section{Qué se descartó de la propuesta original}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{p{5cm}p{9.5cm}}
+\toprule
+\textbf{Elemento} & \textbf{Realidad} \\
+\midrule
+Makro & No existe: tienda online muerta. Sacar de la slide. \\
+``4 súper (si alcanza: Vivanda)'' & Ya alcanzó. Son \textbf{5 cadenas}. \\
+IPC-Web vs.\ IPC del INEI como núcleo & \textbf{No viable}: para diciembre habrá 2--3 observaciones mensuales del INEI. \\
+Comparación con el INEI en general & Confundida por canal: el INEI releva mercados de abastos; el panel, solo supermercado. \\
+``50--100 alimentos'' & Número inventado. Hay \textbf{917} productos con EAN en las 5 cadenas. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Se conservan: el esquema de 22 columnas, el precio por kg, \texttt{on\_sale} vs.\
+inflación, los tres antecedentes (Cavallo \& Rigobon 2016; Jaworski 2021; Bueno
+2024) y la fórmula de la canasta.
+
+Diagnóstico de fondo: ``un tablero de esta semana'' describe un \emph{producto},
+no una pregunta de investigación. Un tablero no puede estar equivocado; un paper
+necesita una afirmación falseable.
+
+\section{Pregunta de investigación redefinida}
+
+\begin{quote}
+\textbf{¿El precio de un mismo producto físico (mismo EAN) en la web de los
+supermercados de Lima se fija por cadena, por grupo corporativo o por
+competencia?}
+\end{quote}
+
+Sub-preguntas: (1) dispersión, (2) estructura de propiedad y formato,
+(3) rigidez y liderazgo de precios, (4) promoción vs.\ inflación.
+
+\subsection*{Evidencia con un día de datos (2026-09-20, replicado el 19)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Par de cadenas} & \textbf{EAN comunes} & \textbf{Precio idéntico} & \textbf{Brecha mediana} \\
+\midrule
+Metro + Wong (Cencosud)       & 5\,444 & 67.7\,\% & 0.0\,\% \\
+Wong + Vivanda                & 1\,987 & 46.5\,\% & 1.8\,\% \\
+Plaza Vea + Tottus            & 3\,081 & 44.7\,\% & 1.4\,\% \\
+Plaza Vea + Vivanda (SPSA)    & 4\,725 & 23.8\,\% & 2.4\,\% \\
+Vivanda + Tottus              & 2\,466 & 14.4\,\% & 5.6\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Dispersión (brecha max/min): mediana 4.0\,\% con EAN en $\geq 2$ cadenas
+(11\,019 EAN); 13.9\,\% en los 906 EAN presentes en las 5 cadenas (p90: 41.4\,\%).
+
+\textbf{Dos hallazgos:}
+\begin{itemize}[nosep]
+  \item Los grupos corporativos no se comportan igual: Cencosud sirve el mismo
+        precio en Metro y Wong 2 de cada 3 veces (backend de pricing compartido);
+        SPSA no, porque Vivanda está posicionada premium.
+  \item Plaza Vea coincide más con Tottus (44.7\,\%) que con su hermana Vivanda
+        (23.8\,\%): la competencia disciplina más el precio que la propiedad común.
+\end{itemize}
+
+\textbf{Por qué es mejor:} desriesga (las sub-preguntas 1 y 2 ya están
+contestadas); convierte ``solo mido supermercado'' en irrelevante; convierte
+``Metro y Wong son la misma empresa'' en la variable independiente; es más
+Analítica de la Web (dos storefronts sirviendo el mismo precio desde el mismo
+backend; asimetría de publicación del EAN); la canasta sobrevive entera como
+entregable de cierre.
+
+\section{Dónde entra el modelo}
+
+\subsection*{Dónde no}
+Predecir el precio de mañana: el 99.5\,\% de los precios no cambia de un día a
+otro, así que ``mañana igual que hoy'' acierta $\sim$99\,\% sin aprender nada.
+
+\subsection*{Emparejamiento sin EAN: preprocesamiento, no modelamiento}
+Cerca de la mitad del universo no es emparejable por EAN (13\,119 de 24\,188
+productos con EAN en una sola cadena, más $\sim$10\,700 filas sin EAN). Usando
+pares con EAN compartido como verdad de campo (Metro vs.\ Plaza Vea, 2\,294 pares):
+nombre idéntico tras normalizar 3.5\,\%; Jaccard $\geq 0.8$ solo 24\,\% de
+recall, con 0 falsos positivos. El texto es preciso pero ciego; el 76\,\% restante
+requiere modelo (TF-IDF como baseline, Sentence-BERT siamés con pérdida
+contrastiva sobre $\sim$31k pares, gradient boosting con gramaje y precio como
+features). \textbf{Corrección de rumbo:} esto construye el dataset, así que va en
+la sección de datos, no en la de modelamiento.
+
+\subsection*{Modelamiento: las tres decisiones del comprador (slide 4)}
+\begin{table}[h]
+\centering
+\begin{tabular}{p{4cm}p{3cm}p{7.5cm}}
+\toprule
+\textbf{Decisión} & \textbf{Qué es} & \textbf{Cómo se operacionaliza} \\
+\midrule
+``¿en qué cadena?'' & Modelo A, disponible hoy & Brecha de precio entre cadenas (regresión) o cadena más barata (multiclase). Features: categoría, marca, marca propia, gramaje, unidad, nivel de precio. Sin usar precios de otras cadenas. SHAP para interpretar. 11\,019 EAN. \\
+``¿compro ahora o espero?'' & Modelo B, noviembre & $P(\texttt{on\_sale}$ en $t{+}1..t{+}7)$. Features: días desde la última oferta, precio vs.\ mediana histórica, si la cadena hermana ya bajó, día de semana, quincena. Requiere panel acumulado: es el modelo que justifica recolectar a diario. \\
+``¿la quincena alcanza?'' & Canasta en soles & Analytics, entregable de cierre. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Modelo C (opcional): duración de la oferta como análisis de supervivencia,
+conecta con Bueno (2024).
+
+Señal promocional disponible: 24.4\,\% de las filas en oferta, con descuento
+mediano de 13--17\,\%; la intensidad varía 2.5$\times$ entre cadenas (Vivanda
+13\,\%, Plaza Vea 32\,\%).
+
+\section{Advertencias y pendientes}
+
+\begin{itemize}[nosep]
+  \item \textbf{No usar} la rigidez de 0.48\,\% ni la tasa de entrada a oferta de
+        0.11\,\%: se midieron sábado$\to$domingo. Remedir lunes--viernes; decide
+        si el Modelo B es viable a 7 días o hay que ampliar a 14--30.
+  \item Corregir slides (Makro fuera, Vivanda dentro, 5 cadenas). Correr el
+        backfill de EAN.
+  \item La \textbf{regla de precios faltantes} (\S 2 del README) sigue abierta y es
+        la decisión metodológica más importante.
+  \item Confirmar si el curso exige deep learning o acepta ML clásico.
+  \item Decidir si el Modelo C entra o queda como extensión.
+  \item El 15\,\% de los pares con EAN discrepa en gramaje; los desacuerdos
+        modelo-vs-EAN detectan errores de catalogación.
+\end{itemize}
+
+\subsection*{Horizonte}
+\begin{tabular}{ll}
+\toprule
+Esta semana & Slides, backfill de EAN, tasa de cambio en días hábiles. \\
+Octubre & Canasta sobre panel acumulado; regla de precios faltantes; Modelo A. \\
+Noviembre & Rigidez y liderazgo de precios; Modelo B con 6+ semanas. \\
+Diciembre & Canasta en soles + IPC-Web como anexo descriptivo, sin nowcast. \\
+\bottomrule
+\end{tabular}
+
+\end{document}
