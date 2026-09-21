@@ -1,0 +1,7 @@
+cadena,fichas,leidas,bloqueadas,sin_producto,errores,mismo_dia,evaluables,concordancia_exacta,discrepancias,magnitud_mediana,regular_visible,card_visible,con_vendedor,vendedor_tercero,tarjeta_sin_dato,distinto_dia
+metro,3,3,0,0,0,0,0,,0,,1.0,1.0,3,0.0,0,3
+plaza_vea,3,3,0,0,0,0,0,,0,,1.0,,3,0.0,0,3
+tottus,3,3,0,0,0,0,0,,0,,,,2,0.0,0,3
+vivanda,3,3,0,0,0,0,0,,0,,,,0,,0,3
+wong,3,3,0,0,0,0,0,,0,,1.0,,3,0.0,1,3
+TOTAL,15,15,0,0,0,0,0,,0,,1.0,1.0,11,0.0,1,15

@@ -30,6 +30,7 @@ Dependencia opcional:
     python3 -m playwright install chromium
 """
 
+import contextlib
 import re
 
 # Marcas comerciales de precio con tarjeta de cada cadena. Se amplia aqui
@@ -56,34 +57,53 @@ def _parse_card(texto):
         return None
 
 
-def scrape_card_prices(urls, log, espera_ms=7000, timeout_ms=60000, limite=None):
-    """{url: precio_tarjeta_o_None} para las URLs de ficha dadas.
+@contextlib.contextmanager
+def navegador(user_agent=_UA, headless=True):
+    """Contexto de Chromium listo para abrir fichas: UA, locale y viewport.
 
-    Importa playwright aqui dentro y no arriba: el pipeline diario no lo
-    necesita y no debe fallar si no esta instalado.
+    Es el UNICO sitio donde se arranca el navegador; la auditoria de validez
+    (analisis/auditoria_validez.py) lo reutiliza en vez de duplicar el
+    arranque. Importa playwright aqui dentro y no arriba: el pipeline diario
+    no lo necesita y no debe fallar si no esta instalado. Lanza ImportError
+    con el mensaje de instalacion si falta.
     """
     try:
         from playwright.sync_api import sync_playwright
-    except ImportError:
-        log.error(
+    except ImportError as exc:
+        raise ImportError(
             "playwright no esta instalado. "
             "pip install -r requirements-browser.txt && "
             "python3 -m playwright install chromium"
-        )
-        return {}
+        ) from exc
 
+    with sync_playwright() as pw:
+        nav = pw.chromium.launch(
+            headless=headless, args=["--no-sandbox", "--disable-dev-shm-usage"]
+        )
+        ctx = nav.new_context(
+            user_agent=user_agent, locale="es-PE",
+            viewport={"width": 1440, "height": 1000},
+        )
+        try:
+            yield ctx
+        finally:
+            nav.close()
+
+
+def scrape_card_prices(urls, log, espera_ms=7000, timeout_ms=60000, limite=None):
+    """{url: precio_tarjeta_o_None} para las URLs de ficha dadas."""
     urls = list(dict.fromkeys(urls))
     if limite:
         urls = urls[:limite]
     out = {}
 
-    with sync_playwright() as pw:
-        navegador = pw.chromium.launch(
-            headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"]
-        )
-        ctx = navegador.new_context(
-            user_agent=_UA, locale="es-PE", viewport={"width": 1440, "height": 1000}
-        )
+    try:
+        arranque = navegador()
+    except ImportError as exc:
+        log.error("%s", exc)
+        return {}
+
+    with arranque as ctx:
         for i, url in enumerate(urls, 1):
             pagina = ctx.new_page()
             try:
@@ -99,7 +119,6 @@ def scrape_card_prices(urls, log, espera_ms=7000, timeout_ms=60000, limite=None)
             if i % 10 == 0:
                 con = sum(1 for v in out.values() if v)
                 log.info("tarjeta: %d/%d fichas, %d con precio", i, len(urls), con)
-        navegador.close()
 
     con = sum(1 for v in out.values() if v)
     log.info("tarjeta: %d de %d fichas con precio de tarjeta", con, len(out))

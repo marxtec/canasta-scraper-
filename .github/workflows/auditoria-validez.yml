@@ -1,0 +1,77 @@
+name: Auditoria de validez API vs pantalla
+
+# SEMANAL, no diaria, y TOTALMENTE INDEPENDIENTE de la recoleccion
+# (scrape.yml): otro workflow, otro grupo de concurrencia, otro commit. Si
+# esto falla, la captura diaria de precios ni se entera.
+#
+# Que hace: abre con un navegador una muestra reproducible de ~50 fichas por
+# cadena del CSV MAS RECIENTE y compara el precio en pantalla con el del CSV.
+# Ver analisis/auditoria_validez.py. Corre los miercoles por la tarde (hora
+# de Lima), varias horas despues del ultimo intento de recoleccion del dia,
+# para que el CSV auditado sea el de ese mismo dia: si la ficha se abre otro
+# dia, la discrepancia no es atribuible a la API (mismo_dia=False).
+#
+# ~250 fichas x (6 s de render + 1,5 s de cortesia) ~ 35 min.
+
+on:
+  schedule:
+    - cron: "37 21 * * 3"     # miercoles 16:37 Lima (21:37 UTC)
+  workflow_dispatch:
+    inputs:
+      n:
+        description: "Fichas por cadena"
+        required: false
+        default: "50"
+      fecha:
+        description: "Dia del CSV a auditar (vacio = el mas reciente)"
+        required: false
+        default: ""
+
+concurrency:
+  group: auditoria-validez
+  cancel-in-progress: false
+
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias (scraper + analisis + navegador)
+        run: |
+          pip install -r requirements.txt -r requirements-analisis.txt -r requirements-browser.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Auditar
+        run: |
+          ARGS="--n ${{ inputs.n || 50 }}"
+          if [ -n "${{ inputs.fecha }}" ]; then ARGS="$ARGS --fecha ${{ inputs.fecha }}"; fi
+          python -m analisis.auditoria_validez $ARGS
+
+      - name: Commitear resultados
+        run: |
+          git config user.name  "canasta-bot"
+          git config user.email "actions@github.com"
+          git add data/derived/auditoria/
+          if git diff --staged --quiet; then
+            echo "Sin resultados nuevos."
+            exit 0
+          fi
+          git commit -m "auditoria de validez $(TZ=America/Lima date +%Y-%m-%d)"
+          for intento in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
+            git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "push fallido, reintento $intento"
+            sleep 5
+          done
+          echo "::error::No se pudo empujar la auditoria (la recoleccion diaria no se ve afectada)."
+          exit 1
