@@ -59,7 +59,7 @@ from analisis import panel as P
 from canasta import storage
 
 TOPE_ARRASTRE_DIAS = 7          # dias calendario que se arrastra un precio
-MIN_CADENAS_CANASTA = 5         # EAN presente en todas las cadenas el dia base
+MIN_CADENAS_CANASTA = None      # None = en TODAS las cadenas del panel el dia base
 UMBRAL_INDIFERENCIA = 0.005     # 0,5 puntos de indice: por debajo, da igual la regla
 MIN_DIAS_SOLIDO = 14            # dias de panel para dar por concluyente el contraste
 REGLAS = ("arrastre", "imputacion", "exclusion")
@@ -186,6 +186,8 @@ def matriz_canasta(panel, min_cadenas=MIN_CADENAS_CANASTA, incluir_internos=Fals
     fechas = sorted(obs["fecha"].unique())
     if not fechas:
         return {}, pd.Series(dtype=str), []
+    if not min_cadenas:
+        min_cadenas = panel["retailer"].nunique()
     base = obs[obs["fecha"] == fechas[0]].groupby("ean")["retailer"].nunique()
     eans = sorted(base[base >= min_cadenas].index)
     cat = (d[d["ean"].isin(eans)].groupby("ean")["categoria_comun"]
@@ -369,7 +371,8 @@ def correr(regla="todas", tope=TOPE_ARRASTRE_DIAS, min_cadenas=MIN_CADENAS_CANAS
         if sin_arbol:
             print(f"\n{sin_arbol} desapariciones sin arbol guardado ese dia: no se puede decir si\n"
                   "fue la cadena o el arbol. Los arboles se guardan desde el 21-09-2026.")
-        print(f"\n--- canasta de referencia: EAN en {min_cadenas} cadenas el {fechas[0].date() if fechas else '?'} ---")
+        print(f"\n--- canasta de referencia: EAN en {min_cadenas or df['retailer'].nunique()} cadenas "
+              f"el {fechas[0].date() if fechas else '?'} ---")
         v = inc.copy()
         v["tasa_faltante"] = v["tasa_faltante"].map(lambda x: P.pct(x, 2))
         print(P.tabla(v))
@@ -398,7 +401,7 @@ def main(argv=None):
     ap.add_argument("--tope-arrastre", type=int, default=TOPE_ARRASTRE_DIAS,
                     help=f"dias maximos de arrastre (def. {TOPE_ARRASTRE_DIAS})")
     ap.add_argument("--min-cadenas", type=int, default=MIN_CADENAS_CANASTA,
-                    help=f"cadenas en que debe estar el EAN el dia base (def. {MIN_CADENAS_CANASTA})")
+                    help="cadenas en que debe estar el EAN el dia base (def. todas las del panel)")
     ap.add_argument("--incluir-internos", action="store_true")
     args = ap.parse_args(argv)
     correr(args.regla, args.tope_arrastre, args.min_cadenas, args.incluir_internos)
