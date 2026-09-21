@@ -546,9 +546,21 @@ etiquetados (65 con descuento, 10 con descuento y tarjeta, 81 solos).
 - El panel deja de subcontar promociones en Plaza Vea.
 - Un cambio en el árbol de una cadena se detecta el mismo día.
 
+### Cierre (2026-09-20, noche)
+
+- Pusheado como `3a90614` una vez aceptada la invitación de colaborador
+  (estaba pendiente; GitHub no da permisos hasta aceptarla).
+- **Marx corrigió un bug del redondeo** en `0c66257`: `round()` con floats
+  daba `12.82` donde Metro muestra `12.83`, un céntimo de menos en 2.224 de
+  6.789 filas con `card_price` derivado (33%). Fix con `Decimal` +
+  `ROUND_HALF_UP`, verificado contra la web con Playwright (3 de 3
+  coinciden). Datos reprocesados. El método queda validado de forma
+  independiente.
+- CI en verde: tests y recolección.
+
 ### Abierto
 
-- Sin commitear: el push sigue bloqueado hasta que Marx dé acceso.
-- Apareció `resumen_bitacora.tex` sin versionar en la raíz; no lo creé yo.
-- Primera corrida real con `data/trees/` será la del cron de mañana: revisar
-  que el commit del CI los incluya.
+- Primera corrida real con `data/trees/` es la del cron del 21-09 a las
+  08:07 Lima: revisar que el commit del bot incluya
+  `data/trees/2026-09-21__*.json.gz`.
+- `resumen_bitacora.tex` sigue sin versionar en la raíz.
