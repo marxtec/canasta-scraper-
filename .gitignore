@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 .venv/
+# derivados voluminosos que se regeneran con analisis/run_all.py
+data/derived/*_panel__*.csv.gz

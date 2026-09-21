@@ -1,0 +1,5 @@
+# Capa de analisis (analisis/). El scraper NO las necesita: requirements.txt
+# sigue siendo requests + PyYAML y el job diario no instala esto.
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
