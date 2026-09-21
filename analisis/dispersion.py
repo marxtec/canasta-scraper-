@@ -71,10 +71,18 @@ NOMBRES = {"metro": "Metro", "wong": "Wong", "plaza_vea": "Plaza Vea",
 # Observaciones EAN x cadena x dia
 # ---------------------------------------------------------------------------
 
-def observaciones(panel, incluir_internos=False):
+def observaciones(panel, incluir_internos=False, solo_disponibles=False):
     """Mediana de price por (fecha, ean, retailer); solo EAN en 2+ cadenas
-    ese dia. Añade categoria modal del EAN y log_p."""
+    ese dia. Añade categoria modal del EAN y log_p.
+
+    Por defecto entra todo precio publicado, este o no disponible el
+    producto: lo que se compara es lo que la cadena PUBLICA. Con
+    `solo_disponibles` se exigen filas con available != False (Plaza Vea y
+    Vivanda publican precio en un 16% y 33% de sus filas comparables sin
+    stock; Tottus no publica stock y entra entera)."""
     d = panel[panel["price"].notna() & P.ean_comparable(panel["ean"], incluir_internos)]
+    if solo_disponibles and "available" in d:
+        d = d[d["available"].ne(False)]
     if d.empty:
         return pd.DataFrame(columns=["fecha", "ean", "retailer", "grupo", "price",
                                      "log_p", "categoria", "n_cadenas"])
@@ -503,15 +511,16 @@ def figuras(ed, dec, evo, fecha):
         plt.close(fig)
 
 
-def correr(incluir_internos=False, con_figuras=True, panel_df=None, silencioso=False):
+def correr(incluir_internos=False, con_figuras=True, panel_df=None, silencioso=False,
+           solo_disponibles=False):
     df = panel_df if panel_df is not None else P.cargar_panel(
-        columnas=["retailer", "item_id", "ean", "price", "category"])
+        columnas=["retailer", "item_id", "ean", "price", "category", "available"])
     if df.empty:
         raise SystemExit("Panel vacio.")
     fecha = str(df["fecha"].max().date())
     n_dias = df["fecha"].nunique()
 
-    obs = observaciones(df, incluir_internos)
+    obs = observaciones(df, incluir_internos, solo_disponibles)
     if obs.empty:
         raise SystemExit("Ningun EAN en 2+ cadenas: no hay nada que comparar.")
     ed = por_ean_dia(obs)
@@ -536,6 +545,8 @@ def correr(incluir_internos=False, con_figuras=True, panel_df=None, silencioso=F
     largo.append({"bloque": "panel", "subconjunto": "", "metrica": "n_dias", "valor": n_dias})
     largo.append({"bloque": "panel", "subconjunto": "", "metrica": "incluir_internos",
                   "valor": int(incluir_internos)})
+    largo.append({"bloque": "panel", "subconjunto": "", "metrica": "solo_disponibles",
+                  "valor": int(solo_disponibles)})
     P.escribir_csv(pd.DataFrame(largo), "dispersion", fecha)
     P.escribir_csv(res_pares, "dispersion_pares", fecha)
     P.escribir_csv(det_pares, "dispersion_pares_diario", fecha)
@@ -584,8 +595,10 @@ def main(argv=None):
     ap.add_argument("--incluir-internos", action="store_true",
                     help="incluye los EAN con prefijo 2 (criterio de la bitacora 20-09)")
     ap.add_argument("--sin-figuras", action="store_true")
+    ap.add_argument("--solo-disponibles", action="store_true",
+                    help="excluye filas con available=False (precio publicado sin stock)")
     args = ap.parse_args(argv)
-    correr(args.incluir_internos, not args.sin_figuras)
+    correr(args.incluir_internos, not args.sin_figuras, solo_disponibles=args.solo_disponibles)
     return 0
 
 

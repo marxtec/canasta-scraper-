@@ -55,3 +55,4 @@ varianza,orden A,r2_incremental[cadena x categoria],0.00016361112720996406
 varianza,orden A,r2_acumulado[cadena x categoria],0.9880801020594421
 panel,,n_dias,2.0
 panel,,incluir_internos,0.0
+panel,,solo_disponibles,0.0
