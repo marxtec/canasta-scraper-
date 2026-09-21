@@ -36,6 +36,9 @@ python3 collect.py --audit      # calidad de lo recolectado
 python3 collect.py --reprocess  # re-normaliza todo desde el crudo (parser nuevo)
 python3 tests/test_scraper.py   # tests (sin red, sin dependencias extra)
 python3 collect.py --retailer metro   # una sola cadena
+
+pip install -r requirements-analisis.txt   # pandas, numpy, matplotlib: SOLO para analisis/
+python3 -m analisis.run_all               # regenera todos los derivados (ver "Análisis")
 ```
 
 ## Estructura
@@ -48,12 +51,17 @@ canasta/browser.py     Playwright: precio con tarjeta (paso aparte, opcional)
 canasta/normalize.py   JSON de VTEX -> filas planas (esquema de la slide 6)
 canasta/storage.py     Guardado en tres capas (crudo, CSV, arbol)
 collect.py             Orquestador. Es el que corre a diario
+analisis/              Capa de análisis sobre el panel acumulado (ver "Análisis")
 tests/test_scraper.py  Tests del parser y la normalización
+tests/test_*.py        Tests de cada bloque de análisis, con series sintéticas
 config/retailers.yml   Cadenas, canal de venta, categorías
 data/raw/              JSON crudo comprimido
 data/daily/            CSV normalizado, una fila por SKU por día
 data/trees/            Árbol de categorías y hojas recorridas, por cadena y día
 data/ean_tottus.json   Caché de EAN. VERSIONARLA: si se pierde, no converge
+data/derived/          Derivados del análisis, sufijo __<última fecha>; se regeneran
+data/derived/figuras/  Figuras (matplotlib, en español)
+data/derived/auditoria/ Auditoría API vs pantalla: una corrida por semana + acumulado
 ```
 
 **Por qué se guarda el JSON crudo:** el día que encuentres un bug en el
@@ -299,12 +307,28 @@ Queda como decisión metodológica, no de programación: índice principal con
 índice principal, la canasta mediría condiciones de financiamiento, no de
 alimentos.
 
-### 2. Regla de precios faltantes ← la más importante
+### 2. Regla de precios faltantes — decidida (provisional, con criterio de revisión)
 Un SKU se agota, se renombra o desaparece. La fórmula `Canasta = Σ qᵢ·Pᵢ,t`
-**exige** un precio por ítem por día. Hay que decidir y escribir la regla:
-¿se arrastra el último precio (lo que hace el INEI), se imputa, o se
-sustituye? Sin regla explícita, la canasta sube y baja por agotamientos y no
-por precios. Es el error más fácil de cometer y el más difícil de detectar.
+**exige** un precio por ítem por día; sin regla explícita, la canasta sube y
+baja por agotamientos y no por precios. La regla está **medida, implementada
+y decidida** en `analisis/precios_faltantes.py` (bitácora del 2026-09-21):
+
+- **Un precio publicado con `available=False` no es un precio.** Plaza Vea
+  y Vivanda listan con precio el 26 % y el 33 % de sus SKU-día sin stock;
+  Cencosud casi nunca; Tottus no publica stock. Exigirlo baja la base de
+  EAN en las 5 cadenas de 915 a 701 (19-09-2026).
+- **Regla principal: arrastre del último precio con tope de 7 días** (la
+  práctica del INEI) para agotados y deslistados. Un hueco por cambio del
+  árbol de categorías no es un hueco: se arrastra sin tope.
+- **Pasado el tope, exclusión** con índice encadenado de composición
+  emparejada (solo ítems con precio en ambos días).
+- **Imputación por la variación mediana de la categoría** se calcula como
+  prueba de robustez y se reporta la diferencia.
+- **Criterio de revisión, fijado antes de ver el resultado:** con 14+ días,
+  si la divergencia máxima entre reglas supera 0,5 puntos de índice en
+  alguna cadena, la divergencia se publica y la regla principal pasa a ser
+  la exclusión emparejada. Con 2 días las tres difieren en < 0,001 puntos:
+  el contraste todavía no dice nada.
 
 ### 3. Fijar el canal de venta — ya resuelto, no tocar
 `sales_channel` en la config: Plaza Vea 1, Metro 1, Vivanda 1, **Wong 70**.
@@ -532,6 +556,77 @@ atajo por scraping.
 > minoristas— debe controlar por esta diferencia de cobertura.
 
 ---
+
+## Análisis
+
+Todo vive en `analisis/`, separado del recolector: se puede romper, reescribir
+o correr diez veces sin que la captura diaria se entere. Dependencias aparte
+(`requirements-analisis.txt`: pandas, numpy, matplotlib; el scraper sigue con
+requests + PyYAML).
+
+**Premisa de diseño.** Ningún script tiene fechas, rutas ni recuentos de días
+fijos: cada uno descubre qué días hay en `data/daily/` y trabaja con todos.
+Los umbrales son constantes con nombre al inicio de cada módulo y argumentos
+de línea de comandos. Correr dos veces el mismo día deja exactamente un
+derivado por bloque (`data/derived/<bloque>__<última fecha>.csv`; las
+versiones anteriores se borran, la historia queda en git). Lo que no se puede
+calcular todavía sale como `NA` o como `PROVISIONAL` con los días que faltan;
+nunca como una cifra sesgada en silencio. Un precio 0 no es un precio
+observado; un precio con `available=False` cuenta para dispersión (es lo que
+la cadena publica) pero no para la canasta.
+
+### El comando único
+
+```bash
+python3 -m analisis.run_all                  # bloques 1, 2, 3 y 5; pega tablas en el informe
+python3 -m analisis.run_all --con-auditoria  # además el bloque 4 (navegador, ~35 min)
+python3 -m analisis.run_all --sin-informe    # no toca informe_avance.txt
+```
+
+Regenera todos los CSV, el `.tex` de tablas y las figuras, sustituye el
+bloque entre `% >>> TABLAS GENERADAS` y `% <<< TABLAS GENERADAS` de
+`informe_avance.txt`, y termina con un **veredicto** por resultado: `SOLIDO`
+o `PROVISIONAL`, con los días que faltan. Es el comando que se corre en
+noviembre con el panel completo, sin argumentos y sin editar nada.
+
+### Bloque por bloque
+
+| Script | Qué responde | Derivados | Umbrales por defecto |
+|---|---|---|---|
+| `oferta_real.py` | ¿El cartel `on_sale` es una oferta o el precio normal? Referencia = mediana móvil; `oferta_real`, `tachado_permanente`, `fiable` | `oferta_real`, `oferta_real_cadenas` | lookback 45 d, mínimo 21 observados, descuento ≥ 10 %, techo `frac_on_sale` 0,5 |
+| `rigidez.py` | Tasa de cambio de precio, entradas/salidas de oferta, altas/bajas, tamaño y bimodalidad, separando **días hábiles** de fin de semana; tasa de positivos del Modelo B a 7/14/30 días | `rigidez`, `rigidez_transiciones`, `rigidez_tamanos`, `rigidez_horizontes` | cambio > medio céntimo; banda de Bueno 15–25 % |
+| `dispersion.py` | Coincidencia por pares, brecha máx/mín con masa en cero, SD del log-precio (G&T), descomposición de varianza por efectos fijos anidados en dos órdenes, evolución diaria | `dispersion*`, `tablas_dispersion__*.tex`, `figuras/*.png` | EAN de fabricante (12+ dígitos, sin prefijo 2; `--incluir-internos` replica la bitácora); `--solo-disponibles` |
+| `precios_faltantes.py` | Huecos por tipo y duración (usa `data/trees/`); canasta bajo arrastre / imputación / exclusión y contraste | `huecos*`, `canasta_reglas*` | tope de arrastre 7 d; base = EAN en todas las cadenas el primer día |
+| `auditoria_validez.py` | ¿El precio de la API es el que ve el comprador? Muestra reproducible por cadena, ficha abierta con Playwright, concordancia exacta, vendedor mostrado, bloqueos como resultado | `auditoria/validez__<fecha>.csv`, `validez_acumulado.csv`, `validez_resumen.csv` | 50 por cadena, semilla 20260921 |
+
+```bash
+python3 -m analisis.oferta_real --lookback 30 --umbral 0.15
+python3 -m analisis.rigidez --horizontes 7 14 30 60
+python3 -m analisis.dispersion --incluir-internos --sin-figuras
+python3 -m analisis.precios_faltantes --regla arrastre --tope-arrastre 14
+python3 -m analisis.auditoria_validez --n 10 --solo-muestra   # imprime la muestra sin navegador
+python3 -m analisis.auditoria_validez --n 50                   # corre (mismo día que el CSV)
+```
+
+La auditoría corre además **semanalmente** en `.github/workflows/auditoria-validez.yml`
+(miércoles por la tarde, hora de Lima, para auditar el CSV del mismo día),
+en un workflow independiente del de recolección: si falla, la captura de
+precios no se entera. Necesita `requirements-browser.txt` y Chromium.
+
+### Tests
+
+```bash
+python3 tests/test_scraper.py             # parser y normalización (sin dependencias extra)
+python3 tests/test_oferta_real.py         # series sintéticas: oferta real, tachado, cambio permanente
+python3 tests/test_rigidez.py
+python3 tests/test_dispersion.py          # recupera un efecto de cadena conocido
+python3 tests/test_precios_faltantes.py
+python3 tests/test_auditoria_validez.py   # parser sobre texto de fichas reales, sin red
+python3 tests/test_analisis_e2e.py        # panel sintético de 40 días en un directorio temporal
+pytest tests/                             # todo junto
+```
+
+Ninguno toca la red ni depende de cuántos días haya en `data/`.
 
 ## Qué NO hace este repositorio
 

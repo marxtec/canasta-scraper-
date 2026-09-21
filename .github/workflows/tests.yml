@@ -18,8 +18,14 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Tests
+      - name: Tests del scraper (sin dependencias extra)
         run: python tests/test_scraper.py
+      - name: Tests de la capa de analisis (series sinteticas, sin red)
+        run: |
+          pip install -r requirements-analisis.txt
+          for t in tests/test_oferta_real.py tests/test_rigidez.py tests/test_dispersion.py tests/test_precios_faltantes.py tests/test_auditoria_validez.py tests/test_analisis_e2e.py; do
+            python "$t" || exit 1
+          done
       - name: La config debe ser YAML valido y coherente
         run: |
           python - <<'PY'

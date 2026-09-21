@@ -564,3 +564,160 @@ etiquetados (65 con descuento, 10 con descuento y tarjeta, 81 solos).
   08:07 Lima: revisar que el commit del bot incluya
   `data/trees/2026-09-21__*.json.gz`.
 - `resumen_bitacora.tex` sigue sin versionar en la raíz.
+
+---
+
+## 2026-09-21 · Regla de precios faltantes: medida, implementada y decidida (provisional)
+
+Cierra la §2 del README, que estaba declarada como la decisión metodológica
+más importante y seguía abierta. Primero se midió sobre el panel real,
+después se implementaron las tres reglas candidatas y se compararon. El
+código es `analisis/precios_faltantes.py`; los números salen de
+`data/derived/huecos_resumen__2026-09-20.csv` y
+`canasta_reglas_resumen__2026-09-20.csv` y se recalculan con
+`python -m analisis.run_all`.
+
+### Qué se midió (19 y 20 de septiembre, 2 días)
+
+Un hueco es un (cadena, SKU, día) sin precio válido desde la primera vez
+que el SKU aparece. Tipos: agotado en listado (`available=False` o precio
+0), desaparecido con la hoja recorrida (la cadena lo deslistó),
+desaparecido sin la hoja (cambió el árbol) y desaparecido sin árbol
+guardado (no se puede distinguir; los árboles se guardan desde el 21-09).
+
+| Cadena | SKU | Celdas SKU-día | Huecos | Tasa | Agotado en listado | Desaparecido (sin árbol) |
+|---|---|---|---|---|---|---|
+| Metro | 9.549 | 19.074 | 151 | 0,79 % | 122 | 29 |
+| Plaza Vea | 11.860 | 23.719 | 6.113 | **25,8 %** | 6.113 | 0 |
+| Tottus | 12.711 | 25.026 | 371 | 1,48 % | 0 (no publica stock) | 371 |
+| Vivanda | 7.852 | 15.704 | 5.194 | **33,1 %** | 5.194 | 0 |
+| Wong | 12.444 | 24.851 | 113 | 0,45 % | 84 | 29 |
+
+**El hallazgo no es el agotamiento: es que SPSA publica precio sin
+stock.** Plaza Vea y Vivanda listan con precio uno de cada cuatro y uno de
+cada tres productos que declaran no disponibles; Cencosud casi nunca lo
+hace y Tottus no publica stock. Esto tiene dos consecuencias:
+
+1. Para la canasta, un precio al que no se puede comprar no es un precio.
+   Al exigir `available != False`, la base de EAN con precio en las 5
+   cadenas el 19-09 **cae de 915 a 701**.
+2. Para la dispersión (bloque 3) apenas importa: `--solo-disponibles`
+   mueve la masa en cero de 25,0 % a 26,4 % y Metro–Wong de 66,6 % a
+   66,6 %; el 8,4 % de las observaciones EAN-cadena-día comparables
+   viene de filas sin stock (Vivanda 33 %, Plaza Vea 16 %, el resto 0 %).
+
+Las rachas duran 2 días de 2 (censuradas en el 92–100 % de los casos):
+con dos días no se puede medir duración. Es exactamente lo que el panel
+acumulado va a responder.
+
+### Las tres reglas, sobre la canasta de referencia (701 EAN, q_i = 1)
+
+| Regla | Qué hace | Cuándo falla |
+|---|---|---|
+| **Arrastre** | último precio observado, tope 7 días (INEI) | si el hueco esconde un cambio de precio, lo arrastra |
+| **Imputación** | último precio × variación mediana de su categoría en esa cadena | si la categoría es heterogénea, inventa movimiento |
+| **Exclusión** | el ítem sale ese día; índice encadenado de composición emparejada | si los huecos no son aleatorios (se agota lo que sube), sesga |
+
+Con dos días hay 8 celdas faltantes de 7.010 (Tottus 7, Wong 1) y las
+tres reglas difieren en menos de 0,001 puntos de índice en todas las
+cadenas. **El contraste todavía no dice nada**, y así se declara.
+
+### Decisión (provisional, con criterio de revisión preregistrado)
+
+- **Regla principal: arrastre con tope de 7 días** para los huecos de tipo
+  *agotado en listado* y *desaparecido con hoja recorrida*. Es la práctica
+  del INEI, es la más simple y es la única que no inventa movimiento.
+- **Los huecos por cambio de árbol no son huecos**: se tratan como
+  arrastre sin tope, porque el producto sigue a la venta y fue el scraper
+  el que dejó de verlo.
+- **Pasado el tope, exclusión con composición emparejada.** Un producto
+  que lleva más de una semana sin precio se ha ido, y arrastrarlo es
+  fingir que sigue.
+- **Imputación por categoría queda como prueba de robustez**, no como
+  regla: se reporta la diferencia con la principal.
+- **Criterio de revisión:** cuando el panel tenga 14+ días,
+  `run_all` reporta la divergencia máxima entre reglas por cadena. Si
+  supera 0,5 puntos de índice en alguna cadena, la divergencia se publica
+  como resultado y la regla principal pasa a ser la exclusión emparejada
+  (la que no depende de supuestos sobre el hueco). Si no la supera, la
+  elección es irrelevante y se dice.
+
+Lo que se decidirá con más panel: el tope (7 vs 14 días) se fijará con
+la distribución real de duración de las rachas, que hoy está censurada.
+
+---
+
+## 2026-09-21 · Preregistro de hipótesis
+
+Declarado **antes** de tener el panel completo, para poder demostrar que
+no se buscó hasta que salió algo. La evidencia preliminar es de dos días
+(19 y 20 de septiembre, fin de semana), recalculada hoy sobre los dos
+días juntos con `analisis/dispersion.py` y `rigidez.py` con el criterio
+de EAN de fabricante (12+ dígitos, sin prefijo 2). Lo que está "por
+verse" se contrastará con `python -m analisis.run_all` sobre el panel
+acumulado, sin cambiar umbrales.
+
+### H1 · Uniformidad dentro del grupo corporativo
+
+- **Se espera:** que la fracción de EAN con precio idéntico sea mayor
+  dentro de un grupo que entre grupos, y que Cencosud sea mucho más
+  uniforme que SPSA.
+- **Se contrasta con:** `identico` de `dispersion_pares` para
+  Metro+Wong y Plaza Vea+Vivanda, contra el promedio de los 8 pares de
+  competidores, sobre todos los días.
+- **La falsaría:** que Metro+Wong caiga por debajo del promedio de los
+  competidores, o que Plaza Vea+Vivanda suba por encima de Plaza
+  Vea+Tottus de forma estable.
+- **Evidencia preliminar (2 días):** Metro+Wong 66,6 % (8.442 EAN-días);
+  Plaza Vea+Vivanda 24,6 %; competidores entre 14,4 % y 46,5 %. La mitad
+  de H1 (Cencosud) ya tiene soporte; la otra mitad (SPSA no uniforme) es
+  la que la vuelve interesante y es la que hay que ver sostenerse.
+
+### H2 · Competencia vs. propiedad común
+
+- **Se espera:** que Plaza Vea coincida más con Tottus (mismo formato,
+  distinto dueño) que con Vivanda (mismo dueño, distinto formato).
+- **Se contrasta con:** `identico` y `brecha_mediana` de Plaza Vea+Tottus
+  vs Plaza Vea+Vivanda, día a día (`dispersion_pares_diario`).
+- **La falsaría:** que Plaza Vea+Vivanda supere a Plaza Vea+Tottus en la
+  mayoría de los días del panel.
+- **Evidencia preliminar:** 44,9 % vs 24,6 % en identidad; 1,4 % vs 2,9 %
+  en brecha mediana. Los dos días dan lo mismo (45,1/44,7 vs 24,6/24,6).
+  Por verse: si es estable en semanas con promociones distintas.
+
+### H3 · Intensidad promocional según posicionamiento
+
+- **Se espera:** que la intensidad promocional *real* (no el cartel)
+  ordene las cadenas por posicionamiento: Plaza Vea y las Cencosud arriba,
+  Vivanda abajo, Tottus en medio; y que una parte grande del cartel
+  `on_sale` sea tachado permanente (precio ancla), no oferta.
+- **Se contrasta con:** `oferta_real` y `tachado_permanente` por cadena
+  (`oferta_real_cadenas`), que exigen 21 días de historia por producto.
+- **La falsaría:** que el orden por `oferta_real` no coincida con el del
+  cartel, o que `tachado_permanente` sea despreciable (< 10 % del cartel)
+  en todas las cadenas.
+- **Evidencia preliminar:** solo del cartel: Plaza Vea 34,1 %, Wong
+  29,3 %, Metro 28,6 %, Tottus 16,9 %, Vivanda 13,3 % (20-09). Del
+  tachado permanente **no hay evidencia**: el 100 % del panel es todavía
+  no evaluable. Es la hipótesis más genuinamente abierta.
+
+### H4 · Qué nivel domina la descomposición de varianza
+
+- **Se espera:** que el producto explique casi toda la varianza del
+  log-precio, y que de la varianza *intra*-producto (la dispersión entre
+  cadenas), la parte sistemática por cadena sea pequeña frente a la
+  idiosincrática; y que cadena × categoría explique más que grupo.
+- **Se contrasta con:** `share_within` de `dispersion_varianza` (orden A).
+- **La falsaría:** que grupo + cadena + cadena×categoría expliquen más de
+  la mitad de la varianza intra-producto (precio fijado "por cadena"), o
+  que grupo supere a cadena.
+- **Evidencia preliminar:** producto 98,7 %; de la varianza
+  intra-producto: cadena 3,5 %, cadena×categoría 1,3 %, grupo 0,6 %,
+  idiosincrático 94,6 %. Estable en los dos días. Por verse: si con más
+  días y más promociones la parte sistemática crece.
+
+### Lo que NO es hipótesis todavía
+
+La rigidez de precios (0,44 % de cambio diario entre sábado y domingo)
+no entra en el preregistro porque no hay ninguna transición entre días
+hábiles: la primera será la del 21 al 22 de septiembre.
