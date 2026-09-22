@@ -3,3 +3,4 @@
 pandas>=2.0
 numpy>=1.24
 matplotlib>=3.7
+# scikit-learn>=1.3  -> solo cuando se entrenen los Modelos A y B (analisis/modelo_a.py, modelo_b.py lo importan dentro de fit)
