@@ -824,3 +824,139 @@ temporal y exige que lo que hoy sale provisional pase a fiable.
 
 Todo se rehace con `python -m analisis.run_all`; el veredicto que imprime
 al final es el que manda.
+
+---
+
+## 2026-09-22 · Se abandona el índice. El objeto es el ahorro del hogar
+
+Decisión de rumbo, cerrada en sesión. El índice deja de ser el trabajo:
+ni el IPC del INEI, ni un índice de precios en línea, ni la canasta como
+número índice. No se construye, no se compara y no se entrena nada contra
+él. Lo ya escrito en el informe y en el README sobre nowcast, IPC-Web y
+regla de precios faltantes para un índice queda como antecedente; no es
+el entregable.
+
+### Título y pregunta
+
+**Título:** Inteligencia de precios para el consumidor. De la dispersión
+y la rigidez en la web del retail limeño a un sistema predictivo y
+prescriptivo de ahorro familiar.
+
+**Pregunta:** ¿En qué medida la dispersión, la rigidez y la opacidad
+promocional de los precios que publica el retail limeño permiten reducir,
+con un sistema predictivo y prescriptivo, el costo de una canasta básica
+de Lima Metropolitana observada en sus supermercados?
+
+Reemplaza a la formulación anterior de esta misma entrada («¿Bajo qué
+condiciones un precio publicado…?»). Cada mecanismo de la pregunta tiene
+su pieza: la dispersión la aprovecha el optimizador al elegir cadena; la
+rigidez (y las rebajas transitorias que la rompen) la anticipa B; la
+opacidad promocional la separa C. El ahorro es el objeto, medido contra
+una línea base fija.
+
+### Tres conjuntos que no se mezclan
+
+- **Canasta oficial:** la canasta básica de alimentos (CBA) del INEI, con
+  cantidades físicas. Entra como lista y cantidades, no como serie del
+  IPC. Fuente fijada: *Informe Técnico: Evolución de la Pobreza Monetaria
+  2008-2019* (INEI, mayo de 2020), tabla de la CBA en gramos per cápita
+  por día, año base 2010, columna Lima Metropolitana. Transcrita en
+  `data/canasta_oficial.csv`; URL, páginas, SHA-256 del PDF y método de
+  transcripción en `data/canasta_oficial.fuente.txt`. 110 productos, 68
+  con cantidad para Lima. Control: la columna transcrita suma 1370,4 g
+  contra 1370,2 g impresos (redondeo por ítem).
+- **Canasta de trabajo:** el cruce de esa lista con productos del panel
+  presentes en al menos 4 de las 5 cadenas (`analisis/canasta_trabajo.py`
+  → `data/canasta_trabajo.csv`). Se decide sobre una ventana de inclusión
+  (los primeros 14 días del panel) y se congela; no se rearma según el
+  resultado.
+- **Universo scrapeado:** todo el panel. Los 917 EAN comunes de un día
+  son universo, no canasta.
+
+### Emparejamiento (reglas en `data/canasta_reglas.csv`, fijadas antes de mirar precios)
+
+1. El INEI no publica EAN: cada ítem se vincula por descripción
+   normalizada, unidad (`parse_quantity`) y marca cuando la fuente la trae
+   (solo «Sibarita»). No se sustituye marca.
+2. Envasados: se elige **un** EAN de fabricante (12+ dígitos, sin prefijo
+   2), el presente en más cadenas, y las demás cadenas se unen por ese
+   EAN. El EAN tiene que describir el ítem en la mayoría de sus cadenas y
+   no tocar las palabras excluidas en ninguna: la primera corrida mostró
+   EAN elegidos por el nombre de una sola cadena (galletas saladas
+   nombradas solo «Galletas») y un EAN que una cadena asigna a dos
+   productos distintos.
+3. Granel (sin EAN, prefijo 2): un representante por kilo en cada cadena.
+   No se inventa un EAN.
+4. Fuera packs, combos y vendedores de marketplace.
+5. Categorías oficiales fuera, con motivo en
+   `data/canasta_trabajo_exclusiones.csv`: consumo fuera del hogar (no es
+   compra de supermercado); pan francés y té filtrante (se venden por
+   unidad y la CBA da gramos: falta decidir gramos por unidad); el resto,
+   solo si no llegan a 4 de 5 cadenas.
+6. Cantidad: g per cápita día × 30 → kg o litros per cápita al mes.
+   Líquidos a 1000 g/l salvo aceite (920 g/l): supuesto declarado.
+
+### Las piezas
+
+| Pieza | Tipo | Qué hace | Estado |
+|---|---|---|---|
+| **C** — diagnóstico de la oferta | Regla, no modelo | Precio habitual = mediana de `price` del SKU en [t−45, t−1] (hoy no entra). Oferta real = cae ≥ 10 % y el cartel no estuvo más de la mitad de la ventana. Fantasma = cartel y no oferta real. Rebaja silenciosa = oferta real sin cartel. `fiable` con 21 días observados antes de hoy | `analisis/oferta_real.py`, corre. Sensibilidad aparte (0/5/15 %, moda) |
+| **A** — ¿en qué cadena? | Predictivo transversal | Prima relativa `r_ic` sobre el precio habitual, sin precios como features. Solo rellena celdas sin precio observado | `analisis/modelo_a.py`, sin entrenar (pide 60 días) |
+| **B** — ¿hoy o espero? | Predictivo longitudinal | Entra en oferta real en 7 y en 14 días (30 no se entrena), más la profundidad. Features solo hasta t, embargo de h días | `analisis/modelo_b.py`, sin entrenar |
+| **Optimizador** | Prescriptivo | Cada ítem en la cadena más barata con precio observado y disponible. Agotado = infactible. Con y sin Tottus. Visita y tope de cadenas, opcional y apagado | `analisis/optimizador.py`, corre |
+
+Corrección de la versión anterior de esta tabla: A **no** es el
+optimizador. Elegir el menor precio ya observado es el optimizador; A
+predice lo que no se ve.
+
+**Línea base del sistema** (en código, `optimizador.linea_base`): una
+sola cadena para toda la canasta, comprando hoy y creyendo el cartel; el
+consumidor elige la cadena que le promete más ahorro entre las que cubren
+más ítems, y paga `price`. El ahorro anunciado en ofertas fantasma no
+cuenta como ahorro. El sistema aporta si su costo queda debajo, medido
+fuera de muestra cuando haya panel. Una comparación de un día no se
+reporta como hallazgo.
+
+### Corrección del mismo día: la tarjeta sale del Modelo C
+
+Una oferta no exige tarjeta. La cadena puede rebajar el precio web cuando
+quiere. `card_price` sigue en el CSV y no entra en C.
+
+La oferta fantasma se define contra la historia del mismo producto, no
+contra el tachado. Ejemplo cerrado en sesión: si en los días previos el
+precio rondó S/ 10–11 y hoy el cartel dice «antes S/ 14, ahora S/ 10», no
+hay oferta. Se vende al precio de siempre y el S/ 14 es un ancla inflada.
+El ejemplo quedó como test (`test_ejemplo_de_la_bitacora_es_fantasma`).
+
+Cambios a la regla respecto del 21-09, todos para ajustarla a lo decidido:
+la ventana ya no incluye el día de hoy; el techo del cartel es «no más de
+la mitad» (antes, «menos de la mitad»); `tachado_permanente` pasa a
+llamarse `fantasma`; se añaden `rebaja_silenciosa`,
+`descuento_anunciado = 1 − price/regular_price` y `ref_moda`. La tabla
+diaria de C se escribe siempre (`oferta_real_panel__<fecha>.csv.gz`,
+ignorada por git: se regenera). H3 se contrasta ahora con `fantasma` en
+lugar de `tachado_permanente`.
+
+### Qué no se toca
+
+- La recolección diaria sigue igual. El precio de hoy sigue siendo lo
+  irrecuperable.
+- No se entrena nada con los días de septiembre: prueban que el scraper
+  corre. `modelo_a.fit` y `modelo_b.fit` se niegan a correr sin el panel
+  mínimo.
+- En el informe se reescribieron solo la pregunta y la subsección de
+  modelos; el resto (evidencia preliminar, canasta en soles, IPC) sigue
+  con el encuadre anterior y hay que revisarlo aparte.
+
+### Decisiones abiertas
+
+- Gramos por unidad para pan francés y té filtrante (hoy fuera de la
+  canasta de trabajo por eso).
+- Las reglas de emparejamiento son la versión 1: hay que revisarlas con
+  doble codificación antes de que se congele la canasta (≈ 14 días de
+  panel). La corrida provisional ya mostró elecciones discutibles en
+  granel (variedades distintas de tomate o mandarina entre cadenas).
+- La cobertura de EAN de Plaza Vea y Vivanda es menor: identificar por EAN
+  las castiga en el 4 de 5. Se mantiene la regla y se reporta.
+- Tamaño del hogar y periodo de compra: las cantidades van per cápita al
+  mes; escalar a un hogar no cambia qué cadena gana.

@@ -593,7 +593,10 @@ noviembre con el panel completo, sin argumentos y sin editar nada.
 
 | Script | Qué responde | Derivados | Umbrales por defecto |
 |---|---|---|---|
-| `oferta_real.py` | ¿El cartel `on_sale` es una oferta o el precio normal? Referencia = mediana móvil; `oferta_real`, `tachado_permanente`, `fiable` | `oferta_real`, `oferta_real_cadenas` | lookback 45 d, mínimo 21 observados, descuento ≥ 10 %, techo `frac_on_sale` 0,5 |
+| `oferta_real.py` (C) | ¿El cartel `on_sale` es una oferta o el precio normal? Habitual = mediana de `price` en [t−45, t−1]; `oferta_real`, `fantasma`, `rebaja_silenciosa`, `descuento_anunciado`, `ref_moda`, `fiable` | `oferta_real_panel` (tabla diaria, en .gitignore), `oferta_real`, `oferta_real_cadenas`, `oferta_real_sensibilidad` | ventana 45 d sin hoy, 21 observados, caída ≥ 10 %, cartel no más de la mitad de la ventana |
+| `canasta_trabajo.py` | Cruce de la CBA del INEI (`data/canasta_oficial.csv`) con el panel, con las reglas de `data/canasta_reglas.csv` | `data/canasta_trabajo.csv`, `data/canasta_trabajo_exclusiones.csv` | ≥ 4 de 5 cadenas, presencia ≥ 80 % de la ventana de 14 días; se congela |
+| `optimizador.py` | Plan de compra de hoy: cada ítem en la cadena más barata con precio observado y disponible; línea base = una cadena, hoy, creyendo el cartel | `optimizador_plan`, `optimizador_resumen`, `optimizador_linea_base` | escenarios con y sin Tottus; visita apagada |
+| `modelo_a.py`, `modelo_b.py` | A: prima relativa por cadena sin precios como features. B: entra en oferta real en 7 / 14 días. **Sin entrenar**: `fit` se niega sin panel suficiente | — | A: 60 días; B: 14 + h + 7 días de origen después de los 21 de C |
 | `rigidez.py` | Tasa de cambio de precio, entradas/salidas de oferta, altas/bajas, tamaño y bimodalidad, separando **días hábiles** de fin de semana; tasa de positivos del Modelo B a 7/14/30 días | `rigidez`, `rigidez_transiciones`, `rigidez_tamanos`, `rigidez_horizontes` | cambio > medio céntimo; banda de Bueno 15–25 % |
 | `dispersion.py` | Coincidencia por pares, brecha máx/mín con masa en cero, SD del log-precio (G&T), descomposición de varianza por efectos fijos anidados en dos órdenes, evolución diaria | `dispersion*`, `tablas_dispersion__*.tex`, `figuras/*.png` | EAN de fabricante (12+ dígitos, sin prefijo 2; `--incluir-internos` replica la bitácora); `--solo-disponibles` |
 | `precios_faltantes.py` | Huecos por tipo y duración (usa `data/trees/`); canasta bajo arrastre / imputación / exclusión y contraste | `huecos*`, `canasta_reglas*` | tope de arrastre 7 d; base = EAN en todas las cadenas el primer día |
@@ -617,7 +620,10 @@ precios no se entera. Necesita `requirements-browser.txt` y Chromium.
 
 ```bash
 python3 tests/test_scraper.py             # parser y normalización (sin dependencias extra)
-python3 tests/test_oferta_real.py         # series sintéticas: oferta real, tachado, cambio permanente
+python3 tests/test_oferta_real.py         # series sintéticas: oferta real, fantasma, rebaja silenciosa
+python3 tests/test_canasta_trabajo.py     # cruce CBA x panel con filas sintéticas
+python3 tests/test_optimizador.py         # agotado infactible, fantasma fuera del ahorro, se paga price
+python3 tests/test_modelos.py            # A y B: se niegan sin panel, features sin futuro, embargo
 python3 tests/test_rigidez.py
 python3 tests/test_dispersion.py          # recupera un efecto de cadena conocido
 python3 tests/test_precios_faltantes.py
