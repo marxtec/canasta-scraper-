@@ -1,0 +1,111 @@
+id,descripcion,grupo,unidad,cantidad
+1,BISCOCHOS,pan_y_cereales,g_per_capita_dia,
+2,GALLETA DE SODA,pan_y_cereales,g_per_capita_dia,2.3
+3,GALLETA DULCE,pan_y_cereales,g_per_capita_dia,2.9
+4,PAN FRANCÉS,pan_y_cereales,g_per_capita_dia,41.3
+5,ARROZ CORRIENTE,pan_y_cereales,g_per_capita_dia,147.4
+6,AVENA,pan_y_cereales,g_per_capita_dia,11.5
+7,HARINA DE TRIGO O CEBADA TOSTADA,pan_y_cereales,g_per_capita_dia,
+8,MAÍZ BLANCO CORRIENTE CANCHA,pan_y_cereales,g_per_capita_dia,6.9
+9,MAÍZ MORADO,pan_y_cereales,g_per_capita_dia,
+10,MAÍZ PELADO MOTE,pan_y_cereales,g_per_capita_dia,
+11,MAÍZ REVENTÓN AMERICANO POP-CORN,pan_y_cereales,g_per_capita_dia,
+12,QUINUA ENTERA,pan_y_cereales,g_per_capita_dia,
+13,SÉMOLA,pan_y_cereales,g_per_capita_dia,5.7
+14,TRIGO GRANO ENTERO,pan_y_cereales,g_per_capita_dia,
+15,TRIGO RESBALADO SHAMBAR,pan_y_cereales,g_per_capita_dia,
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,g_per_capita_dia,18.1
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,g_per_capita_dia,18.1
+18,OTROS CEREALES Y DERIVADOS KIWICHA,pan_y_cereales,g_per_capita_dia,
+19,CARNE DE CARNERO,carnes,g_per_capita_dia,
+20,CARNE DE CHANCHO,carnes,g_per_capita_dia,
+21,POLLO EVISCERADO,carnes,g_per_capita_dia,54.2
+22,MENUDENCIA DE POLLO,carnes,g_per_capita_dia,18.1
+23,MONDONGO DE RES,carnes,g_per_capita_dia,6.9
+24,CARNE DE RES,carnes,g_per_capita_dia,
+25,HOT DOG,carnes,g_per_capita_dia,4.8
+26,JUREL,pescados,g_per_capita_dia,24.1
+27,GRATED DE SARDINA / ATUN,pescados,g_per_capita_dia,4.8
+28,OTROS PESCADOS EN CONSERVA,pescados,g_per_capita_dia,
+29,BOQUICHICO,pescados,g_per_capita_dia,
+30,LECHE EVAPORADA,lacteos,g_per_capita_dia,42.3
+31,LECHE FRESCA DE VACA,lacteos,g_per_capita_dia,
+32,QUESO FRESCO VACA,lacteos,g_per_capita_dia,4.1
+33,YOGURT,lacteos,g_per_capita_dia,15.3
+34,HUEVOS A GRANEL DE GALLINA,huevos,g_per_capita_dia,21.5
+35,ACEITE VEGETAL,aceites_y_grasas,g_per_capita_dia,12.0
+36,MARGARINA,aceites_y_grasas,g_per_capita_dia,2.4
+37,AJÍ PIMIENTO,hortalizas,g_per_capita_dia,
+38,AJÍ SECO ENTERO MIRASOL PANCA Y AMARILLO,hortalizas,g_per_capita_dia,1.4
+39,AJÍ ROCOTO,hortalizas,g_per_capita_dia,
+40,AJÍ,hortalizas,g_per_capita_dia,
+41,APIO,hortalizas,g_per_capita_dia,4.3
+42,ARVERJA VERDE CRIOLLA,hortalizas,g_per_capita_dia,8.0
+43,BETERRAGA,hortalizas,g_per_capita_dia,
+44,BRÓCOLI,hortalizas,g_per_capita_dia,13.8
+45,CEBOLLA CHINA,hortalizas,g_per_capita_dia,
+46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,g_per_capita_dia,28.9
+47,CHOCLO,hortalizas,g_per_capita_dia,12.0
+48,COL,hortalizas,g_per_capita_dia,
+49,ESPINACA,hortalizas,g_per_capita_dia,
+50,HABA VERDE,hortalizas,g_per_capita_dia,
+51,LECHUGA,hortalizas,g_per_capita_dia,9.6
+52,ORÉGANO EN RAMAS,hortalizas,g_per_capita_dia,
+53,PEPINILLO,hortalizas,g_per_capita_dia,9.8
+54,PLÁTANO VERDE INGUIRI,hortalizas,g_per_capita_dia,
+55,PORO,hortalizas,g_per_capita_dia,
+56,TOMATE,hortalizas,g_per_capita_dia,16.0
+57,VERDURA PICADA,hortalizas,g_per_capita_dia,14.4
+58,ZANAHORIA,hortalizas,g_per_capita_dia,16.0
+59,ZAPALLO,hortalizas,g_per_capita_dia,17.2
+60,"ASNAPA, HUACATAY, ORÉGANO, CULANTRO PEREJIL",hortalizas,g_per_capita_dia,
+61,LIMÓN,frutas,g_per_capita_dia,14.4
+62,MANDARINA,frutas,g_per_capita_dia,33.7
+63,MANGO CRIOLLO,frutas,g_per_capita_dia,
+64,MANZANAS,frutas,g_per_capita_dia,24.1
+65,NARANJA,frutas,g_per_capita_dia,36.1
+66,PALTA - CRIOLLA O CORRIENTE,frutas,g_per_capita_dia,11.6
+67,PAPAYA,frutas,g_per_capita_dia,28.9
+68,PLÁTANO DE LA ISLA,frutas,g_per_capita_dia,27.1
+69,PLÁTANO DE SEDA,frutas,g_per_capita_dia,39.4
+70,"PLÁTANO, OTRAS VARIEDADES",frutas,g_per_capita_dia,
+71,UVAS,frutas,g_per_capita_dia,
+72,ARVEJA SECA PARTIDA,menestras,g_per_capita_dia,6.9
+73,FREJOL,menestras,g_per_capita_dia,8.6
+74,HABAS SECAS,menestras,g_per_capita_dia,
+75,LENTEJA,menestras,g_per_capita_dia,11.5
+76,CAMOTE,tuberculos,g_per_capita_dia,22.9
+77,OLLUCO,tuberculos,g_per_capita_dia,14.7
+78,PAPA AMARILLA,tuberculos,g_per_capita_dia,34.4
+79,PAPA BLANCA,tuberculos,g_per_capita_dia,103.1
+80,PAPA OTRAS VARIEDADES,tuberculos,g_per_capita_dia,
+81,YUCA,tuberculos,g_per_capita_dia,
+82,PAPA COLOR,tuberculos,g_per_capita_dia,
+83,CHUÑO ENTERO,tuberculos,g_per_capita_dia,
+84,AZÚCAR,azucar,g_per_capita_dia,57.8
+85,COCOA,infusiones,g_per_capita_dia,0.4
+86,TÉ FILTRANTE,infusiones,g_per_capita_dia,0.2
+87,CAFÉ INSTANTÁNEO,infusiones,g_per_capita_dia,0.3
+88,COCA DE MASTICAR,infusiones,g_per_capita_dia,
+89,GELATINA,postres,g_per_capita_dia,4.9
+90,MAZAMORRA ENVASADA,postres,g_per_capita_dia,
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,g_per_capita_dia,1.7
+92,AJO ENTERO,condimentos,g_per_capita_dia,3.4
+93,AJO MOLIDO,condimentos,g_per_capita_dia,3.1
+94,AJI NO MOTO,condimentos,g_per_capita_dia,0.9
+95,CANELA ENTERA,condimentos,g_per_capita_dia,0.3
+96,CLAVO DE OLOR,condimentos,g_per_capita_dia,
+97,COMINO MOLIDO,condimentos,g_per_capita_dia,
+98,ORÉGANO SECO,condimentos,g_per_capita_dia,
+99,SAL DE COCINA YODADA / ENTERA,condimentos,g_per_capita_dia,8.0
+100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,g_per_capita_dia,0.9
+101,BEBIDAS GASEOSAS,bebidas,g_per_capita_dia,43.3
+102,CULANTRO,hortalizas,g_per_capita_dia,2.7
+103,COMIDAS EN RESTAURANTE Y KIOSKOS,fuera_del_hogar,g_per_capita_dia,
+104,DESAYUNO AMBULANTE,fuera_del_hogar,g_per_capita_dia,31.1
+105,DESAYUNO RESTAURANTE,fuera_del_hogar,g_per_capita_dia,
+106,ALMUERZO AMBULANTE,fuera_del_hogar,g_per_capita_dia,31.7
+107,ALMUERZO RESTAURANTE,fuera_del_hogar,g_per_capita_dia,48.4
+108,ALMUERZO OTRO,fuera_del_hogar,g_per_capita_dia,66.2
+109,ALIMENTO FUERA DEL HOGAR: OTRO - AMBULANTE,fuera_del_hogar,g_per_capita_dia,10.8
+110,ALIMENTO FUERA DEL HOGAR: OTRO - RESTAURANTE,fuera_del_hogar,g_per_capita_dia,20.8

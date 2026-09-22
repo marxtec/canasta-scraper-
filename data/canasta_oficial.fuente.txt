@@ -1,0 +1,35 @@
+Fuente de data/canasta_oficial.csv
+==================================
+
+Documento: INEI, "Informe Tecnico: Evolucion de la Pobreza Monetaria 2008-2019",
+           Lima, mayo de 2020. Anexo metodologico, tabla "Canasta basica de
+           consumo alimentario en gramos per capita dia, por dominios
+           geograficos, del ano base 2010" (paginas impresas 180-182; paginas
+           180-182 del PDF, indice 0: 179-181).
+URL:       https://www.inei.gob.pe/media/cifras_de_pobreza/informe_pobreza2019.pdf
+Consultado: 2026-09-22
+SHA-256 del PDF descargado:
+           34e474b389592655f7b89387c012c81c2f3813deaa854d9da98fa2c42656bfb3
+
+Que es: la canasta basica de alimentos (CBA) con la que el INEI valora la linea
+de pobreza extrema. 110 productos, ano base 2010 (ENAHO), en gramos per capita
+por dia. El propio informe la describe como "110 productos, expresada en gramos
+per capita diarios, correspondientes al ano base 2010, detallada por dominios".
+
+Que se transcribio: la columna "Lima Metrop." de los 110 productos. Un "-" en
+la fuente es cantidad vacia: el producto no forma parte de la CBA de Lima
+Metropolitana (68 de 110 tienen cantidad).
+
+Como se transcribio: las cantidades se extrajeron del PDF por coordenadas
+(PyMuPDF: la palabra en la columna "Metrop." a la altura del numero de fila) y
+se cotejaron contra la tabla renderizada. Los nombres se copiaron de la tabla
+impresa (la capa de texto del PDF trae las tildes rotas).
+Control: la suma de la columna transcrita es 1370,4 g; el total impreso es
+1370,2 g. La diferencia de 0,2 g es consistente con redondeo por item a un
+decimal.
+
+La columna "grupo" NO viene del INEI: es una clasificacion del proyecto para
+agrupar resultados. "unidad" = g_per_capita_dia para todas las filas.
+
+Lo que no se toma de la fuente: ningun precio, ningun costo de la canasta,
+ningun indice. El INEI entra como lista y cantidades.
