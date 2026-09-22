@@ -23,10 +23,10 @@ FECHAS = pd.date_range("2026-10-01", periods=5, freq="D")
 
 
 def _fila(cad, item, nombre, ean, nq=5.0, unit="kg", price=10.0, available=True,
-          seller=None, brand=""):
+          seller=None, brand="", **extra):
     return {"retailer": cad, "item_id": item, "product_name": nombre, "brand": brand,
             "ean": ean, "net_quantity": nq, "unit": unit, "price": price,
-            "available": available, "seller_name": seller or CT.VENDEDOR_PROPIO[cad]}
+            "available": available, "seller_name": seller or CT.VENDEDOR_PROPIO[cad], **extra}
 
 
 def _panel(filas, fechas=FECHAS):
@@ -59,21 +59,35 @@ def test_envasado_une_por_ean_aunque_el_nombre_difiera():
     assert e.empty
 
 
-def test_ean_interno_no_es_identidad():
+def test_ean_interno_no_es_identidad_entra_por_kilo():
+    """Un codigo interno de la cadena no une cadenas por EAN: el item entra
+    como por_kilo (nivel ampliado_1), sin inventar un EAN."""
     filas = [_fila(c, f"{c}-1", "Arroz Extra Casa 5kg", "2200201985535") for c in CADENAS]
     t, e = CT.cruzar(ARROZ, R_ARROZ, _panel(filas))
-    assert t.empty
-    assert "EAN de fabricante" in e.iloc[0]["motivo"]
+    assert e.empty
+    assert set(t["identidad"]) == {"por_kilo"} and set(t["nivel"]) == {"ampliado_1"}
+    assert (t["ean"] == "").all()
 
 
-def test_packs_y_terceros_no_cuentan():
+def test_combos_y_terceros_no_cuentan():
     ean = "7755139246890"
     filas = [_fila(c, f"{c}-1", "Arroz Extra Costeno 5kg", ean) for c in CADENAS[:3]]
-    filas.append(_fila("vivanda", "v-1", "Pack Arroz Extra Costeno 5kg x 2un", ean))
+    filas.append(_fila("vivanda", "v-1", "Arroz Extra Costeno 5kg + Aceite Primor 1L", ean))
     filas.append(_fila("tottus", "t-1", "Arroz Extra Costeno 5kg", ean, seller="Otro SAC"))
     t, e = CT.cruzar(ARROZ, R_ARROZ, _panel(filas))
     assert t.empty
-    assert "esta en 3" in e.iloc[0]["motivo"]
+    assert "mismo EAN en 3" in e.iloc[0]["motivo"]
+
+
+def test_multipack_de_un_solo_ean_si_cuenta():
+    """"Paquete 6un" con un solo EAN es la presentacion normal, no un combo."""
+    of = _oficial((2, "GALLETA DE SODA", 2.3))
+    r = _reglas({"id": 2, "incluye": "soda", "excluye": ""})
+    ean = "7622201714819"
+    filas = [_fila(c, f"{c}-1", "Galletas Soda Field Paquete 6un 32g", ean, nq=0.192)
+             for c in CADENAS]
+    t, e = CT.cruzar(of, r, _panel(filas))
+    assert e.empty and set(t["identidad"]) == {"ean"} and len(t) == 5
 
 
 def test_item_en_tres_cadenas_queda_fuera_con_motivo():
@@ -121,7 +135,8 @@ def test_ean_con_descripcion_incoherente_se_descarta():
 
 def test_granel_un_representante_por_cadena_sin_inventar_ean():
     of = _oficial((79, "PAPA BLANCA", 103.1))
-    r = _reglas({"id": 79, "tipo": "granel", "incluye": r"^papa blanca\b", "excluye": "pure"})
+    r = _reglas({"id": 79, "tipo": "granel", "incluye": r"^papa blanca\b", "excluye": "pure",
+                 "variedad_pref": "."})
     filas = []
     for i, c in enumerate(CADENAS):
         filas.append(_fila(c, f"{c}-1", "Papa Blanca Yungay Seleccionada x kg", f"25{i}0000000001", nq=1.0))
@@ -178,7 +193,209 @@ def test_archivos_reales_son_coherentes():
     assert len(of) == 110 and len(lima) == 68
     assert abs(lima["cantidad"].sum() - 1370.2) < 0.5
     assert set(lima["id"]) <= set(r["id"])
-    assert set(r["tipo"]) <= {"envasado", "granel", "excluido"}
+    assert set(r["tipo"]) <= {"envasado", "granel", "excluido", "por_unidad"}
+    pu = r[r["tipo"] == "por_unidad"]
+    assert (pu["g_unidad"] > 0).all() and pu["fuente_g_unidad"].str.contains("CENAN").all()
+    fuera = r[r["id"].isin([104, 106, 107, 108, 109, 110])]
+    assert set(fuera["tipo"]) == {"excluido"}
+    eq = CT.cargar_equivalencias()
+    assert set(eq.columns) >= {"ean_a", "ean_b", "motivo"} and (eq["motivo"] != "").all()
+
+
+# ---------------------------------------------------------------------------
+# Identidades (docs: Metodologia de estandarizacion, secciones 6 a 8)
+# ---------------------------------------------------------------------------
+
+def _eq(*pares):
+    return pd.DataFrame([{"ean_a": a, "ean_b": b, "motivo": "test"} for a, b in pares])
+
+
+def test_ean_equivalente_por_tabla():
+    """Dos codigos del mismo paquete: con la tabla cuentan como uno."""
+    a, b = "8719200231252", "7752285031868"
+    filas = [_fila(c, f"{c}-1", "Margarina Dorina Clasica 220g", a, nq=0.22) for c in CADENAS[1:]]
+    filas.append(_fila("metro", "m-1", "Margarina Dorina Clasica 220g", b, nq=0.22))
+    of = _oficial((36, "MARGARINA", 2.4))
+    r = _reglas({"id": 36, "incluye": "^margarina"})
+    t, _ = CT.cruzar(of, r, _panel(filas), equivalencias=_eq((a, b)))
+    assert len(t) == 5
+    assert t.set_index("cadena")["identidad"].to_dict() == {
+        "metro": "ean_equivalente", "wong": "ean", "plaza_vea": "ean", "vivanda": "ean",
+        "tottus": "ean"}
+    assert set(t["nivel"]) == {"nucleo"}
+    t2, _ = CT.cruzar(of, r, _panel(filas))                       # sin la tabla
+    assert "metro" not in set(t2.loc[t2["identidad"] != "por_kilo", "cadena"])
+
+
+def test_ean_vacio_misma_marca_gramaje_y_nombre_es_equivalente():
+    ean = "7750885007108"
+    filas = [_fila(c, f"{c}-1", "Semola Molitalia Bolsa 200 g", ean, nq=0.2, brand="Molitalia")
+             for c in ["metro", "wong", "tottus"]]
+    filas.append(_fila("plaza_vea", "p-1", "Semola MOLITALIA Bolsa 200g", "", nq=0.2,
+                       brand="MOLITALIA"))
+    filas.append(_fila("vivanda", "v-1", "Semola MOLITALIA Bolsa 250g", "", nq=0.25,
+                       brand="MOLITALIA"))                      # otro gramaje: no
+    of = _oficial((13, "SEMOLA", 5.0))
+    r = _reglas({"id": 13, "incluye": "^semola"})
+    t, _ = CT.cruzar(of, r, _panel(filas))
+    ident = t[t["presentacion_base"]].set_index("cadena")["identidad"].to_dict()
+    assert ident["plaza_vea"] == "ean_equivalente"
+    assert ident.get("vivanda") != "ean_equivalente"
+    assert "sin_ean_fabricante" in t.set_index("cadena").loc["plaza_vea", "marcas"]
+
+
+def test_ean_vacio_de_otra_marca_no_es_equivalente():
+    ean = "7750885007108"
+    filas = [_fila(c, f"{c}-1", "Semola Molitalia Bolsa 200 g", ean, nq=0.2, brand="Molitalia")
+             for c in CADENAS[:3]]
+    filas.append(_fila("vivanda", "v-1", "Semola Bells Bolsa 200g", "", nq=0.2, brand="BELL'S"))
+    t, _ = CT.cruzar(_oficial((13, "SEMOLA", 5.0)), _reglas({"id": 13, "incluye": "^semola"}),
+                     _panel(filas))
+    assert t.set_index("cadena").loc["vivanda", "identidad"] == "por_kilo"
+
+
+def test_gramaje_del_ean_vale_para_todas_las_cadenas():
+    """Metro y Wong publican 32g x 6; las demas solo "6un". El peso es del EAN."""
+    ean = "7622201714819"
+    filas = [_fila(c, f"{c}-1", "Sixpack Galletas de Soda Field 32g", ean, nq=0.192)
+             for c in ["metro", "wong"]]
+    filas += [_fila(c, f"{c}-1", "Galletas Soda FIELD Bolsa 6un", ean, nq=6.0, unit="un")
+              for c in ["plaza_vea", "vivanda", "tottus"]]
+    of = _oficial((2, "GALLETA DE SODA", 2.3))
+    t, _ = CT.cruzar(of, _reglas({"id": 2, "incluye": "soda"}), _panel(filas))
+    assert len(t) == 5 and set(t["net_quantity"]) == {0.192}
+    assert set(t["identidad"]) == {"ean"}
+
+
+def test_contenido_declarado_da_el_gramaje():
+    ean = "7750106182607"
+    filas = [_fila(c, f"{c}-1", "Galletas de Soda San Jorge Pack 7un", ean, nq=7.0, unit="un")
+             for c in CADENAS]
+    filas[0]["contenido_neto_declarado"] = "280g"
+    t, _ = CT.cruzar(_oficial((2, "GALLETA DE SODA", 2.3)), _reglas({"id": 2, "incluye": "soda"}),
+                     _panel(filas))
+    assert len(t) == 5 and set(t["net_quantity"]) == {0.28}
+
+
+R_POLLO = _reglas({"id": 21, "tipo": "granel", "incluye": "^pollo entero",
+                   "variedad_pref": "con menudencia"})
+POLLO = _oficial((21, "POLLO EVISCERADO", 54.2))
+
+
+def test_granel_gana_la_variedad_fijada_aunque_sea_mas_cara():
+    filas = []
+    for c in CADENAS[:4]:
+        filas.append(_fila(c, f"{c}-con", "Pollo Entero con Menudencia x kg", "", nq=1.0,
+                           price=12.0))
+        filas.append(_fila(c, f"{c}-sin", "Pollo Entero sin Menudencia x kg", "", nq=1.0,
+                           price=8.0))
+    filas.append(_fila("tottus", "t-sin", "Pollo Entero sin Menudencia x kg", "", nq=1.0))
+    t, _ = CT.cruzar(POLLO, R_POLLO, _panel(filas))
+    assert set(t["item_id"]) == {f"{c}-con" for c in CADENAS[:4]}
+    assert set(t["identidad"]) == {"granel"} and set(t["nivel"]) == {"nucleo"}
+    assert "tottus" not in set(t["cadena"])          # la barra se cumple sin mezclar
+
+
+def test_granel_completa_con_otra_variedad_marcada():
+    filas = [_fila(c, f"{c}-con", "Pollo Entero con Menudencia x kg", "", nq=1.0)
+             for c in CADENAS[:3]]
+    filas += [_fila(c, f"{c}-sin", "Pollo Entero sin Menudencia x kg", "", nq=1.0)
+              for c in CADENAS[3:]]
+    t, _ = CT.cruzar(POLLO, R_POLLO, _panel(filas))
+    assert len(t) == 5 and set(t["nivel"]) == {"ampliado_1"}
+    pk = t[t["identidad"] == "por_kilo"]
+    assert set(pk["cadena"]) == set(CADENAS[3:])
+    assert pk["marcas"].str.contains("variedad_distinta").all()
+
+
+def test_peso_variable_de_vtex_es_granel():
+    """Sin "x kg" en el nombre pero con unitMultiplier != 1: precio por kg."""
+    filas = [_fila(c, f"{c}-1", "Pollo Entero con Menudencia x kg", "", nq=1.0)
+             for c in CADENAS[:3]]
+    filas.append(_fila("vivanda", "v-1", "Pollo Entero Fresco con Menudencia", "", nq=np.nan,
+                       unit=None, unit_multiplier=2.2))
+    t, _ = CT.cruzar(POLLO, R_POLLO, _panel(filas))
+    assert t.set_index("cadena").loc["vivanda", "identidad"] == "granel"
+
+
+def test_granel_sin_variedad_fijada_es_por_kilo():
+    of = _oficial((62, "MANDARINA", 30.0))
+    r = _reglas({"id": 62, "tipo": "granel", "incluye": "^mandarina"})
+    filas = [_fila(c, f"{c}-1", "Mandarina Costa x kg", "", nq=1.0) for c in CADENAS]
+    t, _ = CT.cruzar(of, r, _panel(filas))
+    assert set(t["identidad"]) == {"por_kilo"}
+    assert t["marcas"].str.contains("variedad_no_fijada").all()
+
+
+def _panel_por_kilo(precios):
+    filas = [_fila(c, f"{c}-1", "Galleta Soda Costa 170g", "7750885019583", nq=0.17,
+                   brand="COSTA", price=precios[0]) for c in CADENAS[:2]]
+    for k, c in enumerate(CADENAS[2:]):
+        filas.append(_fila(c, f"{c}-a", "Galleta Soda Casa 160g", f"22000000000{k}", nq=0.16,
+                           brand="CASA", price=precios[1]))
+        filas.append(_fila(c, f"{c}-b", "Galleta Soda Casa 400g", f"22000000001{k}", nq=0.40,
+                           brand="CASA", price=precios[2]))
+    return _panel(filas)
+
+
+def test_por_kilo_respeta_r_max_y_no_mira_precios():
+    of = _oficial((2, "GALLETA DE SODA", 2.3))
+    r = _reglas({"id": 2, "incluye": "soda"})
+    t1, _ = CT.cruzar(of, r, _panel_por_kilo([5.0, 3.0, 1.0]))
+    t2, _ = CT.cruzar(of, r, _panel_por_kilo([1.0, 9.0, 20.0]))
+    pd.testing.assert_frame_equal(t1, t2)
+    pk = t1[(t1["identidad"] == "por_kilo") & t1["presentacion_base"]]
+    assert set(pk["item_id"]) == {f"{c}-a" for c in CADENAS[2:]}    # 160 g, no 400 g
+    assert set(t1["nivel"]) == {"ampliado_1"}
+
+
+R_HUEVO = _reglas({"id": 34, "tipo": "por_unidad", "incluye": "^huevos?", "g_unidad": 68.4})
+HUEVO = _oficial((34, "HUEVOS", 21.5))
+
+
+def test_por_unidad_convierte_con_el_peso_cenan():
+    filas = [_fila(c, f"{c}-30", "Huevos Pardos La Calera Bandeja 30un", "7754470000024",
+                   nq=30.0, unit="un", brand="LA CALERA") for c in CADENAS]
+    t, _ = CT.cruzar(HUEVO, R_HUEVO, _panel(filas))
+    assert len(t) == 5 and set(t["identidad"]) == {"por_unidad"}
+    assert np.allclose(t["net_quantity"], 30 * 68.4 / 1000)
+    assert set(t["nivel"]) == {"ampliado_2"}
+
+
+def test_por_unidad_suelta_y_sin_peso_de_referencia():
+    of = _oficial((47, "CHOCLO", 12.0))
+    filas = [_fila(c, f"{c}-1", "Choclo Serrano x unid", "", nq=np.nan, unit=None)
+             for c in CADENAS]
+    r = _reglas({"id": 47, "tipo": "por_unidad", "incluye": "^choclo", "g_unidad": 255.9})
+    t, _ = CT.cruzar(of, r, _panel(filas))
+    assert np.allclose(t["net_quantity"], 0.2559)
+    r_sin = _reglas({"id": 47, "tipo": "por_unidad", "incluye": "^choclo"})
+    t, e = CT.cruzar(of, r_sin, _panel(filas))
+    assert t.empty and "g_unidad" in e.iloc[0]["motivo"]
+
+
+def test_alternativas_de_tamano_para_el_costo_entero():
+    filas = []
+    for c in CADENAS:
+        filas.append(_fila(c, f"{c}-5", "Arroz Extra Paisana Bolsa 5 kg", "7755139002809",
+                           nq=5.0, brand="Paisana"))
+        filas.append(_fila(c, f"{c}-1", "Arroz Extra Paisana Bolsa 1 kg", "7755139002793",
+                           nq=1.0, brand="Paisana"))
+    t, _ = CT.cruzar(ARROZ, _reglas({"id": 5, "incluye": r"^arroz extra\b", "gramaje_ref": 5}),
+                     _panel(filas))
+    base = t[t["presentacion_base"]]
+    alt = t[~t["presentacion_base"]]
+    assert set(base["net_quantity"]) == {5.0} and set(alt["net_quantity"]) == {1.0}
+    assert len(alt) == 5 and alt["marcas"].str.contains("alternativa").all()
+
+
+def test_nombre_con_dos_gramajes_se_aparta():
+    ean = "7754487002929"
+    filas = [_fila(c, f"{c}-1", "Sazonador Ajinomoto Sobre 90g", ean, nq=0.09) for c in CADENAS[:4]]
+    filas.append(_fila("tottus", "t-1", "Sazonador Ajinomoto 90g Sobre 100 g", ean, nq=0.1))
+    t, _ = CT.cruzar(_oficial((94, "AJI NO MOTO", 1.0)),
+                     _reglas({"id": 94, "incluye": "ajinomoto"}), _panel(filas))
+    assert "tottus" not in set(t["cadena"])
 
 
 if __name__ == "__main__":

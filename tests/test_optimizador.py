@@ -181,6 +181,82 @@ def test_comparador_sin_canasta_usa_universo_de_4_cadenas():
     assert set(u["id"]) == {"7750000000001"} and len(u) == 4
 
 
+# ---------------------------------------------------------------------------
+# Paquetes enteros y niveles (docs: Metodologia de estandarizacion, secc. 4 y 9)
+# ---------------------------------------------------------------------------
+
+def test_costo_entero_combina_tamanos():
+    """Arroz, hogar de 4 (17,688 kg) en Metro el 22-09: 3 x 5 kg + 3 x 1 kg
+    (S/ 78,60) cuesta menos que 4 x 5 kg (S/ 85,20)."""
+    costo, compra = OPT.costo_entero(147.4 * 30 / 1000 * 4, [(5.0, 21.3), (1.0, 4.9)])
+    assert abs(costo - 78.6) < 1e-9 and compra == {5.0: 3, 1.0: 3}
+
+
+def test_costo_entero_elige_el_tamano_por_costo_total_no_por_precio_por_kg():
+    """Margarina, 445 g: el pote de 220 g sale mas barato por kg (S/ 33,6
+    contra 33,8), pero cubrir 445 g pide tres (S/ 22,20) y uno de 450 g
+    alcanza (S/ 15,20)."""
+    costo, compra = OPT.costo_entero(0.445, [(0.22, 7.4), (0.45, 15.2)])
+    assert abs(costo - 15.2) < 1e-9 and compra == {0.45: 1}
+    costo, compra = OPT.costo_entero(0.288, [(0.22, 7.9), (0.45, 15.2)])   # Metro, hogar de 4
+    assert abs(costo - 15.2) < 1e-9 and compra == {0.45: 1}
+    assert np.isnan(OPT.costo_entero(1.0, [])[0])
+
+
+def _canasta_con_alternativa():
+    filas = []
+    for c in ["metro", "wong"]:
+        for w, base in ((5.0, True), (1.0, False)):
+            filas.append({"id": 5, "descripcion": "arroz", "grupo": "g", "cadena": c,
+                          "item_id": f"{c}-{w:g}", "ean": "", "cantidad": 4.422,
+                          "paquetes": 4.422 / w, "unidad": "kg", "net_quantity": w,
+                          "identidad": "ean", "nivel": "nucleo", "presentacion_base": base})
+    filas.append({"id": 62, "descripcion": "mandarina", "grupo": "g", "cadena": "metro",
+                  "item_id": "metro-m", "ean": "", "cantidad": 1.0, "paquetes": 1.0,
+                  "unidad": "kg", "net_quantity": 1.0, "identidad": "por_kilo",
+                  "nivel": "ampliado_1", "presentacion_base": True})
+    return pd.DataFrame(filas)
+
+
+def test_celda_es_la_presentacion_base_y_el_entero_usa_todas():
+    precios = pd.DataFrame([
+        {"retailer": "metro", "item_id": "metro-5", "price": 21.3},
+        {"retailer": "metro", "item_id": "metro-1", "price": 4.9},
+        {"retailer": "wong", "item_id": "wong-5", "price": 21.5},
+        {"retailer": "wong", "item_id": "wong-1", "price": 5.1},
+        {"retailer": "metro", "item_id": "metro-m", "price": 5.0},
+    ]).assign(regular_price=lambda x: x["price"], on_sale=False, available=True)
+    cel = OPT.celdas(_canasta_con_alternativa(), precios, personas=4)
+    assert len(cel) == 3                                   # una celda por item y cadena
+    m = cel[(cel["id"] == 5) & (cel["cadena"] == "metro")].iloc[0]
+    assert abs(m["costo"] - 4.422 * 21.3 / 5) < 1e-9       # continuo: solo la base
+    assert abs(m["costo_entero"] - 78.6) < 1e-9 and m["compra_entera"] == "3x5 + 3x1"
+    plan, res, _ = OPT.resolver(_canasta_con_alternativa(), precios, personas=4)
+    r = res[res["escenario"] == "con_tottus"].iloc[0]
+    assert r["items_nucleo"] == 1 and r["items_ampliado_1"] == 2
+    assert abs(r["costo_ampliado_1"] - r["costo_nucleo"] - 5.0) < 1e-9
+    assert r["personas"] == 4
+
+
+def test_lo_que_se_vende_pesado_se_compra_exacto():
+    can = pd.DataFrame([{"id": 21, "descripcion": "pollo", "grupo": "g", "cadena": "metro",
+                         "item_id": "m-1", "ean": "", "cantidad": 1.626, "paquetes": 1.626,
+                         "unidad": "kg", "net_quantity": 1.0, "identidad": "granel",
+                         "nivel": "nucleo", "presentacion_base": True, "a_granel": True}])
+    p = pd.DataFrame([{"retailer": "metro", "item_id": "m-1", "price": 9.4,
+                       "regular_price": 9.4, "on_sale": False, "available": True}])
+    cel = OPT.celdas(can, p, personas=4)
+    assert abs(cel.iloc[0]["costo_entero"] - 1.626 * 4 * 9.4) < 1e-9
+    assert cel.iloc[0]["compra_entera"].endswith("a granel")
+
+
+def test_canasta_vieja_sin_columnas_nuevas_sigue_funcionando():
+    can = _canasta({1: ["metro"]})
+    p = _precios({("metro", 1): {"price": 7.0}})
+    plan, res, _ = OPT.resolver(can, p)
+    assert plan.iloc[0]["costo"] == 7.0 and plan.iloc[0]["nivel"] == "nucleo"
+
+
 if __name__ == "__main__":
     import pytest
     sys.exit(pytest.main([__file__, "-q"]))

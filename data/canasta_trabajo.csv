@@ -1,163 +1,308 @@
-id,descripcion,grupo,cadena,item_id,ean,product_name,net_quantity,unidad,cantidad,paquetes,regla,n_cadenas,ventana_inicio,ventana_fin,estado
-3,GALLETA DULCE,pan_y_cereales,metro,39304268,7622202294723,Galletas con Crema Oreo Sabor Vainilla 108g,0.108,kg,0.087,0.805556,ean,4,2026-09-19,2026-09-21,provisional
-3,GALLETA DULCE,pan_y_cereales,plaza_vea,11612847,7622202294723,Galletas OREO Sabor Vainilla Taco 108g,0.108,kg,0.087,0.805556,ean,4,2026-09-19,2026-09-21,provisional
-3,GALLETA DULCE,pan_y_cereales,tottus,139815424,7622202294723,Galleta Oreo Vainilla Golden Empaque 108 g,0.108,kg,0.087,0.805556,ean,4,2026-09-19,2026-09-21,provisional
-3,GALLETA DULCE,pan_y_cereales,vivanda,11581439,7622202294723,Galleta OREO Golden Vainilla Paquete 108g,0.108,kg,0.087,0.805556,ean,4,2026-09-19,2026-09-21,provisional
-5,ARROZ CORRIENTE,pan_y_cereales,metro,23361,7755139002809,Arroz Extra Paisana Bolsa 5 kg,5.0,kg,4.422,0.8844,ean,4,2026-09-19,2026-09-21,provisional
-5,ARROZ CORRIENTE,pan_y_cereales,plaza_vea,24925,7755139002809,Arroz Extra PAISANA Bolsa 5Kg,5.0,kg,4.422,0.8844,ean,4,2026-09-19,2026-09-21,provisional
-5,ARROZ CORRIENTE,pan_y_cereales,tottus,113705625,7755139002809,Arroz Extra Paisana Bolsa 5 Kg,5.0,kg,4.422,0.8844,ean,4,2026-09-19,2026-09-21,provisional
-5,ARROZ CORRIENTE,pan_y_cereales,wong,23361,7755139002809,Arroz Extra Paisana Bolsa 5 kg,5.0,kg,4.422,0.8844,ean,4,2026-09-19,2026-09-21,provisional
-6,AVENA,pan_y_cereales,metro,39192363,7755477001212,Avena Integral en Hojuelas Grano de Oro 500g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-6,AVENA,pan_y_cereales,plaza_vea,10536700,7755477001212,Avena Integral GRANO DE ORO Bolsa 500g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-6,AVENA,pan_y_cereales,tottus,129925776,7755477001212,Avena Integral Grano De Oro Bolsa 500 g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-6,AVENA,pan_y_cereales,vivanda,10333267,7755477001212,Avena Integral GRANO DE ORO Bolsa 500g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-6,AVENA,pan_y_cereales,wong,39206133,7755477001212,Avena Integral en Hojuelas Grano de Oro 500g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,metro,39322718,7750885026024,Tallarín Molitalia 950g,0.95,kg,0.543,0.571579,ean,4,2026-09-19,2026-09-21,provisional
-16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,plaza_vea,12101753,7750885026024,Fideo Tallarín MOLITALIA Bolsa 950g,0.95,kg,0.543,0.571579,ean,4,2026-09-19,2026-09-21,provisional
-16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,tottus,148087989,7750885026024,Fideo Molitalia Tallarín Bolsa 950 g,0.95,kg,0.543,0.571579,ean,4,2026-09-19,2026-09-21,provisional
-16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,wong,39327204,7750885026024,Tallarín Molitalia 950g,0.95,kg,0.543,0.571579,ean,4,2026-09-19,2026-09-21,provisional
-17,OTROS FIDEOS ENVASADOS,pan_y_cereales,metro,2717,7750885021166,Spaghetti Nro 32 Molitalia 450g,0.45,kg,0.543,1.206667,ean,5,2026-09-19,2026-09-21,provisional
-17,OTROS FIDEOS ENVASADOS,pan_y_cereales,plaza_vea,10705767,7750885021166,Fideos Spaghetti MOLITALIA Bolsa 450g,0.45,kg,0.543,1.206667,ean,5,2026-09-19,2026-09-21,provisional
-17,OTROS FIDEOS ENVASADOS,pan_y_cereales,tottus,115267763,7750885021166,Fideos Spaghetti Molitalia Empaque 450 g,0.45,kg,0.543,1.206667,ean,5,2026-09-19,2026-09-21,provisional
-17,OTROS FIDEOS ENVASADOS,pan_y_cereales,vivanda,10336731,7750885021166,Fideos Spaghetti MOLITALIA Bolsa 450g,0.45,kg,0.543,1.206667,ean,5,2026-09-19,2026-09-21,provisional
-17,OTROS FIDEOS ENVASADOS,pan_y_cereales,wong,2717,7750885021166,Spaghetti Nro 32 Molitalia 450g,0.45,kg,0.543,1.206667,ean,5,2026-09-19,2026-09-21,provisional
-21,POLLO EVISCERADO,carnes,metro,35313,,Pollo Entero con Menudencia Metro x kg,1.0,kg,1.626,1.626,granel,4,2026-09-19,2026-09-21,provisional
-21,POLLO EVISCERADO,carnes,plaza_vea,9357,,Pollo Entero Fresco con Menudencia x kg,1.0,kg,1.626,1.626,granel,4,2026-09-19,2026-09-21,provisional
-21,POLLO EVISCERADO,carnes,tottus,115808411,,Pollo Entero Sin Menudencia Redondos x Kg,1.0,kg,1.626,1.626,granel,4,2026-09-19,2026-09-21,provisional
-21,POLLO EVISCERADO,carnes,wong,3846,,Pollo Entero con Menudencia x kg,1.0,kg,1.626,1.626,granel,4,2026-09-19,2026-09-21,provisional
-25,HOT DOG,carnes,metro,39164214,7750571002585,Hot Dog Vienesa Salchichería Alemana 250g,0.25,kg,0.144,0.576,ean,5,2026-09-19,2026-09-21,provisional
-25,HOT DOG,carnes,plaza_vea,10048162,7750571002585,Hot Dog Vienesa Ahumado SALCHICHERÍA ALEMANA Paquete 250g,0.25,kg,0.144,0.576,ean,5,2026-09-19,2026-09-21,provisional
-25,HOT DOG,carnes,tottus,137931119,7750571002585,Hot Dog Vienesa Salchichería Alemana Empaque 250 g,0.25,kg,0.144,0.576,ean,5,2026-09-19,2026-09-21,provisional
-25,HOT DOG,carnes,vivanda,48740,7750571002585,Hot Dog Vienesa Ahumado SALCHICHERÍA ALEMANA Paquete 250g,0.25,kg,0.144,0.576,ean,5,2026-09-19,2026-09-21,provisional
-25,HOT DOG,carnes,wong,39164214,7750571002585,Hot Dog Vienesa Salchichería Alemana 250g,0.25,kg,0.144,0.576,ean,5,2026-09-19,2026-09-21,provisional
-32,QUESO FRESCO VACA,lacteos,metro,3696,7751271029841,Queso Fresco Gloria x kg,1.0,kg,0.123,0.123,ean,4,2026-09-19,2026-09-21,provisional
-32,QUESO FRESCO VACA,lacteos,plaza_vea,10125946,7751271029841,Queso Fresco GLORIA x kg,1.0,kg,0.123,0.123,ean,4,2026-09-19,2026-09-21,provisional
-32,QUESO FRESCO VACA,lacteos,vivanda,10109836,7751271029841,Queso Fresco GLORIA x kg,1.0,kg,0.123,0.123,ean,4,2026-09-19,2026-09-21,provisional
-32,QUESO FRESCO VACA,lacteos,wong,3696,7751271029841,Queso Fresco Gloria x kg,1.0,kg,0.123,0.123,ean,4,2026-09-19,2026-09-21,provisional
-33,YOGURT,lacteos,metro,5427,7750289000163,Yogurt Bebible Piamonte Natural sin Azúcar Botella 946 ml,0.946,l,0.459,0.485201,ean,4,2026-09-19,2026-09-21,provisional
-33,YOGURT,lacteos,plaza_vea,10020788,7750289000163,Yogurt Bebible PIAMONTE Natural Botella 946ml,0.946,l,0.459,0.485201,ean,4,2026-09-19,2026-09-21,provisional
-33,YOGURT,lacteos,vivanda,48523,7750289000163,Yogurt Bebible PIAMONTE Natural Botella 946ml,0.946,l,0.459,0.485201,ean,4,2026-09-19,2026-09-21,provisional
-33,YOGURT,lacteos,wong,5427,7750289000163,Yogurt Bebible Piamonte Natural sin Azúcar Botella 946 ml,0.946,l,0.459,0.485201,ean,4,2026-09-19,2026-09-21,provisional
-35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,Aceite Vegetal Primor Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,5,2026-09-19,2026-09-21,provisional
-35,ACEITE VEGETAL,aceites_y_grasas,plaza_vea,10181308,7750243059381,Aceite Vegetal PRIMOR Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,5,2026-09-19,2026-09-21,provisional
-35,ACEITE VEGETAL,aceites_y_grasas,tottus,119580636,7750243059381,Aceite Vegetal Primor Clásico Botella 1.8 L,1.8,l,0.391304,0.217391,ean,5,2026-09-19,2026-09-21,provisional
-35,ACEITE VEGETAL,aceites_y_grasas,vivanda,10131657,7750243059381,Aceite Vegetal PRIMOR Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,5,2026-09-19,2026-09-21,provisional
-35,ACEITE VEGETAL,aceites_y_grasas,wong,39181622,7750243059381,Aceite Vegetal Primor Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,5,2026-09-19,2026-09-21,provisional
-36,MARGARINA,aceites_y_grasas,plaza_vea,10695953,8719200231252,Margarina Clásica DORINA Pote 220g,0.22,kg,0.072,0.327273,ean,4,2026-09-19,2026-09-21,provisional
-36,MARGARINA,aceites_y_grasas,tottus,115776283,8719200231252,Margarina Dorina Clásica Envase 220 g,0.22,kg,0.072,0.327273,ean,4,2026-09-19,2026-09-21,provisional
-36,MARGARINA,aceites_y_grasas,vivanda,10336463,8719200231252,Margarina Clásica DORINA Pote 220g,0.22,kg,0.072,0.327273,ean,4,2026-09-19,2026-09-21,provisional
-36,MARGARINA,aceites_y_grasas,wong,4221,8719200231252,Margarina Dorina Clásica 220g,0.22,kg,0.072,0.327273,ean,4,2026-09-19,2026-09-21,provisional
-44,BRÓCOLI,hortalizas,metro,2815,,Brócoli x kg,1.0,kg,0.414,0.414,granel,4,2026-09-19,2026-09-21,provisional
-44,BRÓCOLI,hortalizas,plaza_vea,10132,,Brócoli x kg,1.0,kg,0.414,0.414,granel,4,2026-09-19,2026-09-21,provisional
-44,BRÓCOLI,hortalizas,vivanda,7969,,Brócoli x kg,1.0,kg,0.414,0.414,granel,4,2026-09-19,2026-09-21,provisional
-44,BRÓCOLI,hortalizas,wong,2815,,Brócoli x kg,1.0,kg,0.414,0.414,granel,4,2026-09-19,2026-09-21,provisional
-46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,metro,33903,,Cebolla Roja Metro x kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,Cebolla Roja x kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,tottus,116967839,,Cebolla Roja Norte X Kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,wong,8678,,Cebolla Roja x kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-56,TOMATE,hortalizas,metro,33484,,Tomate Italiano Metro x kg,1.0,kg,0.48,0.48,granel,4,2026-09-19,2026-09-21,provisional
-56,TOMATE,hortalizas,plaza_vea,10933704,,Tomate Redondo x kg,1.0,kg,0.48,0.48,granel,4,2026-09-19,2026-09-21,provisional
-56,TOMATE,hortalizas,vivanda,10774145,,Tomate Redondo x kg,1.0,kg,0.48,0.48,granel,4,2026-09-19,2026-09-21,provisional
-56,TOMATE,hortalizas,wong,2831,,Tomate Italiano x kg,1.0,kg,0.48,0.48,granel,4,2026-09-19,2026-09-21,provisional
-58,ZANAHORIA,hortalizas,metro,2833,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,5,2026-09-19,2026-09-21,provisional
-58,ZANAHORIA,hortalizas,plaza_vea,10342,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,5,2026-09-19,2026-09-21,provisional
-58,ZANAHORIA,hortalizas,tottus,129304100,,Zanahoria x Kg,1.0,kg,0.48,0.48,granel,5,2026-09-19,2026-09-21,provisional
-58,ZANAHORIA,hortalizas,vivanda,7803,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,5,2026-09-19,2026-09-21,provisional
-58,ZANAHORIA,hortalizas,wong,2833,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,5,2026-09-19,2026-09-21,provisional
-59,ZAPALLO,hortalizas,metro,2835,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,4,2026-09-19,2026-09-21,provisional
-59,ZAPALLO,hortalizas,plaza_vea,12373,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,4,2026-09-19,2026-09-21,provisional
-59,ZAPALLO,hortalizas,vivanda,2367,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,4,2026-09-19,2026-09-21,provisional
-59,ZAPALLO,hortalizas,wong,2835,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,4,2026-09-19,2026-09-21,provisional
-61,LIMÓN,frutas,metro,2823,,Limón x kg,1.0,kg,0.432,0.432,granel,5,2026-09-19,2026-09-21,provisional
-61,LIMÓN,frutas,plaza_vea,9476,,Limón Ácido x kg,1.0,kg,0.432,0.432,granel,5,2026-09-19,2026-09-21,provisional
-61,LIMÓN,frutas,tottus,118803580,,Limón Ácido Importado x Kg,1.0,kg,0.432,0.432,granel,5,2026-09-19,2026-09-21,provisional
-61,LIMÓN,frutas,vivanda,11352630,,Limón Tahití x kg,1.0,kg,0.432,0.432,granel,5,2026-09-19,2026-09-21,provisional
-61,LIMÓN,frutas,wong,2823,,Limón x kg,1.0,kg,0.432,0.432,granel,5,2026-09-19,2026-09-21,provisional
-62,MANDARINA,frutas,metro,39775,,Mandarina Costa x kg,1.0,kg,1.011,1.011,granel,5,2026-09-19,2026-09-21,provisional
-62,MANDARINA,frutas,plaza_vea,11425580,,Mandarina W MURCOTT x kg,1.0,kg,1.011,1.011,granel,5,2026-09-19,2026-09-21,provisional
-62,MANDARINA,frutas,tottus,155935810,,Mandarina Clemy x Kg,1.0,kg,1.011,1.011,granel,5,2026-09-19,2026-09-21,provisional
-62,MANDARINA,frutas,vivanda,11353005,,Mandarina W MURCOTT x kg,1.0,kg,1.011,1.011,granel,5,2026-09-19,2026-09-21,provisional
-62,MANDARINA,frutas,wong,8882,,Mandarina Costa x kg,1.0,kg,1.011,1.011,granel,5,2026-09-19,2026-09-21,provisional
-64,MANZANAS,frutas,metro,14059,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,5,2026-09-19,2026-09-21,provisional
-64,MANZANAS,frutas,plaza_vea,22825,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,5,2026-09-19,2026-09-21,provisional
-64,MANZANAS,frutas,tottus,147373926,,Manzana Modi x Kg,1.0,kg,0.723,0.723,granel,5,2026-09-19,2026-09-21,provisional
-64,MANZANAS,frutas,vivanda,11974,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,5,2026-09-19,2026-09-21,provisional
-64,MANZANAS,frutas,wong,14059,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,5,2026-09-19,2026-09-21,provisional
-65,NARANJA,frutas,metro,2781,,Naranja de Mesa Importada x kg,1.0,kg,1.083,1.083,granel,5,2026-09-19,2026-09-21,provisional
-65,NARANJA,frutas,plaza_vea,10660,,Naranja Tangelo Costa x kg,1.0,kg,1.083,1.083,granel,5,2026-09-19,2026-09-21,provisional
-65,NARANJA,frutas,tottus,118684949,,Naranja De Mesa x Kg,1.0,kg,1.083,1.083,granel,5,2026-09-19,2026-09-21,provisional
-65,NARANJA,frutas,vivanda,10117,,Naranja Tangelo Costa x kg,1.0,kg,1.083,1.083,granel,5,2026-09-19,2026-09-21,provisional
-65,NARANJA,frutas,wong,2781,,Naranja de Mesa Importada x kg,1.0,kg,1.083,1.083,granel,5,2026-09-19,2026-09-21,provisional
-66,PALTA - CRIOLLA O CORRIENTE,frutas,metro,39207032,,Palta Hass x kg,1.0,kg,0.348,0.348,granel,5,2026-09-19,2026-09-21,provisional
-66,PALTA - CRIOLLA O CORRIENTE,frutas,plaza_vea,10627,,Palta Hass x kg,1.0,kg,0.348,0.348,granel,5,2026-09-19,2026-09-21,provisional
-66,PALTA - CRIOLLA O CORRIENTE,frutas,tottus,118877742,,Palta Villacampa x Kg,1.0,kg,0.348,0.348,granel,5,2026-09-19,2026-09-21,provisional
-66,PALTA - CRIOLLA O CORRIENTE,frutas,vivanda,7579,,Palta Hass x kg,1.0,kg,0.348,0.348,granel,5,2026-09-19,2026-09-21,provisional
-66,PALTA - CRIOLLA O CORRIENTE,frutas,wong,14311,,Palta Nava x kg,1.0,kg,0.348,0.348,granel,5,2026-09-19,2026-09-21,provisional
-67,PAPAYA,frutas,metro,39140176,,Papaya Metro x kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-67,PAPAYA,frutas,plaza_vea,13790,,Papaya x kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-67,PAPAYA,frutas,tottus,115809129,,Papaya x Kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-67,PAPAYA,frutas,wong,2748,,Papaya x kg,1.0,kg,0.867,0.867,granel,4,2026-09-19,2026-09-21,provisional
-69,PLÁTANO DE SEDA,frutas,metro,40815,,Platano de Seda x kg,1.0,kg,1.182,1.182,granel,5,2026-09-19,2026-09-21,provisional
-69,PLÁTANO DE SEDA,frutas,plaza_vea,10727,,Plátano de Seda x kg,1.0,kg,1.182,1.182,granel,5,2026-09-19,2026-09-21,provisional
-69,PLÁTANO DE SEDA,frutas,tottus,117198480,,Platano De Seda Sur X Kg,1.0,kg,1.182,1.182,granel,5,2026-09-19,2026-09-21,provisional
-69,PLÁTANO DE SEDA,frutas,vivanda,8350,,Plátano de Seda x kg,1.0,kg,1.182,1.182,granel,5,2026-09-19,2026-09-21,provisional
-69,PLÁTANO DE SEDA,frutas,wong,9126,,Plátano de Seda Wong x kg,1.0,kg,1.182,1.182,granel,5,2026-09-19,2026-09-21,provisional
-73,FREJOL,menestras,metro,602,7751130000042,Frijol Castilla Tesoro Del Campo Bolsa 500 g,0.5,kg,0.258,0.516,ean,4,2026-09-19,2026-09-21,provisional
-73,FREJOL,menestras,plaza_vea,14855,7751130000042,Frijol Castilla TESORO DEL CAMPO Bolsa 500g,0.5,kg,0.258,0.516,ean,4,2026-09-19,2026-09-21,provisional
-73,FREJOL,menestras,tottus,115939225,7751130000042,Frijol Castilla Tesoro del Campo Menestra Bolsa 500 g,0.5,kg,0.258,0.516,ean,4,2026-09-19,2026-09-21,provisional
-73,FREJOL,menestras,wong,602,7751130000042,Frijol Castilla Tesoro Del Campo Bolsa 500 g,0.5,kg,0.258,0.516,ean,4,2026-09-19,2026-09-21,provisional
-75,LENTEJA,menestras,metro,39250208,7754725000724,Lentejas Bebé Bolsa 500 g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-75,LENTEJA,menestras,plaza_vea,81967,7754725000724,Lenteja Bebé VALLENORTE Bolsa 500g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-75,LENTEJA,menestras,tottus,148938033,7754725000724,Lenteja Bebé Valle Norte Bolsa 500 g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-75,LENTEJA,menestras,vivanda,36993,7754725000724,Lenteja Bebé VALLENORTE Bolsa 500g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-75,LENTEJA,menestras,wong,39190818,7754725000724,Lentejas Bebé Bolsa 500 g,0.5,kg,0.345,0.69,ean,5,2026-09-19,2026-09-21,provisional
-76,CAMOTE,tuberculos,metro,33653,,Camote Morado Meza x kg,1.0,kg,0.687,0.687,granel,4,2026-09-19,2026-09-21,provisional
-76,CAMOTE,tuberculos,plaza_vea,9517,,Camote Morado x kg,1.0,kg,0.687,0.687,granel,4,2026-09-19,2026-09-21,provisional
-76,CAMOTE,tuberculos,tottus,127251199,,Camote Amarillo Natural x Kg,1.0,kg,0.687,0.687,granel,4,2026-09-19,2026-09-21,provisional
-76,CAMOTE,tuberculos,wong,2858,,Camote Morado x kg,1.0,kg,0.687,0.687,granel,4,2026-09-19,2026-09-21,provisional
-78,PAPA AMARILLA,tuberculos,metro,30859,,Papa Amarilla Tumbay Procesada x kg,1.0,kg,1.032,1.032,granel,5,2026-09-19,2026-09-21,provisional
-78,PAPA AMARILLA,tuberculos,plaza_vea,53413,,Papa Amarilla Tumbay x kg,1.0,kg,1.032,1.032,granel,5,2026-09-19,2026-09-21,provisional
-78,PAPA AMARILLA,tuberculos,tottus,115809841,,Papa Amarilla Tottus x Kg,1.0,kg,1.032,1.032,granel,5,2026-09-19,2026-09-21,provisional
-78,PAPA AMARILLA,tuberculos,vivanda,33288,,Papa Amarilla Tumbay x kg,1.0,kg,1.032,1.032,granel,5,2026-09-19,2026-09-21,provisional
-78,PAPA AMARILLA,tuberculos,wong,2826,,Papa Amarilla Tumbay x kg,1.0,kg,1.032,1.032,granel,5,2026-09-19,2026-09-21,provisional
-79,PAPA BLANCA,tuberculos,metro,33912,,Papa Blanca x kg,1.0,kg,3.093,3.093,granel,5,2026-09-19,2026-09-21,provisional
-79,PAPA BLANCA,tuberculos,plaza_vea,10219,,Papa Blanca x kg,1.0,kg,3.093,3.093,granel,5,2026-09-19,2026-09-21,provisional
-79,PAPA BLANCA,tuberculos,tottus,146473561,,Papa Blanca Natural x Kg,1.0,kg,3.093,3.093,granel,5,2026-09-19,2026-09-21,provisional
-79,PAPA BLANCA,tuberculos,vivanda,3679,,Papa Blanca Cocktail Malla x kg,1.0,kg,3.093,3.093,granel,5,2026-09-19,2026-09-21,provisional
-79,PAPA BLANCA,tuberculos,wong,2930,,Papa Blanca Yungay x kg,1.0,kg,3.093,3.093,granel,5,2026-09-19,2026-09-21,provisional
-84,AZÚCAR,azucar,metro,7091,7751160000203,Azúcar Blanca Dulfina Bolsa1 kg,1.0,kg,1.734,1.734,ean,5,2026-09-19,2026-09-21,provisional
-84,AZÚCAR,azucar,plaza_vea,1870,7751160000203,Azúcar Blanca DULFINA Bolsa 1Kg,1.0,kg,1.734,1.734,ean,5,2026-09-19,2026-09-21,provisional
-84,AZÚCAR,azucar,tottus,113707743,7751160000203,Azúcar Blanca Dulfina Bolsa 1 Kg,1.0,kg,1.734,1.734,ean,5,2026-09-19,2026-09-21,provisional
-84,AZÚCAR,azucar,vivanda,5194,7751160000203,Azúcar Blanca DULFINA Bolsa 1Kg,1.0,kg,1.734,1.734,ean,5,2026-09-19,2026-09-21,provisional
-84,AZÚCAR,azucar,wong,7091,7751160000203,Azúcar Blanca Dulfina Bolsa1 kg,1.0,kg,1.734,1.734,ean,5,2026-09-19,2026-09-21,provisional
-85,COCOA,infusiones,plaza_vea,11429796,7752748011956,Cocoa WINTERS Pote 180g,0.18,kg,0.012,0.066667,ean,4,2026-09-19,2026-09-21,provisional
-85,COCOA,infusiones,tottus,134151426,7752748011956,Cocoa Winters Envase 180 g,0.18,kg,0.012,0.066667,ean,4,2026-09-19,2026-09-21,provisional
-85,COCOA,infusiones,vivanda,11353194,7752748011956,Cocoa WINTERS Pote 180g,0.18,kg,0.012,0.066667,ean,4,2026-09-19,2026-09-21,provisional
-85,COCOA,infusiones,wong,1523,7752748011956,Cocoa Winter's 180g,0.18,kg,0.012,0.066667,ean,4,2026-09-19,2026-09-21,provisional
-87,CAFÉ INSTANTÁNEO,infusiones,metro,39254444,7754308002916,Café Instantáneo Liofilizado Cafetal 180g,0.18,kg,0.009,0.05,ean,5,2026-09-19,2026-09-21,provisional
-87,CAFÉ INSTANTÁNEO,infusiones,plaza_vea,10852363,7754308002916,Café Instantáneo CAFETAL Liofilizado Frasco 180g,0.18,kg,0.009,0.05,ean,5,2026-09-19,2026-09-21,provisional
-87,CAFÉ INSTANTÁNEO,infusiones,tottus,119332145,7754308002916,Cafe Instantaneo Cafetal Envase 180 g,0.18,kg,0.009,0.05,ean,5,2026-09-19,2026-09-21,provisional
-87,CAFÉ INSTANTÁNEO,infusiones,vivanda,10773377,7754308002916,Café Instántaneo Intenso CAFETAL Frasco 180g,0.18,kg,0.009,0.05,ean,5,2026-09-19,2026-09-21,provisional
-87,CAFÉ INSTANTÁNEO,infusiones,wong,39265049,7754308002916,Café Instantáneo Liofilizado Cafetal 180g,0.18,kg,0.009,0.05,ean,5,2026-09-19,2026-09-21,provisional
-89,GELATINA,postres,metro,8291,7752230002301,Gelatina Universal Extra Colágeno Fresa Caja 30 g,0.03,kg,0.147,4.9,ean,5,2026-09-19,2026-09-21,provisional
-89,GELATINA,postres,plaza_vea,10221444,7752230002301,Gelatina UNIVERSAL con Sabor a Fresa Extra Colágeno Bolsa 30g,0.03,kg,0.147,4.9,ean,5,2026-09-19,2026-09-21,provisional
-89,GELATINA,postres,tottus,113714863,7752230002301,Gelatina Universal Extra Colágeno Sabor Fresa Empaque 30 g,0.03,kg,0.147,4.9,ean,5,2026-09-19,2026-09-21,provisional
-89,GELATINA,postres,vivanda,10175220,7752230002301,Gelatina UNIVERSAL con Sabor a Fresa Extra Colágeno Bolsa 30g,0.03,kg,0.147,4.9,ean,5,2026-09-19,2026-09-21,provisional
-89,GELATINA,postres,wong,8291,7752230002301,Gelatina Universal Extra Colágeno Fresa Caja 30 g,0.03,kg,0.147,4.9,ean,5,2026-09-19,2026-09-21,provisional
-93,AJO MOLIDO,condimentos,metro,7521,7750333000057,Ajo Molido Piki 350g,0.35,kg,0.093,0.265714,ean,4,2026-09-19,2026-09-21,provisional
-93,AJO MOLIDO,condimentos,plaza_vea,1253,7750333000057,Ajo Molido PIKI Doypack 350g,0.35,kg,0.093,0.265714,ean,4,2026-09-19,2026-09-21,provisional
-93,AJO MOLIDO,condimentos,tottus,113714962,7750333000057,Ajo Molido Piki Bolsa 350 g,0.35,kg,0.093,0.265714,ean,4,2026-09-19,2026-09-21,provisional
-93,AJO MOLIDO,condimentos,wong,7521,7750333000057,Ajo Molido Piki 350g,0.35,kg,0.093,0.265714,ean,4,2026-09-19,2026-09-21,provisional
-94,AJI NO MOTO,condimentos,plaza_vea,11929154,7754487002929,Sazonador AJINOMOTO Sobre 90g,0.09,kg,0.027,0.3,ean,4,2026-09-19,2026-09-21,provisional
-94,AJI NO MOTO,condimentos,tottus,143360954,7754487002929,Sazonador Ajinomoto Sobre 90 g,0.09,kg,0.027,0.3,ean,4,2026-09-19,2026-09-21,provisional
-94,AJI NO MOTO,condimentos,vivanda,11823707,7754487002929,Sazonador AJINOMOTO Sobre 90g,0.09,kg,0.027,0.3,ean,4,2026-09-19,2026-09-21,provisional
-94,AJI NO MOTO,condimentos,wong,7740,7754487002929,Sazonador Ajinomoto 90g,0.09,kg,0.027,0.3,ean,4,2026-09-19,2026-09-21,provisional
-100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,metro,7746,7753121000352,Sazonador Sibarita Frasco 80 g,0.08,kg,0.027,0.3375,ean,4,2026-09-19,2026-09-21,provisional
-100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,plaza_vea,1071,7753121000352,Salsa SIBARITA Sazonador Frasco 80g,0.08,kg,0.027,0.3375,ean,4,2026-09-19,2026-09-21,provisional
-100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,vivanda,1629,7753121000352,Salsa SIBARITA Sazonador Frasco 80g,0.08,kg,0.027,0.3375,ean,4,2026-09-19,2026-09-21,provisional
-100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,wong,7746,7753121000352,Sazonador Sibarita Frasco 80 g,0.08,kg,0.027,0.3375,ean,4,2026-09-19,2026-09-21,provisional
-101,BEBIDAS GASEOSAS,bebidas,metro,10814,7750182001236,Gaseosa Coca Cola Botella 1L,1.0,l,1.299,1.299,ean,5,2026-09-19,2026-09-21,provisional
-101,BEBIDAS GASEOSAS,bebidas,plaza_vea,15132,7750182001236,Gaseosa COCA COLA Sabor Original Botella 1L,1.0,l,1.299,1.299,ean,5,2026-09-19,2026-09-21,provisional
-101,BEBIDAS GASEOSAS,bebidas,tottus,113366299,7750182001236,Gaseosa Coca Cola Botella 1 L,1.0,l,1.299,1.299,ean,5,2026-09-19,2026-09-21,provisional
-101,BEBIDAS GASEOSAS,bebidas,vivanda,10891,7750182001236,Gaseosa COCA COLA Sabor Original Botella 1L,1.0,l,1.299,1.299,ean,5,2026-09-19,2026-09-21,provisional
-101,BEBIDAS GASEOSAS,bebidas,wong,10814,7750182001236,Gaseosa Coca Cola Botella 1L,1.0,l,1.299,1.299,ean,5,2026-09-19,2026-09-21,provisional
+id,descripcion,grupo,cadena,item_id,ean,product_name,net_quantity,unidad,cantidad,paquetes,regla,identidad,nivel,presentacion_base,a_granel,marcas,r_max,n_cadenas,ventana_inicio,ventana_fin,estado
+2,GALLETA DE SODA,pan_y_cereales,metro,39232052,7622201714819,Sixpack Galletas de Soda Field 32g,0.192,kg,0.069,0.359375,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,metro,39274667,,Pack x2 Galletas de Soda Field Paquete 192g,0.384,kg,0.069,0.179688,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,metro,39274665,,Pack x3 Galletas de Soda Field Paquete 192g,0.576,kg,0.069,0.119792,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,plaza_vea,10652532,7622201714819,Galletas Saladas FIELD Soda Paquete 6un,0.192,kg,0.069,0.359375,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,tottus,115267772,7622201714819,Galleta Soda Field Empaque 6 Und,0.192,kg,0.069,0.359375,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,vivanda,10336104,7622201714819,Galletas Soda FIELD Bolsa 6un,0.192,kg,0.069,0.359375,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,wong,39210808,7622201714819,Sixpack Galletas de Soda Field 32g,0.192,kg,0.069,0.359375,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,wong,39285762,,Pack x2 Galletas de Soda Field Paquete 192g,0.384,kg,0.069,0.179688,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+2,GALLETA DE SODA,pan_y_cereales,wong,39285760,,Pack x3 Galletas de Soda Field Paquete 192g,0.576,kg,0.069,0.119792,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+3,GALLETA DULCE,pan_y_cereales,metro,3404,7750243077460,Sixpack Galleta Tentación Vainilla 43g,0.258,kg,0.087,0.337209,ean,ean,nucleo,True,False,gramaje_discrepante,1.2108,5,2026-09-19,2026-09-22,provisional
+3,GALLETA DULCE,pan_y_cereales,plaza_vea,11214087,7750243077460,Galleta TENTACION Sabor Vainilla Empaque 43g Paquete 6un,0.258,kg,0.087,0.337209,ean,ean,nucleo,True,False,gramaje_discrepante,1.2108,5,2026-09-19,2026-09-22,provisional
+3,GALLETA DULCE,pan_y_cereales,tottus,126272884,7750243077460,Galleta Tentación Vainilla Sixpack 258 g,0.258,kg,0.087,0.337209,ean,ean,nucleo,True,False,gramaje_discrepante,1.2108,5,2026-09-19,2026-09-22,provisional
+3,GALLETA DULCE,pan_y_cereales,vivanda,10776445,7750243077460,Galleta VICTORIA Tentación Sabor de Vainilla Bolsa 43g Paquete 6un,0.258,kg,0.087,0.337209,ean,ean,nucleo,True,False,gramaje_discrepante,1.2108,5,2026-09-19,2026-09-22,provisional
+3,GALLETA DULCE,pan_y_cereales,wong,3404,7750243077460,Sixpack Galleta Tentación Vainilla 43g,0.258,kg,0.087,0.337209,ean,ean,nucleo,True,False,gramaje_discrepante,1.2108,5,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,metro,23361,7755139002809,Arroz Extra Paisana Bolsa 5 kg,5.0,kg,4.422,0.8844,ean,ean,nucleo,True,False,,1.5903,4,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,metro,23363,7755139002793,Arroz Extra Paisana Bolsa 1 kg,1.0,kg,4.422,4.422,ean,ean,nucleo,False,False,alternativa,1.5903,4,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,plaza_vea,24925,7755139002809,Arroz Extra PAISANA Bolsa 5Kg,5.0,kg,4.422,0.8844,ean,ean,nucleo,True,False,,1.5903,4,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,plaza_vea,24921,,Arroz Extra PAISANA Bolsa 1Kg,1.0,kg,4.422,4.422,ean,ean,nucleo,False,False,alternativa,1.5903,4,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,tottus,113705625,7755139002809,Arroz Extra Paisana Bolsa 5 Kg,5.0,kg,4.422,0.8844,ean,ean,nucleo,True,False,,1.5903,4,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,tottus,113706245,7755139002793,Arroz Extra Paisana Bolsa 1 Kg,1.0,kg,4.422,4.422,ean,ean,nucleo,False,False,alternativa,1.5903,4,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,wong,23361,7755139002809,Arroz Extra Paisana Bolsa 5 kg,5.0,kg,4.422,0.8844,ean,ean,nucleo,True,False,,1.5903,4,2026-09-19,2026-09-22,provisional
+5,ARROZ CORRIENTE,pan_y_cereales,wong,23363,7755139002793,Arroz Extra Paisana Bolsa 1 kg,1.0,kg,4.422,4.422,ean,ean,nucleo,False,False,alternativa,1.5903,4,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,metro,39192363,7755477001212,Avena Integral en Hojuelas Grano de Oro 500g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.269,5,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,plaza_vea,10536700,7755477001212,Avena Integral GRANO DE ORO Bolsa 500g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.269,5,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,tottus,129925776,7755477001212,Avena Integral Grano De Oro Bolsa 500 g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.269,5,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,tottus,113712889,7755477001113,Avena Integral Grano de Oro Pote 900 g,0.9,kg,0.345,0.383333,ean,ean,nucleo,False,False,alternativa,1.269,5,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,tottus,148217878,7755477001267,Avena Integral Grano de Oro Bolsa 1 Kg,1.0,kg,0.345,0.345,ean,ean,nucleo,False,False,alternativa,1.269,5,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,vivanda,10333267,7755477001212,Avena Integral GRANO DE ORO Bolsa 500g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.269,5,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,wong,39206133,7755477001212,Avena Integral en Hojuelas Grano de Oro 500g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.269,5,2026-09-19,2026-09-22,provisional
+6,AVENA,pan_y_cereales,wong,39186405,7755477001113,Avena Integral en Hojuelas Grano de Oro 900g,0.9,kg,0.345,0.383333,ean,ean,nucleo,False,False,alternativa,1.269,5,2026-09-19,2026-09-22,provisional
+8,MAÍZ BLANCO CORRIENTE CANCHA,pan_y_cereales,metro,39167294,7752992001543,Cancha Chulpi Villa Natura 150g,0.15,kg,0.207,1.38,ean,ean,ampliado_1,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+8,MAÍZ BLANCO CORRIENTE CANCHA,pan_y_cereales,plaza_vea,43810,,Cancha Chulpi VILLA NATURA Bolsa 150g,0.15,kg,0.207,1.38,ean_equivalente,ean_equivalente,ampliado_1,True,False,sin_ean_fabricante,1.2108,4,2026-09-19,2026-09-22,provisional
+8,MAÍZ BLANCO CORRIENTE CANCHA,pan_y_cereales,vivanda,30861,,Cancha Chulpi VILLA NATURA Bolsa 150g,0.15,kg,0.207,1.38,ean_equivalente,ean_equivalente,ampliado_1,True,False,sin_ean_fabricante,1.2108,4,2026-09-19,2026-09-22,provisional
+8,MAÍZ BLANCO CORRIENTE CANCHA,pan_y_cereales,wong,39344569,7751087005022,Cancha Chulpi Vallealto 140g,0.14,kg,0.207,1.478571,por_kilo,por_kilo,ampliado_1,True,False,marca_distinta;tamano_distinto,1.2108,4,2026-09-19,2026-09-22,provisional
+13,SÉMOLA,pan_y_cereales,metro,7491,7750885007108,Sémola Molitalia Bolsa 200 g,0.2,kg,0.171,0.855,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+13,SÉMOLA,pan_y_cereales,plaza_vea,3982,,Sémola MOLITALIA Bolsa 200g,0.2,kg,0.171,0.855,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,4,2026-09-19,2026-09-22,provisional
+13,SÉMOLA,pan_y_cereales,vivanda,2252,,Sémola MOLITALIA Bolsa 200g,0.2,kg,0.171,0.855,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,4,2026-09-19,2026-09-22,provisional
+13,SÉMOLA,pan_y_cereales,wong,7491,,Sémola Molitalia Bolsa 200 g,0.2,kg,0.171,0.855,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,4,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,metro,39322718,7750885026024,Tallarín Molitalia 950g,0.95,kg,0.543,0.571579,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,metro,2734,7750885003049,Tallarín Molitalia 450g,0.45,kg,0.543,1.206667,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,plaza_vea,12101753,7750885026024,Fideo Tallarín MOLITALIA Bolsa 950g,0.95,kg,0.543,0.571579,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,tottus,148087989,7750885026024,Fideo Molitalia Tallarín Bolsa 950 g,0.95,kg,0.543,0.571579,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,tottus,119850242,7750885022118,Fideo Tallarín Molitalia Bolsa 450 g,0.45,kg,0.543,1.206667,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,vivanda,11824661,,Fideo Tallarín MOLITALIA Bolsa 950g,0.95,kg,0.543,0.571579,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,wong,39327204,7750885026024,Tallarín Molitalia 950g,0.95,kg,0.543,0.571579,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,wong,2734,,Tallarín Molitalia 450g,0.45,kg,0.543,1.206667,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,metro,2717,7750885021166,Spaghetti Nro 32 Molitalia 450g,0.45,kg,0.543,1.206667,ean,ean,nucleo,True,False,,1.1802,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,plaza_vea,10705767,7750885021166,Fideos Spaghetti MOLITALIA Bolsa 450g,0.45,kg,0.543,1.206667,ean,ean,nucleo,True,False,,1.1802,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,plaza_vea,10620458,7750885021043,Fideos Spaghetti MOLITALIA Bolsa 950g,0.95,kg,0.543,0.571579,ean,ean,nucleo,False,False,alternativa,1.1802,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,tottus,115267763,7750885021166,Fideos Spaghetti Molitalia Empaque 450 g,0.45,kg,0.543,1.206667,ean,ean,nucleo,True,False,,1.1802,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,tottus,113707255,7750885021043,Fideos Spaghetti Molitalia Bolsa 950 g,0.95,kg,0.543,0.571579,ean,ean,nucleo,False,False,alternativa,1.1802,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,vivanda,10336731,7750885021166,Fideos Spaghetti MOLITALIA Bolsa 450g,0.45,kg,0.543,1.206667,ean,ean,nucleo,True,False,,1.1802,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,vivanda,10335722,7750885021043,Fideos Spaghetti MOLITALIA Bolsa 950g,0.95,kg,0.543,0.571579,ean,ean,nucleo,False,False,alternativa,1.1802,5,2026-09-19,2026-09-22,provisional
+17,OTROS FIDEOS ENVASADOS,pan_y_cereales,wong,2717,7750885021166,Spaghetti Nro 32 Molitalia 450g,0.45,kg,0.543,1.206667,ean,ean,nucleo,True,False,,1.1802,5,2026-09-19,2026-09-22,provisional
+21,POLLO EVISCERADO,carnes,metro,35313,,Pollo Entero con Menudencia Metro x kg,1.0,kg,1.626,1.626,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+21,POLLO EVISCERADO,carnes,plaza_vea,9357,,Pollo Entero Fresco con Menudencia x kg,1.0,kg,1.626,1.626,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+21,POLLO EVISCERADO,carnes,vivanda,10407,,Pollo Entero Fresco con Menudencia,1.0,kg,1.626,1.626,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+21,POLLO EVISCERADO,carnes,wong,3846,,Pollo Entero con Menudencia x kg,1.0,kg,1.626,1.626,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+23,MONDONGO DE RES,carnes,plaza_vea,80501,,Mondongo Cau Cau x kg,1.0,kg,0.207,0.207,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+23,MONDONGO DE RES,carnes,tottus,118685027,,Mondongo Picado Cau Cau x Kg,1.0,kg,0.207,0.207,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+23,MONDONGO DE RES,carnes,vivanda,36605,,Mondongo Cau Cau Congelado,1.0,kg,0.207,0.207,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+23,MONDONGO DE RES,carnes,wong,1609,,Mondongo Picado a La Italiana x kg,1.0,kg,0.207,0.207,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+25,HOT DOG,carnes,metro,39164214,7750571002585,Hot Dog Vienesa Salchichería Alemana 250g,0.25,kg,0.144,0.576,ean,ean,nucleo,True,False,,1.1739,5,2026-09-19,2026-09-22,provisional
+25,HOT DOG,carnes,plaza_vea,10048162,7750571002585,Hot Dog Vienesa Ahumado SALCHICHERÍA ALEMANA Paquete 250g,0.25,kg,0.144,0.576,ean,ean,nucleo,True,False,,1.1739,5,2026-09-19,2026-09-22,provisional
+25,HOT DOG,carnes,tottus,137931119,7750571002585,Hot Dog Vienesa Salchichería Alemana Empaque 250 g,0.25,kg,0.144,0.576,ean,ean,nucleo,True,False,,1.1739,5,2026-09-19,2026-09-22,provisional
+25,HOT DOG,carnes,vivanda,48740,7750571002585,Hot Dog Vienesa Ahumado SALCHICHERÍA ALEMANA Paquete 250g,0.25,kg,0.144,0.576,ean,ean,nucleo,True,False,,1.1739,5,2026-09-19,2026-09-22,provisional
+25,HOT DOG,carnes,wong,39164214,7750571002585,Hot Dog Vienesa Salchichería Alemana 250g,0.25,kg,0.144,0.576,ean,ean,nucleo,True,False,,1.1739,5,2026-09-19,2026-09-22,provisional
+27,GRATED DE SARDINA / ATUN,pescados,metro,39200165,7807910038160,Grated de Atún en Aceite Vegetal Máxima 140g,0.14,kg,0.144,1.028571,por_kilo,por_kilo,ampliado_1,True,False,marca_distinta,1.2108,4,2026-09-19,2026-09-22,provisional
+27,GRATED DE SARDINA / ATUN,pescados,plaza_vea,11089555,7751158000000,Grated de Atún en Aceite Vegetal FLORIDA Lata 140g,0.14,kg,0.144,1.028571,ean,ean,ampliado_1,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+27,GRATED DE SARDINA / ATUN,pescados,tottus,121941031,7751158000000,Grated de Atún Florida en Aceite Vegetal Lata 140 g,0.14,kg,0.144,1.028571,ean,ean,ampliado_1,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+27,GRATED DE SARDINA / ATUN,pescados,vivanda,12160865,,Grated de Atún en Aceite BELL'S Lata 140g,0.14,kg,0.144,1.028571,por_kilo,por_kilo,ampliado_1,True,False,marca_distinta,1.2108,4,2026-09-19,2026-09-22,provisional
+30,LECHE EVAPORADA,lacteos,metro,39233661,7751271034128,Pack x6 Leche Evaporada Gloria Entera,2.34,kg,1.269,0.542308,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+30,LECHE EVAPORADA,lacteos,metro,39233660,7751271032834,Leche Evaporada Entera Gloria Lata 390g,0.39,kg,1.269,3.253846,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+30,LECHE EVAPORADA,lacteos,plaza_vea,11390023,7751271034128,Leche Evaporada Entera GLORIA Lata 390g Paquete 6un,2.34,kg,1.269,0.542308,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+30,LECHE EVAPORADA,lacteos,tottus,129087931,7751271034128,Leche Gloria Evaporada Entera Sixpack Lata 390 g,2.34,kg,1.269,0.542308,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+30,LECHE EVAPORADA,lacteos,tottus,129087940,7751271034111,Leche Gloria Evaporada Entera 390 g,0.39,kg,1.269,3.253846,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+30,LECHE EVAPORADA,lacteos,vivanda,11352387,7751271034128,Leche Evaporada Entera GLORIA Lata 390g Paquete 6un,2.34,kg,1.269,0.542308,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+32,QUESO FRESCO VACA,lacteos,metro,3696,7751271029841,Queso Fresco Gloria x kg,1.0,kg,0.123,0.123,ean,ean,nucleo,True,True,,1.2108,5,2026-09-19,2026-09-22,provisional
+32,QUESO FRESCO VACA,lacteos,plaza_vea,10125946,7751271029841,Queso Fresco GLORIA x kg,1.0,kg,0.123,0.123,ean,ean,nucleo,True,True,,1.2108,5,2026-09-19,2026-09-22,provisional
+32,QUESO FRESCO VACA,lacteos,tottus,115815069,,Queso Fresco Gloria x Kg,1.0,kg,0.123,0.123,ean_equivalente,ean_equivalente,nucleo,True,True,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+32,QUESO FRESCO VACA,lacteos,vivanda,10109836,7751271029841,Queso Fresco GLORIA x kg,1.0,kg,0.123,0.123,ean,ean,nucleo,True,True,,1.2108,5,2026-09-19,2026-09-22,provisional
+32,QUESO FRESCO VACA,lacteos,wong,3696,7751271029841,Queso Fresco Gloria x kg,1.0,kg,0.123,0.123,ean,ean,nucleo,True,True,,1.2108,5,2026-09-19,2026-09-22,provisional
+33,YOGURT,lacteos,metro,5427,7750289000163,Yogurt Bebible Piamonte Natural sin Azúcar Botella 946 ml,0.946,l,0.459,0.485201,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+33,YOGURT,lacteos,plaza_vea,10020788,7750289000163,Yogurt Bebible PIAMONTE Natural Botella 946ml,0.946,l,0.459,0.485201,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+33,YOGURT,lacteos,vivanda,48523,7750289000163,Yogurt Bebible PIAMONTE Natural Botella 946ml,0.946,l,0.459,0.485201,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+33,YOGURT,lacteos,wong,5427,7750289000163,Yogurt Bebible Piamonte Natural sin Azúcar Botella 946 ml,0.946,l,0.459,0.485201,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,metro,35778,7754470000024,Huevos Clásicos Pardos La Calera 30un,2.052,kg,0.645,0.314327,por_unidad,por_unidad,ampliado_2,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,plaza_vea,42082,7754470000024,Huevos Pardos LA CALERA Paquete 30un,2.052,kg,0.645,0.314327,por_unidad,por_unidad,ampliado_2,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,plaza_vea,11359040,7750863409016,Huevos Pardos LA CALERA Bandeja 15un,1.026,kg,0.645,0.628655,por_unidad,por_unidad,ampliado_2,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,tottus,130751328,7754470000024,Huevos Pardos La Calera Bandeja 30 Und,2.052,kg,0.645,0.314327,por_unidad,por_unidad,ampliado_2,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,tottus,115462449,7750863409016,Huevos Pardos La Calera Bandeja 15 Und,1.026,kg,0.645,0.628655,por_unidad,por_unidad,ampliado_2,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,vivanda,50599,7754470000024,Huevos Pardos LA CALERA Paquete 30un,2.052,kg,0.645,0.314327,por_unidad,por_unidad,ampliado_2,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,vivanda,11352021,7750863409016,Huevos Pardos LA CALERA Bandeja 15un,1.026,kg,0.645,0.628655,por_unidad,por_unidad,ampliado_2,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+34,HUEVOS A GRANEL DE GALLINA,huevos,wong,35778,7754470000024,Huevos Clásicos Pardos La Calera 30un,2.052,kg,0.645,0.314327,por_unidad,por_unidad,ampliado_2,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,Aceite Vegetal Primor Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,metro,428,7750243979214,Aceite Vegetal Primor Clásico Botella 900ml,0.9,l,0.391304,0.434783,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,plaza_vea,10181308,7750243059381,Aceite Vegetal PRIMOR Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,plaza_vea,10614794,7750243068000,Aceite Vegetal PRIMOR Clásico Botella 900ml,0.9,l,0.391304,0.434783,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,tottus,119580636,7750243059381,Aceite Vegetal Primor Clásico Botella 1.8 L,1.8,l,0.391304,0.217391,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,tottus,113706446,7750243068000,Aceite Vegetal Primor Clásico Botella 900 mL,0.9,l,0.391304,0.434783,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,vivanda,10131657,7750243059381,Aceite Vegetal PRIMOR Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,vivanda,10335376,7750243068000,Aceite Vegetal PRIMOR Clásico Botella 900ml,0.9,l,0.391304,0.434783,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,wong,39181622,7750243059381,Aceite Vegetal Primor Clásico Botella 1.8L,1.8,l,0.391304,0.217391,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+35,ACEITE VEGETAL,aceites_y_grasas,wong,428,7750243979214,Aceite Vegetal Primor Clásico Botella 900ml,0.9,l,0.391304,0.434783,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,metro,4220,7752285020060,Margarina Dorina Clásica 450g,0.45,kg,0.072,0.16,ean_equivalente,ean_equivalente,nucleo,True,False,,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,metro,4221,7752285031868,Margarina Dorina Clásica 220g,0.22,kg,0.072,0.327273,ean_equivalente,ean_equivalente,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,metro,4224,8719200453517,Margarina Dorina Clásica 900g,0.9,kg,0.072,0.08,ean_equivalente,ean_equivalente,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,plaza_vea,10695956,8719200231429,Margarina Clásica DORINA Pote 450g,0.45,kg,0.072,0.16,ean,ean,nucleo,True,False,,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,plaza_vea,10695953,8719200231252,Margarina Clásica DORINA Pote 220g,0.22,kg,0.072,0.327273,ean,ean,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,plaza_vea,10695954,8719200231368,Margarina Clásica DORINA Pote 900g,0.9,kg,0.072,0.08,ean,ean,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,tottus,114518746,8719200231429,Margarina Dorina Clásica Envase 450 g,0.45,kg,0.072,0.16,ean,ean,nucleo,True,False,,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,tottus,115776283,8719200231252,Margarina Dorina Clásica Envase 220 g,0.22,kg,0.072,0.327273,ean,ean,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,tottus,115815260,8719200231368,Margarina Dorina Clásica Envase 900 g,0.9,kg,0.072,0.08,ean,ean,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,vivanda,10336466,8719200231429,Margarina Clásica DORINA Pote 450g,0.45,kg,0.072,0.16,ean,ean,nucleo,True,False,,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,vivanda,10336463,8719200231252,Margarina Clásica DORINA Pote 220g,0.22,kg,0.072,0.327273,ean,ean,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,wong,4220,7752285020060,Margarina Dorina Clásica 450g,0.45,kg,0.072,0.16,ean_equivalente,ean_equivalente,nucleo,True,False,,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,wong,4221,8719200231252,Margarina Dorina Clásica 220g,0.22,kg,0.072,0.327273,ean_equivalente,ean_equivalente,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+36,MARGARINA,aceites_y_grasas,wong,4224,8719200231368,Margarina Dorina Clásica 900g,0.9,kg,0.072,0.08,ean_equivalente,ean_equivalente,nucleo,False,False,alternativa,1.205,5,2026-09-19,2026-09-22,provisional
+44,BRÓCOLI,hortalizas,metro,2815,,Brócoli x kg,1.0,kg,0.414,0.414,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+44,BRÓCOLI,hortalizas,plaza_vea,10132,,Brócoli x kg,1.0,kg,0.414,0.414,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+44,BRÓCOLI,hortalizas,vivanda,7969,,Brócoli x kg,1.0,kg,0.414,0.414,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+44,BRÓCOLI,hortalizas,wong,2815,,Brócoli x kg,1.0,kg,0.414,0.414,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,metro,33903,,Cebolla Roja Metro x kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,Cebolla Roja x kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,tottus,116967839,,Cebolla Roja Norte X Kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,vivanda,10778392,,Cebolla Roja,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,wong,8678,,Cebolla Roja x kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+47,CHOCLO,hortalizas,metro,33651,,Choclo Especial x unid,0.2559,kg,0.36,1.4068,por_unidad,por_unidad,ampliado_2,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+47,CHOCLO,hortalizas,plaza_vea,10124,,Choclo Entero x und.,0.2559,kg,0.36,1.4068,por_unidad,por_unidad,ampliado_2,True,False,marca_distinta,1.2108,4,2026-09-19,2026-09-22,provisional
+47,CHOCLO,hortalizas,vivanda,10037,,Choclo Entero x und.,0.2559,kg,0.36,1.4068,por_unidad,por_unidad,ampliado_2,True,False,marca_distinta,1.2108,4,2026-09-19,2026-09-22,provisional
+47,CHOCLO,hortalizas,wong,2920,,Choclo Serrano x unid,0.2559,kg,0.36,1.4068,por_unidad,por_unidad,ampliado_2,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+56,TOMATE,hortalizas,metro,33484,,Tomate Italiano Metro x kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+56,TOMATE,hortalizas,plaza_vea,12726,,Tomate Italiano x kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+56,TOMATE,hortalizas,vivanda,10778396,,Tomate Italiano,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+56,TOMATE,hortalizas,wong,2831,,Tomate Italiano x kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+58,ZANAHORIA,hortalizas,metro,2833,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+58,ZANAHORIA,hortalizas,plaza_vea,10342,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+58,ZANAHORIA,hortalizas,tottus,129304100,,Zanahoria x Kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+58,ZANAHORIA,hortalizas,vivanda,7803,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+58,ZANAHORIA,hortalizas,wong,2833,,Zanahoria x kg,1.0,kg,0.48,0.48,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+59,ZAPALLO,hortalizas,metro,2835,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+59,ZAPALLO,hortalizas,plaza_vea,12373,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+59,ZAPALLO,hortalizas,vivanda,2367,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+59,ZAPALLO,hortalizas,wong,2835,,Zapallo Macre x kg,1.0,kg,0.516,0.516,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+61,LIMÓN,frutas,metro,2823,,Limón x kg,1.0,kg,0.432,0.432,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+61,LIMÓN,frutas,plaza_vea,9476,,Limón Ácido x kg,1.0,kg,0.432,0.432,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+61,LIMÓN,frutas,tottus,118803580,,Limón Ácido Importado x Kg,1.0,kg,0.432,0.432,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+61,LIMÓN,frutas,vivanda,10778394,,Limón Acido,1.0,kg,0.432,0.432,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+61,LIMÓN,frutas,wong,2823,,Limón x kg,1.0,kg,0.432,0.432,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+62,MANDARINA,frutas,metro,39775,,Mandarina Costa x kg,1.0,kg,1.011,1.011,por_kilo,por_kilo,ampliado_1,True,True,variedad_no_fijada,1.1762,5,2026-09-19,2026-09-22,provisional
+62,MANDARINA,frutas,plaza_vea,11425580,,Mandarina W MURCOTT x kg,1.0,kg,1.011,1.011,por_kilo,por_kilo,ampliado_1,True,True,variedad_no_fijada,1.1762,5,2026-09-19,2026-09-22,provisional
+62,MANDARINA,frutas,tottus,155935810,,Mandarina Clemy x Kg,1.0,kg,1.011,1.011,por_kilo,por_kilo,ampliado_1,True,True,variedad_no_fijada,1.1762,5,2026-09-19,2026-09-22,provisional
+62,MANDARINA,frutas,vivanda,11353005,,Mandarina W MURCOTT x kg,1.0,kg,1.011,1.011,por_kilo,por_kilo,ampliado_1,True,True,variedad_no_fijada,1.1762,5,2026-09-19,2026-09-22,provisional
+62,MANDARINA,frutas,wong,8882,,Mandarina Costa x kg,1.0,kg,1.011,1.011,por_kilo,por_kilo,ampliado_1,True,True,variedad_no_fijada,1.1762,5,2026-09-19,2026-09-22,provisional
+64,MANZANAS,frutas,metro,14059,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+64,MANZANAS,frutas,plaza_vea,22825,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+64,MANZANAS,frutas,vivanda,11974,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+64,MANZANAS,frutas,wong,14059,,Manzana Fuji x kg,1.0,kg,0.723,0.723,granel,granel,nucleo,True,True,,1.1762,4,2026-09-19,2026-09-22,provisional
+65,NARANJA,frutas,metro,2781,,Naranja de Mesa Importada x kg,1.0,kg,1.083,1.083,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+65,NARANJA,frutas,plaza_vea,13485,,Naranja de Mesa Nacional x kg,1.0,kg,1.083,1.083,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+65,NARANJA,frutas,tottus,118684949,,Naranja De Mesa x Kg,1.0,kg,1.083,1.083,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+65,NARANJA,frutas,vivanda,2576,,Naranja de Mesa Importada x kg,1.0,kg,1.083,1.083,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+65,NARANJA,frutas,wong,2781,,Naranja de Mesa Importada x kg,1.0,kg,1.083,1.083,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+66,PALTA - CRIOLLA O CORRIENTE,frutas,metro,39207032,,Palta Hass x kg,1.0,kg,0.348,0.348,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+66,PALTA - CRIOLLA O CORRIENTE,frutas,plaza_vea,10627,,Palta Hass x kg,1.0,kg,0.348,0.348,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+66,PALTA - CRIOLLA O CORRIENTE,frutas,tottus,118757637,,Palta Hass Madura x Kg,1.0,kg,0.348,0.348,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+66,PALTA - CRIOLLA O CORRIENTE,frutas,vivanda,7579,,Palta Hass x kg,1.0,kg,0.348,0.348,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+66,PALTA - CRIOLLA O CORRIENTE,frutas,wong,39211141,,Palta Hass x kg,1.0,kg,0.348,0.348,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+67,PAPAYA,frutas,metro,39140176,,Papaya Metro x kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+67,PAPAYA,frutas,plaza_vea,13790,,Papaya x kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+67,PAPAYA,frutas,tottus,115809129,,Papaya x Kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+67,PAPAYA,frutas,vivanda,10778574,,Papaya,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+67,PAPAYA,frutas,wong,2748,,Papaya x kg,1.0,kg,0.867,0.867,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+69,PLÁTANO DE SEDA,frutas,metro,40815,,Platano de Seda x kg,1.0,kg,1.182,1.182,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+69,PLÁTANO DE SEDA,frutas,plaza_vea,10727,,Plátano de Seda x kg,1.0,kg,1.182,1.182,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+69,PLÁTANO DE SEDA,frutas,tottus,117198480,,Platano De Seda Sur X Kg,1.0,kg,1.182,1.182,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+69,PLÁTANO DE SEDA,frutas,vivanda,8350,,Plátano de Seda x kg,1.0,kg,1.182,1.182,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+69,PLÁTANO DE SEDA,frutas,wong,9126,,Plátano de Seda Wong x kg,1.0,kg,1.182,1.182,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+72,ARVEJA SECA PARTIDA,menestras,metro,39320452,7757786000054,Arveja Verde Partida Cosecha Andina 500g,0.5,kg,0.207,0.414,por_kilo,por_kilo,ampliado_1,True,False,marca_distinta,1.2108,4,2026-09-19,2026-09-22,provisional
+72,ARVEJA SECA PARTIDA,menestras,plaza_vea,10765061,7751130801595,Arveja Partida TESORO DEL CAMPO Bolsa 500g,0.5,kg,0.207,0.414,ean,ean,ampliado_1,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+72,ARVEJA SECA PARTIDA,menestras,tottus,113715939,7751130801595,Arveja Partida Tesoro del Campo Menestra Bolsa 500 g,0.5,kg,0.207,0.414,ean,ean,ampliado_1,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+72,ARVEJA SECA PARTIDA,menestras,wong,561,7751130801595,Arveja Verde Tesoro Del Campo Bolsa 500 g,0.5,kg,0.207,0.414,ean,ean,ampliado_1,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+73,FREJOL,menestras,metro,602,7751130000042,Frijol Castilla Tesoro Del Campo Bolsa 500 g,0.5,kg,0.258,0.516,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+73,FREJOL,menestras,plaza_vea,14855,7751130000042,Frijol Castilla TESORO DEL CAMPO Bolsa 500g,0.5,kg,0.258,0.516,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+73,FREJOL,menestras,tottus,115939225,7751130000042,Frijol Castilla Tesoro del Campo Menestra Bolsa 500 g,0.5,kg,0.258,0.516,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+73,FREJOL,menestras,wong,602,7751130000042,Frijol Castilla Tesoro Del Campo Bolsa 500 g,0.5,kg,0.258,0.516,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+75,LENTEJA,menestras,metro,39250208,7754725000724,Lentejas Bebé Bolsa 500 g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+75,LENTEJA,menestras,plaza_vea,81967,7754725000724,Lenteja Bebé VALLENORTE Bolsa 500g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+75,LENTEJA,menestras,tottus,148938033,7754725000724,Lenteja Bebé Valle Norte Bolsa 500 g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+75,LENTEJA,menestras,vivanda,36993,7754725000724,Lenteja Bebé VALLENORTE Bolsa 500g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+75,LENTEJA,menestras,wong,39190818,7754725000724,Lentejas Bebé Bolsa 500 g,0.5,kg,0.345,0.69,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+76,CAMOTE,tuberculos,metro,33653,,Camote Morado Meza x kg,1.0,kg,0.687,0.687,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+76,CAMOTE,tuberculos,plaza_vea,9517,,Camote Morado x kg,1.0,kg,0.687,0.687,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+76,CAMOTE,tuberculos,tottus,116967790,,Camote Morado Natural Norte X Kg,1.0,kg,0.687,0.687,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+76,CAMOTE,tuberculos,vivanda,10778395,,Camote Morado,1.0,kg,0.687,0.687,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+76,CAMOTE,tuberculos,wong,2858,,Camote Morado x kg,1.0,kg,0.687,0.687,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+78,PAPA AMARILLA,tuberculos,metro,30859,,Papa Amarilla Tumbay Procesada x kg,1.0,kg,1.032,1.032,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+78,PAPA AMARILLA,tuberculos,plaza_vea,53413,,Papa Amarilla Tumbay x kg,1.0,kg,1.032,1.032,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+78,PAPA AMARILLA,tuberculos,tottus,115809841,,Papa Amarilla Tottus x Kg,1.0,kg,1.032,1.032,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+78,PAPA AMARILLA,tuberculos,vivanda,33288,,Papa Amarilla Tumbay x kg,1.0,kg,1.032,1.032,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+78,PAPA AMARILLA,tuberculos,wong,2863,,Papa Amarilla Huamantanga x kg,1.0,kg,1.032,1.032,granel,granel,nucleo,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+79,PAPA BLANCA,tuberculos,metro,33912,,Papa Blanca x kg,1.0,kg,3.093,3.093,granel,granel,ampliado_1,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+79,PAPA BLANCA,tuberculos,plaza_vea,10219,,Papa Blanca x kg,1.0,kg,3.093,3.093,granel,granel,ampliado_1,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+79,PAPA BLANCA,tuberculos,tottus,146473561,,Papa Blanca Natural x Kg,1.0,kg,3.093,3.093,granel,granel,ampliado_1,True,True,,1.1762,5,2026-09-19,2026-09-22,provisional
+79,PAPA BLANCA,tuberculos,vivanda,10778393,,Papa Blanca Yungay,1.0,kg,3.093,3.093,por_kilo,por_kilo,ampliado_1,True,True,variedad_distinta,1.1762,5,2026-09-19,2026-09-22,provisional
+79,PAPA BLANCA,tuberculos,wong,2930,,Papa Blanca Yungay x kg,1.0,kg,3.093,3.093,por_kilo,por_kilo,ampliado_1,True,True,variedad_distinta,1.1762,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,metro,7091,7751160000203,Azúcar Blanca Dulfina Bolsa1 kg,1.0,kg,1.734,1.734,ean,ean,nucleo,True,False,,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,plaza_vea,1870,7751160000203,Azúcar Blanca DULFINA Bolsa 1Kg,1.0,kg,1.734,1.734,ean,ean,nucleo,True,False,,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,plaza_vea,10691735,7751160000432,Azúcar Blanca DULFINA Bolsa 2Kg,2.0,kg,1.734,0.867,ean,ean,nucleo,False,False,alternativa,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,tottus,113707743,7751160000203,Azúcar Blanca Dulfina Bolsa 1 Kg,1.0,kg,1.734,1.734,ean,ean,nucleo,True,False,,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,tottus,113713293,7751160000432,Azúcar Blanca Dulfina Bolsa 2 Kg,2.0,kg,1.734,0.867,ean,ean,nucleo,False,False,alternativa,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,tottus,115936660,7751160000418,Azúcar Blanca Dulfina Bolsa 5 Kg,5.0,kg,1.734,0.3468,ean,ean,nucleo,False,False,alternativa,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,vivanda,5194,7751160000203,Azúcar Blanca DULFINA Bolsa 1Kg,1.0,kg,1.734,1.734,ean,ean,nucleo,True,False,,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,vivanda,10336406,7751160000432,Azúcar Blanca DULFINA Bolsa 2Kg,2.0,kg,1.734,0.867,ean,ean,nucleo,False,False,alternativa,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,vivanda,5342,7751160000418,Azúcar Blanca DULFINA Bolsa 5Kg,5.0,kg,1.734,0.3468,ean,ean,nucleo,False,False,alternativa,1.3089,5,2026-09-19,2026-09-22,provisional
+84,AZÚCAR,azucar,wong,7091,7751160000203,Azúcar Blanca Dulfina Bolsa1 kg,1.0,kg,1.734,1.734,ean,ean,nucleo,True,False,,1.3089,5,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,plaza_vea,11429796,7752748011956,Cocoa WINTERS Pote 180g,0.18,kg,0.012,0.066667,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,plaza_vea,11429797,7752748011949,Cocoa WINTERS Sobre 40g,0.04,kg,0.012,0.3,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,plaza_vea,10844248,7752748011192,Cocoa WINTERS Doypack 150g,0.15,kg,0.012,0.08,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,tottus,134151426,7752748011956,Cocoa Winters Envase 180 g,0.18,kg,0.012,0.066667,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,tottus,120964257,7752748011192,Cocoa Winters Doypack 150 g,0.15,kg,0.012,0.08,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,tottus,116966223,7752748010829,Cocoa Winters 200g,0.2,kg,0.012,0.06,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,tottus,134141453,7752748011963,Cocoa Winters Bolsa 360 g,0.36,kg,0.012,0.033333,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,vivanda,11353194,7752748011956,Cocoa WINTERS Pote 180g,0.18,kg,0.012,0.066667,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,vivanda,10773333,7752748011192,Cocoa WINTERS Doypack 150g,0.15,kg,0.012,0.08,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,wong,1523,7752748011956,Cocoa Winter's 180g,0.18,kg,0.012,0.066667,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+85,COCOA,infusiones,wong,39140979,7752748011963,Cocoa Winter's 360g,0.36,kg,0.012,0.033333,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,metro,39254444,7754308002916,Café Instantáneo Liofilizado Cafetal 180g,0.18,kg,0.009,0.05,ean,ean,nucleo,True,False,,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,metro,39254443,7754308002909,Café Instantáneo Liofilizado Cafetal 90g,0.09,kg,0.009,0.1,ean,ean,nucleo,False,False,alternativa,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,plaza_vea,10852363,7754308002916,Café Instantáneo CAFETAL Liofilizado Frasco 180g,0.18,kg,0.009,0.05,ean,ean,nucleo,True,False,,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,tottus,119332145,7754308002916,Cafe Instantaneo Cafetal Envase 180 g,0.18,kg,0.009,0.05,ean,ean,nucleo,True,False,,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,tottus,136951323,7754308003159,Café Instantáneo Cafetal Envase 45 g,0.045,kg,0.009,0.2,ean,ean,nucleo,False,False,alternativa,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,tottus,119332259,7754308002909,Cafe Instantaneo Cafetal Doypack 90 g,0.09,kg,0.009,0.1,ean,ean,nucleo,False,False,alternativa,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,tottus,128808502,7754308003098,Café Instantáneo Cafétal Doypack 150 g,0.15,kg,0.009,0.06,ean,ean,nucleo,False,False,alternativa,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,vivanda,10773377,7754308002916,Café Instántaneo Intenso CAFETAL Frasco 180g,0.18,kg,0.009,0.05,ean,ean,nucleo,True,False,,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,wong,39265049,7754308002916,Café Instantáneo Liofilizado Cafetal 180g,0.18,kg,0.009,0.05,ean,ean,nucleo,True,False,,1.1789,5,2026-09-19,2026-09-22,provisional
+87,CAFÉ INSTANTÁNEO,infusiones,wong,39265048,7754308002909,Café Instantáneo Liofilizado Cafetal 90g,0.09,kg,0.009,0.1,ean,ean,nucleo,False,False,alternativa,1.1789,5,2026-09-19,2026-09-22,provisional
+89,GELATINA,postres,metro,8291,7752230002301,Gelatina Universal Extra Colágeno Fresa Caja 30 g,0.03,kg,0.147,4.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+89,GELATINA,postres,plaza_vea,10221444,7752230002301,Gelatina UNIVERSAL con Sabor a Fresa Extra Colágeno Bolsa 30g,0.03,kg,0.147,4.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+89,GELATINA,postres,tottus,113714863,7752230002301,Gelatina Universal Extra Colágeno Sabor Fresa Empaque 30 g,0.03,kg,0.147,4.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+89,GELATINA,postres,vivanda,10175220,7752230002301,Gelatina UNIVERSAL con Sabor a Fresa Extra Colágeno Bolsa 30g,0.03,kg,0.147,4.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+89,GELATINA,postres,wong,8291,7752230002301,Gelatina Universal Extra Colágeno Fresa Caja 30 g,0.03,kg,0.147,4.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,metro,8931,7750333000064,Ají Amarillo Molido Piki 350g,0.35,kg,0.051,0.145714,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,metro,39247961,7751833000165,Ají Amarillo Molido Piki 1kg,1.0,kg,0.051,0.051,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,plaza_vea,3944,,Salsa PIKI Ají amarillo molido Doypack 350g,0.35,kg,0.051,0.145714,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,tottus,113712821,7750333000064,Ají Amarillo Molido Piki Bolsa 350 g,0.35,kg,0.051,0.145714,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,vivanda,9396,,Salsa PIKI Ají amarillo molido Doypack 350g,0.35,kg,0.051,0.145714,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,wong,8931,7750333000064,Ají Amarillo Molido Piki 350g,0.35,kg,0.051,0.145714,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+91,"AJÍ MOLIDO PANCA ESPECIAL, ROCOTO, AMARILLO",condimentos,wong,39191580,7751833000165,Ají Amarillo Molido Piki 1kg,1.0,kg,0.051,0.051,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,metro,7521,7750333000057,Ajo Molido Piki 350g,0.35,kg,0.093,0.265714,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,metro,39169017,7750333345783,Ajo Molido Piki 120g,0.12,kg,0.093,0.775,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,metro,39247962,7751833000141,Ajo Molido Piki 1kg,1.0,kg,0.093,0.093,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,plaza_vea,1253,7750333000057,Ajo Molido PIKI Doypack 350g,0.35,kg,0.093,0.265714,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,plaza_vea,1165,,Ajo Molido PIKI Doypack 120g,0.12,kg,0.093,0.775,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,plaza_vea,50021,,Ajo Molido PIKI Doypack 1Kg,1.0,kg,0.093,0.093,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,tottus,113714962,7750333000057,Ajo Molido Piki Bolsa 350 g,0.35,kg,0.093,0.265714,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,tottus,123542114,7750333345783,Ajo Molido Piki Doypack 120 g,0.12,kg,0.093,0.775,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,vivanda,9398,,Ajo PIKI Molido Doypack 350Gr,0.35,kg,0.093,0.265714,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,vivanda,7710,,Ajo Molido PIKI Doypack 120g,0.12,kg,0.093,0.775,ean_equivalente,ean_equivalente,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,wong,7521,7750333000057,Ajo Molido Piki 350g,0.35,kg,0.093,0.265714,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,wong,39169017,7750333345783,Ajo Molido Piki 120g,0.12,kg,0.093,0.775,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+93,AJO MOLIDO,condimentos,wong,39191579,7751833000141,Ajo Molido Piki 1kg,1.0,kg,0.093,0.093,ean,ean,nucleo,False,False,alternativa,1.2108,5,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,plaza_vea,11929154,7754487002929,Sazonador AJINOMOTO Sobre 90g,0.09,kg,0.027,0.3,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,tottus,143360954,7754487002929,Sazonador Ajinomoto Sobre 90 g,0.09,kg,0.027,0.3,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,tottus,113711074,7754487000000,Sazonador Ajinomoto Envase 100 g,0.1,kg,0.027,0.27,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,tottus,113707149,7754487116374,Sazonador Ajinomoto Bolsa 250 g,0.25,kg,0.027,0.108,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,tottus,113711825,7754487117876,Sazonador Ajinomoto Bolsa 500 g,0.5,kg,0.027,0.054,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,vivanda,11823707,7754487002929,Sazonador AJINOMOTO Sobre 90g,0.09,kg,0.027,0.3,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,wong,7740,7754487002929,Sazonador Ajinomoto 90g,0.09,kg,0.027,0.3,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,wong,7741,,Sazonador Ajinomoto Sobre 250g,0.25,kg,0.027,0.108,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+94,AJI NO MOTO,condimentos,wong,7739,,Sazonador Ajinomoto Bolsa 500 g,0.5,kg,0.027,0.054,ean,ean,nucleo,False,False,alternativa,1.2108,4,2026-09-19,2026-09-22,provisional
+95,CANELA ENTERA,condimentos,metro,7528,7753121002752,Canela Entera Sibarita Sobre 10 g,0.01,kg,0.009,0.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+95,CANELA ENTERA,condimentos,plaza_vea,1507,,Canela Entera SIBARITA Sobre 10g,0.01,kg,0.009,0.9,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+95,CANELA ENTERA,condimentos,tottus,113711168,7753121002752,Canela Entera Sibarita Bolsa 10 g,0.01,kg,0.009,0.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+95,CANELA ENTERA,condimentos,vivanda,5009,,Canela Entera SIBARITA Sobre 10g,0.01,kg,0.009,0.9,ean_equivalente,ean_equivalente,nucleo,True,False,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+95,CANELA ENTERA,condimentos,wong,7528,7753121002752,Canela Entera Sibarita Sobre 10 g,0.01,kg,0.009,0.9,ean,ean,nucleo,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+99,SAL DE COCINA YODADA / ENTERA,condimentos,metro,39168754,7803600002305,Sal de Mesa Cuisine & Co 1kg,1.0,kg,0.24,0.24,ean,ean,ampliado_1,True,False,,1.2108,5,2026-09-19,2026-09-22,provisional
+99,SAL DE COCINA YODADA / ENTERA,condimentos,plaza_vea,10790766,,Sal de Cocina BELL'S Bolsa 1Kg,1.0,kg,0.24,0.24,por_kilo,por_kilo,ampliado_1,True,False,marca_distinta,1.2108,5,2026-09-19,2026-09-22,provisional
+99,SAL DE COCINA YODADA / ENTERA,condimentos,tottus,117116773,,Sal de Mesa Tottus Bolsa 1 Kg,1.0,kg,0.24,0.24,por_kilo,por_kilo,ampliado_1,True,False,marca_distinta,1.2108,5,2026-09-19,2026-09-22,provisional
+99,SAL DE COCINA YODADA / ENTERA,condimentos,vivanda,10340948,,Sal de Cocina BELL'S Bolsa 1Kg,1.0,kg,0.24,0.24,por_kilo,por_kilo,ampliado_1,True,False,marca_distinta,1.2108,5,2026-09-19,2026-09-22,provisional
+99,SAL DE COCINA YODADA / ENTERA,condimentos,wong,39168754,,Sal de Mesa Cuisine & Co 1kg,1.0,kg,0.24,0.24,ean_equivalente,ean_equivalente,ampliado_1,True,False,sin_ean_fabricante,1.2108,5,2026-09-19,2026-09-22,provisional
+100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,metro,7746,7753121000352,Sazonador Sibarita Frasco 80 g,0.08,kg,0.027,0.3375,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,plaza_vea,1071,7753121000352,Salsa SIBARITA Sazonador Frasco 80g,0.08,kg,0.027,0.3375,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,vivanda,1629,7753121000352,Salsa SIBARITA Sazonador Frasco 80g,0.08,kg,0.027,0.3375,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,wong,7746,7753121000352,Sazonador Sibarita Frasco 80 g,0.08,kg,0.027,0.3375,ean,ean,nucleo,True,False,,1.2108,4,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,metro,10814,7750182001236,Gaseosa Coca Cola Botella 1L,1.0,l,1.299,1.299,ean,ean,nucleo,True,False,,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,metro,339,7750182102766,Gaseosa Coca Cola Botella 1.5L,1.5,l,1.299,0.866,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,metro,11669,7750182000796,Gaseosa Coca Cola Botella 2.25 Lt,2.25,l,1.299,0.577333,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,metro,271,7750182003445,Gaseosa Coca Cola Botella 1.5 Lt Pack de 2 unid,3.0,l,1.299,0.433,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,plaza_vea,15132,7750182001236,Gaseosa COCA COLA Sabor Original Botella 1L,1.0,l,1.299,1.299,ean,ean,nucleo,True,False,,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,plaza_vea,11496058,7801610001196,Gaseosa COCA COLA Sabor Original Lata 350ml,0.35,l,1.299,3.711429,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,plaza_vea,10033907,7750182006095,Gaseosa COCA COLA Sabor Original Botella 600ml,0.6,l,1.299,2.165,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,plaza_vea,5090,7750182155663,Gaseosa COCA COLA Sabor Original Botella 1.5L,1.5,l,1.299,0.866,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,plaza_vea,5295,7750182001250,Gaseosa COCA COLA Sabor Original Botella 3L,3.0,l,1.299,0.433,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,tottus,113366299,7750182001236,Gaseosa Coca Cola Botella 1 L,1.0,l,1.299,1.299,ean,ean,nucleo,True,False,,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,tottus,116222039,7750182155663,Gaseosa Coca Cola Botella 1.5 L,1.5,l,1.299,0.866,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,tottus,113369457,7750182001250,Gaseosa Coca Cola Botella 3 L,3.0,l,1.299,0.433,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,vivanda,10891,7750182001236,Gaseosa COCA COLA Sabor Original Botella 1L,1.0,l,1.299,1.299,ean,ean,nucleo,True,False,,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,vivanda,11431837,7801610001196,Gaseosa COCA COLA Sabor Original Lata 350ml,0.35,l,1.299,3.711429,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,vivanda,10334098,7750182006095,Gaseosa COCA COLA Sabor Original Botella 600ml,0.6,l,1.299,2.165,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,vivanda,8335,7750182155663,Gaseosa COCA COLA Sabor Original Botella 1.5L,1.5,l,1.299,0.866,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,vivanda,7334,7750182001250,Gaseosa COCA COLA Sabor Original Botella 3L,3.0,l,1.299,0.433,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,vivanda,11352937,7750182007450,Pack Gaseosa COCA COLA Sabor Original Botella 2.5L Paquete 2un,5.0,l,1.299,0.2598,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,wong,10814,7750182001236,Gaseosa Coca Cola Botella 1L,1.0,l,1.299,1.299,ean,ean,nucleo,True,False,,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,wong,339,7750298002165,Gaseosa Coca Cola Botella 1.5L,1.5,l,1.299,0.866,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,wong,11669,7750182000796,Gaseosa Coca Cola Botella 2.25 Lt,2.25,l,1.299,0.577333,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional
+101,BEBIDAS GASEOSAS,bebidas,wong,271,7750182003445,Gaseosa Coca Cola Botella 1.5 Lt Pack de 2 unid,3.0,l,1.299,0.433,ean,ean,nucleo,False,False,alternativa,1.196,5,2026-09-19,2026-09-22,provisional

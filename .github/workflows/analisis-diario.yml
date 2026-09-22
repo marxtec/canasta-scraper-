@@ -102,7 +102,8 @@ jobs:
         run: |
           git config user.name  "canasta-bot"
           git config user.email "actions@github.com"
-          git add data/derived/ data/canasta_trabajo.csv data/canasta_trabajo_exclusiones.csv
+          git add data/derived/ data/canasta_trabajo.csv data/canasta_trabajo_exclusiones.csv \
+                  data/canasta_trabajo_beta.csv
           if git diff --staged --quiet; then
             echo "Sin cambios en los derivados."
             exit 0

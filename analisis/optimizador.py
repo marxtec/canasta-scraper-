@@ -49,6 +49,18 @@ Enchufes para despues
   el item ya esta en oferta real hoy se compra hoy por regla; un fantasma
   no es motivo ni para comprar ya ni para esperar. Sin B: comprar hoy.
 
+Dos costos (docs: Metodologia de estandarizacion, secciones 4 y 9)
+------------------------------------------------------------------
+- `costo` (continuo, per capita): cantidad x precio por kg de la
+  presentacion base. Es el que decide la cadena de cada item y el que
+  compara cadenas. Se reporta ademas por nivel de identidad (nucleo,
+  ampliado_1 = + por_kilo, ampliado_2 = + por_unidad): fuera del nucleo,
+  parte del ahorro viene de otra marca o variedad, no de otra cadena.
+- `costo_entero` (plan de compra de un hogar de `personas`): el menor
+  gasto en paquetes enteros que cubre cantidad x personas, combinando los
+  tamanos de la cadena (presentacion base y alternativas). Lo que se vende
+  pesado (`a_granel`) se compra en la cantidad exacta.
+
 Sin canasta de trabajo o sin C fiable el optimizador igual corre: como
 comparador del precio observado (sin canasta, sobre el universo comun de
 EAN de fabricante en 4+ cadenas, un envase de cada uno; eso NO es la
@@ -68,6 +80,8 @@ from analisis import canasta_trabajo as CT
 ORDEN_CADENAS = ["metro", "wong", "plaza_vea", "vivanda", "tottus"]
 ESCENARIOS_TOTTUS = {"con_tottus": True, "sin_tottus": False}
 UMBRAL_ESPERA = 0.0        # soles de ahorro esperado por esperar (enchufe de B)
+PERSONAS = 4               # hogar del plan de compra; el costo continuo es per capita
+NIVELES = ["nucleo", "ampliado_1", "ampliado_2"]
 
 COLS_PRECIO = ["retailer", "item_id", "price", "regular_price", "on_sale", "available"]
 
@@ -87,21 +101,69 @@ def canasta_desde_universo(dia, min_cadenas=CT.MIN_CADENAS):
     return pd.DataFrame({
         "id": d["ean"], "descripcion": d["product_name"], "grupo": "universo",
         "cadena": d["retailer"], "item_id": d["item_id"], "ean": d["ean"],
-        "cantidad": 1.0, "paquetes": 1.0, "unidad": "envase",
+        "cantidad": 1.0, "paquetes": 1.0, "unidad": "envase", "net_quantity": 1.0,
+        "identidad": "ean", "nivel": "nucleo", "presentacion_base": True,
     })
 
 
-def celdas(canasta, precios_dia, c_dia=None, a_pred=None):
+def costo_entero(cantidad, tamanos, escala=1000):
+    """(costo, {tamano: paquetes}) del menor gasto en paquetes enteros que
+    cubre `cantidad`, combinando `tamanos` = [(w, precio)]. Cobertura minima
+    por programacion dinamica en unidades de 1/escala (gramos o ml).
+    (nan, {}) si no hay tamanos."""
+    tam = [(int(round(w * escala)), float(p), w) for w, p in tamanos
+           if w and w > 0 and p and p > 0 and np.isfinite(p)]
+    if not tam or not cantidad or cantidad <= 0:
+        return np.nan, {}
+    meta = int(np.ceil(cantidad * escala - 1e-6))
+    costo = np.full(meta + 1, np.inf)
+    elegido = np.full(meta + 1, -1)
+    costo[0] = 0.0
+    for x in range(1, meta + 1):
+        for k, (wg, p, _) in enumerate(tam):
+            c = costo[max(0, x - wg)] + p
+            if c < costo[x] - 1e-12:
+                costo[x], elegido[x] = c, k
+    compra, x = {}, meta
+    while x > 0:
+        k = elegido[x]
+        compra[tam[k][2]] = compra.get(tam[k][2], 0) + 1
+        x = max(0, x - tam[k][0])
+    return float(costo[meta]), compra
+
+
+def _compra_texto(compra):
+    return " + ".join(f"{n}x{w:g}" for w, n in sorted(compra.items(), reverse=True))
+
+
+def _normalizar_canasta(canasta):
+    """Columnas nuevas con su valor por defecto para canastas viejas."""
+    c = canasta.copy()
+    if "net_quantity" not in c:
+        c["net_quantity"] = c["cantidad"] / c["paquetes"]
+    for col, v in (("identidad", "ean"), ("nivel", "nucleo"), ("presentacion_base", True),
+                   ("a_granel", False)):
+        if col not in c:
+            c[col] = v
+    for col in ("presentacion_base", "a_granel"):
+        c[col] = c[col].astype(str).str.lower().isin(["true", "1"])
+    return c
+
+
+def celdas(canasta, precios_dia, c_dia=None, a_pred=None, personas=PERSONAS):
     """Una fila por (item, cadena emparejada) con lo que se paga y si se puede.
 
     `precios_dia`: filas del panel del dia (COLS_PRECIO). `c_dia`: tabla de
     C del dia (oferta_real.tabla_c filtrada). `a_pred`: DataFrame (cadena,
     item_id, precio_predicho) del Modelo A, solo para celdas sin precio
-    observado."""
+    observado. La celda es la presentacion base; las alternativas de tamano
+    solo entran a `costo_entero`."""
     p = precios_dia[COLS_PRECIO].drop_duplicates(["retailer", "item_id"], keep="last")
     p = p.rename(columns={"retailer": "cadena"})
-    c = canasta[["id", "descripcion", "grupo", "cadena", "item_id", "ean", "cantidad",
-                 "paquetes", "unidad"]].copy()
+    c = _normalizar_canasta(canasta)[
+        ["id", "descripcion", "grupo", "cadena", "item_id", "ean", "cantidad", "paquetes",
+         "unidad", "net_quantity", "identidad", "nivel", "presentacion_base",
+         "a_granel"]].copy()
     c["item_id"] = c["item_id"].astype(str)
     p["item_id"] = p["item_id"].astype(str)
     m = c.merge(p, on=["cadena", "item_id"], how="left")
@@ -122,6 +184,23 @@ def celdas(canasta, precios_dia, c_dia=None, a_pred=None):
         m = m.drop(columns="precio_predicho")
 
     m["costo"] = m["paquetes"] * m["precio_pagado"]
+
+    # Paquetes enteros para un hogar: todos los tamanos factibles de la cadena.
+    # Lo que se vende pesado se compra en la cantidad exacta.
+    ent = {}
+    for (i, cad), g in m[m["factible"]].groupby(["id", "cadena"]):
+        q = float(g["cantidad"].iloc[0]) * personas
+        base = g[g["presentacion_base"]]
+        if len(base) and bool(base["a_granel"].iloc[0]):
+            p_kg = float(base["precio_pagado"].iloc[0] / base["net_quantity"].iloc[0])
+            ent[(i, cad)] = (q * p_kg, f"{q:.3f} a granel")
+            continue
+        costo, compra = costo_entero(q, list(zip(g["net_quantity"], g["precio_pagado"])))
+        ent[(i, cad)] = (costo, _compra_texto(compra))
+    m = m[m["presentacion_base"]].copy()
+    clave = list(zip(m["id"], m["cadena"]))
+    m["costo_entero"] = [ent.get(k, (np.nan, ""))[0] for k in clave]
+    m["compra_entera"] = [ent.get(k, (np.nan, ""))[1] for k in clave]
     m["on_sale"] = m["on_sale"].astype("boolean").fillna(False).astype(bool)
     reg = m["regular_price"].where(m["regular_price"] > m["price"])
     m["ahorro_anunciado"] = (m["paquetes"] * (reg - m["price"])).where(m["on_sale"], 0.0).fillna(0.0)
@@ -244,11 +323,27 @@ def accion_temporal(cel_plan, b_pred=None, umbral=UMBRAL_ESPERA):
     return out
 
 
+def costos_por_nivel(plan):
+    """Costo continuo del plan acumulado por nivel: nucleo, + por_kilo, + por_unidad."""
+    out = {}
+    for k, nivel in enumerate(NIVELES):
+        g = plan[plan["nivel"].isin(NIVELES[:k + 1])]
+        out[f"costo_{nivel}"] = g["costo"].sum()
+        out[f"items_{nivel}"] = g["id"].nunique()
+    return out
+
+
+def costo_entero_minimo(cel):
+    """Plan de compra del hogar: cada item en la cadena de menor costo_entero."""
+    f = cel[cel["factible"] & cel["costo_entero"].notna()]
+    return float(f.groupby("id")["costo_entero"].min().sum())
+
+
 def resolver(canasta, precios_dia, c_dia=None, costo_visita=None, max_cadenas=None,
-             a_pred=None, b_pred=None):
+             a_pred=None, b_pred=None, personas=PERSONAS):
     """Corre los dos escenarios de Tottus. Devuelve (plan, resumen, base)."""
     planes, resumenes, bases = [], [], []
-    todas = celdas(canasta, precios_dia, c_dia, a_pred)
+    todas = celdas(canasta, precios_dia, c_dia, a_pred, personas)
     for esc, con_tottus in ESCENARIOS_TOTTUS.items():
         cel = todas if con_tottus else todas[todas["cadena"] != "tottus"]
         plan, sin = plan_principal(cel)
@@ -276,6 +371,9 @@ def resolver(canasta, precios_dia, c_dia=None, costo_visita=None, max_cadenas=No
             "linea_base_ahorro_fantasma": fila_base["ahorro_anunciado_fantasma"] if fila_base is not None else np.nan,
             "linea_base_ahorro_no_verificable": fila_base["ahorro_anunciado_no_verificable"] if fila_base is not None else np.nan,
             "visita_activa": costo_visita is not None,
+            **costos_por_nivel(plan),
+            "personas": personas,
+            "costo_entero_hogar": costo_entero_minimo(cel),
         }
         if costo_visita is not None:
             pv, total, usadas = plan_con_visita(cel, costo_visita, max_cadenas)
@@ -295,13 +393,14 @@ def resolver(canasta, precios_dia, c_dia=None, costo_visita=None, max_cadenas=No
 # ---------------------------------------------------------------------------
 
 COLS_PLAN = ["escenario", "id", "descripcion", "grupo", "cadena", "item_id", "ean",
-             "cantidad", "unidad", "paquetes", "precio_pagado", "fuente_precio", "costo",
+             "identidad", "nivel", "cantidad", "unidad", "paquetes", "precio_pagado",
+             "fuente_precio", "costo", "costo_entero", "compra_entera",
              "on_sale", "fiable", "oferta_real", "fantasma", "rebaja_silenciosa",
              "accion", "motivo_accion"]
 
 
 def correr(fecha=None, costo_visita=None, max_cadenas=None, panel_df=None,
-           canasta_path=CT.SALIDA, silencioso=False):
+           canasta_path=CT.SALIDA, silencioso=False, personas=PERSONAS):
     panel = panel_df if panel_df is not None else P.cargar_panel(
         columnas=["retailer", "item_id", "product_name", "ean", "price", "regular_price",
                   "on_sale", "available"])
@@ -324,7 +423,8 @@ def correr(fecha=None, costo_visita=None, max_cadenas=None, panel_df=None,
         canasta = canasta_desde_universo(dia)
         modo = "comparador_universo (NO es la canasta)"
 
-    plan, resumen, base = resolver(canasta, dia, c_dia, costo_visita, max_cadenas)
+    plan, resumen, base = resolver(canasta, dia, c_dia, costo_visita, max_cadenas,
+                                   personas=personas)
     resumen.insert(0, "modo", modo)
     resumen.insert(1, "fecha", fecha.date())
     resumen.insert(2, "c_fiable", c_fiable)
@@ -355,10 +455,12 @@ def main(argv=None):
                     help="escenario opcional: soles por cadena visitada (apagado por defecto)")
     ap.add_argument("--max-cadenas", type=int, default=None,
                     help="escenario opcional: tope de cadenas (solo con --costo-visita)")
+    ap.add_argument("--personas", type=int, default=PERSONAS,
+                    help=f"tamano del hogar para el costo con paquetes enteros (def. {PERSONAS})")
     args = ap.parse_args(argv)
     if args.max_cadenas and args.costo_visita is None:
         ap.error("--max-cadenas va con --costo-visita (use 0 para solo el tope)")
-    correr(args.fecha, args.costo_visita, args.max_cadenas)
+    correr(args.fecha, args.costo_visita, args.max_cadenas, personas=args.personas)
     return 0
 
 

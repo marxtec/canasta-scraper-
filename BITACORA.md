@@ -960,3 +960,85 @@ lugar de `tachado_permanente`.
   las castiga en el 4 de 5. Se mantiene la regla y se reporta.
 - Tamaño del hogar y periodo de compra: las cantidades van per cápita al
   mes; escalar a un hogar no cambia qué cadena gana.
+
+## 2026-09-22 · Estandarización de presentaciones: la canasta pasa de 36 a 48 ítems
+
+Metodología completa en el documento «Metodología de estandarización de la
+canasta» (22-09-2026). Aquí van las decisiones y lo que cambió en el
+código. Las reglas siguen fijadas sin mirar precios.
+
+### Identidades y niveles
+
+Cada fila de `data/canasta_trabajo.csv` dice por qué vía entró
+(`identidad`). Cada ítem cae en el nivel de su identidad más débil
+(`nivel`), y el costo se reporta por nivel:
+
+| Identidad | Qué garantiza | Nivel |
+|---|---|---|
+| `ean` | mismo código de barras | núcleo |
+| `ean_equivalente` | mismo paquete, otro código: tabla `data/ean_equivalencias.csv`, o sin EAN de fabricante con misma marca, gramaje a ≤ 2 % y nombre parecido (Jaccard ≥ 0,6) | núcleo |
+| `granel` | «x kg» o peso variable de VTEX, de la variedad fijada en `variedad_pref` | núcleo |
+| `por_kilo` | mismo alimento, otra marca, tamaño o variedad, dentro de `r_max` | ampliado_1 |
+| `por_unidad` | vendido por unidad, peso por unidad del CENAN | ampliado_2 |
+
+Una identidad más débil solo completa un ítem cuando la más fuerte no
+llega a 4 de 5 cadenas: el núcleo no se mezcla si no hace falta.
+
+### Decisiones
+
+- **Gramos del INEI = tal como se adquieren.** Inferencia del anexo del
+  informe de pobreza (p. 179) y de la nota metodológica de 2017 (p. 5):
+  ninguno dice «peso bruto» con esas palabras. Se usa el peso bruto del
+  CENAN.
+- **Pesos por unidad (CENAN/INS 2016, Tablas auxiliares):** huevo 68,4 g
+  (fila 8-3), choclo 255,9 g (1-93), pan francés de supermercado 62,3 g
+  (1-129). Apio queda fuera: la tienda vende atado y el CENAN solo trae
+  cabeza mediana. Té filtrante sigue fuera: sin gramos por sobre.
+- **Tolerancia de tamaño:** duplicar el envase baja el precio por kg ~20 %
+  (panel del 22-09). `r_max = exp(|ln(1 − δ)/β|)` con δ = 5 %; β por ítem
+  si hay ≥ 20 líneas, si no el del panel. Se estima con la ventana de
+  inclusión (`analisis/tamano.py`) y se guarda en
+  `data/canasta_trabajo_beta.csv`; se congela con la canasta.
+- **Sin factores de calidad** (pollo con/sin menudencia, tomate,
+  mandarina): 4 días no alcanzan para estimarlos. Quedan marcados
+  (`variedad_distinta`, `variedad_no_fijada`), sin convertir.
+- **El gramaje es del EAN:** si una cadena lo publica (nombre o contenido
+  neto declarado), vale para todas. Así entra la galleta de soda.
+- **Pack no es combo:** se excluyen solo «+» y «combo». «Paquete 6un» con
+  un solo EAN es la presentación normal. Antes se excluía y dejaba fuera
+  la galleta de soda y la leche evaporada.
+- **Dos costos en el optimizador:** `costo` continuo per cápita (decide la
+  cadena, compara cadenas) y `costo_entero` para un hogar (`--personas`,
+  4 por defecto): el menor gasto en paquetes enteros combinando tamaños;
+  lo que se vende pesado se compra exacto.
+- **EAN de la ficha:** se probó con la API de catálogo de VTEX y con la
+  página del producto de Plaza Vea y Vivanda. Ninguna trae el EAN cuando
+  el listado lo trae vacío (solo un RefId interno de SPSA). Se descartó el
+  backfill; lo reemplaza la equivalencia por nombre de arriba.
+- **Correcciones de nombres** (sin precios): cancha excluye snacks y
+  platos; sal excluye «sodio»; leche evaporada acepta «Pack x6 Leche
+  Evaporada». Variedades fijadas: pollo con menudencia, limón ácido,
+  naranja de mesa, palta Hass, camote morado, papa blanca genérica,
+  manzana Fuji, zapallo macre, tomate italiano; mandarina sin variedad
+  (empate).
+
+### Resultado provisional (ventana 19–22/09, 4 días)
+
+48 de los 62 ítems comprables de Lima entran (40 núcleo, 6 ampliado_1,
+2 ampliado_2); antes, 36. Fuera: pan francés (fresco solo en 2 cadenas),
+menudencia, jurel, olluco, ajo entero, pepinillo, plátano de la isla,
+verdura picada, ají seco entero, apio, arveja verde, lechuga, culantro y
+té filtrante.
+
+### Decisiones abiertas
+
+- `data/canasta_reglas.APROBADAS` sigue sin existir: el workflow diario no
+  rearma la canasta hasta que alguien revise las reglas versión 2 y lo
+  cree.
+- Gelatina: 5 g per cápita al día son 5 sobres de 30 g al mes (S/ 24,50
+  per cápita el 22-09, el ítem más caro del plan de hogar). Verificar si
+  el INEI mide gelatina en polvo o preparada.
+- Cancha: entra la cancha chulpi en bolsa de 150 g; el INEI dice maíz
+  blanco corriente para cancha. Revisar si es el mismo producto.
+- Hogar de referencia H = 4 con sensibilidad 3,4 y 4,4 (INEI 2020,
+  gráfico 4.19, nacional); falta el dato de Lima Metropolitana.

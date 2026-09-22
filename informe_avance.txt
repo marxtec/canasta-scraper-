@@ -304,235 +304,203 @@ frente a creerle al cartel. Se revisan seis
 fuentes: tres fundacionales del método (Billion Prices Project, el caso
 polaco y el caso peruano) y tres que sustentan los análisis específicos de
 este proyecto (rigidez con datos scrapeados, dispersión entre vendedores en
-línea y fijación uniforme de precios en cadenas). Para cada una se detalla
-el problema, la base de datos, la técnica de scraping, las técnicas
-analíticas, la metodología y los resultados. La Tabla~\ref{tab:sota}
-resume la comparación y el hueco que cada una deja.
+línea y fijación uniforme de precios en cadenas). Cada una se presenta en
+el orden en que se leyó: la pregunta que se hace, los datos y la forma de
+recolectarlos, el método, lo que encuentra y el hueco que deja para este
+proyecto. La Tabla~\ref{tab:sota} resume la comparación.
 
 % ---------------------------------------------------------------------
 \subsection{Cavallo y Rigobon (2016): el método global}
 % ---------------------------------------------------------------------
 
-\textbf{Nombre.} \emph{The Billion Prices Project: Using Online Prices for
-Measurement and Research}. \textbf{Autores.} Alberto Cavallo y Roberto
-Rigobon. \textbf{Año.} 2016, \emph{Journal of Economic Perspectives}
-\cite{cavallo2016bpp}.
+En \emph{The Billion Prices Project: Using Online Prices for Measurement
+and Research}, publicado en el \emph{Journal of Economic Perspectives} en
+2016 \cite{cavallo2016bpp}, Alberto Cavallo y Roberto Rigobon parten de un
+problema práctico: los índices oficiales de precios son costosos, llegan
+con rezago y en algunos países no son confiables. Se preguntan si los
+precios que los minoristas publican en línea pueden servir como fuente
+alternativa para medir la inflación e investigar cómo se comportan los
+precios.
 
-\textbf{Problema.} Los índices oficiales de precios son costosos, llegan
-con rezago y en algunos países no son confiables. ¿Pueden los precios
-publicados en línea por los minoristas servir como fuente alternativa para
-medir inflación e investigar el comportamiento de los precios?
+Para responderlo, el proyecto recolectaba al año 2010 cinco millones de
+precios diarios de más de 300 minoristas en 50 países, en alimentos,
+electrónica, ropa y otros bienes. La recolección la hace un software
+propio, mantenido por un equipo dedicado, que descarga cada día las
+páginas públicas de cada tienda y extrae precio, descripción, categoría e
+identificador de producto con reglas escritas sitio por sitio: es scraping
+del HTML renderizado. Con esos datos los autores construyen índices
+diarios encadenados por categoría y país y los comparan con el IPC
+oficial, miden la frecuencia y la duración de los cambios de precio, y
+contrastan la ley de un solo precio entre países para productos idénticos.
 
-\textbf{Base de datos.} Al año 2010 el proyecto recolectaba cinco millones
-de precios diarios de más de 300 minoristas en 50 países, cubriendo
-alimentos, electrónica, ropa y otros bienes.
-
-\textbf{Técnica de scraping.} Software propio que descarga diariamente
-las páginas públicas de cada minorista y extrae precio, descripción,
-categoría e identificador de producto mediante reglas específicas por
-sitio. Es scraping del HTML renderizado, mantenido por un equipo dedicado.
-
-\textbf{Técnicas y metodología.} Índices de precios diarios encadenados por
-categoría y país, comparados con el IPC oficial; estadísticas de frecuencia
-y duración de cambios de precio; contrastes de la ley de un solo precio
-entre países para productos idénticos.
-
-\textbf{Resultados.} Los índices en línea siguen al IPC oficial en la
-mayoría de los países; en Argentina, el índice en línea reveló que la
-inflación oficial estaba subestimada. Los precios en línea permiten estudiar
-rigidez y ofertas con una granularidad que los datos oficiales no ofrecen.
-
-\textbf{Hueco.} No incluye Perú y el microdato no es público. El proyecto
-presente reproduce el método sobre una fuente propia.
+El resultado es que los índices en línea siguen al IPC oficial en la
+mayoría de los países, y que en Argentina el índice en línea reveló una
+inflación oficial subestimada. Los precios en línea permiten además
+estudiar rigidez y ofertas con una granularidad que los datos oficiales no
+ofrecen. El trabajo no incluye al Perú y su microdato no es público; el
+presente proyecto reproduce el método sobre una fuente propia.
 
 % ---------------------------------------------------------------------
 \subsection{Jaworski (2021): alimentos y nowcast en Polonia}
 % ---------------------------------------------------------------------
 
-\textbf{Nombre.} \emph{Measuring food inflation during the COVID-19
-pandemic in real time using online data: a case study of Poland}.
-\textbf{Autor.} Krystian Jaworski. \textbf{Año.} 2021, \emph{British Food
-Journal} \cite{jaworski2021}.
+Krystian Jaworski, en \emph{Measuring food inflation during the COVID-19
+pandemic in real time using online data: a case study of Poland}
+(\emph{British Food Journal}, 2021) \cite{jaworski2021}, responde a un
+problema que planteó la pandemia: los confinamientos de 2020 impidieron el
+levantamiento manual de precios en tiendas físicas, y la pregunta era si
+la inflación de alimentos podía medirse con precisión usando solo precios
+en línea.
 
-\textbf{Problema.} Los confinamientos de 2020 impidieron el levantamiento
-manual de precios en tiendas físicas. ¿Se puede medir la inflación de
-alimentos con precisión usando solo precios en línea?
+Su fuente son los precios diarios de una de las mayores cadenas de
+supermercados de Polonia entre julio de 2015 y agosto de 2020, bajados con
+un marco totalmente automatizado que descarga cada día las fichas de
+producto de la tienda en línea. De unos 20\,000 productos únicos, el autor
+selecciona 205 como representativos de las partidas del IPC de alimentos,
+uno por partida, y los agrega en un índice de Laspeyres con las
+ponderaciones de la oficina estadística polaca (CSO) para compararlo con
+la serie oficial.
 
-\textbf{Base de datos.} Precios diarios de una de las mayores cadenas de
-supermercados de Polonia, de julio de 2015 a agosto de 2020: unos 20\,000
-productos únicos scrapeados, de los que 205 se seleccionan como
-representativos de las partidas del IPC de alimentos.
-
-\textbf{Técnica de scraping.} Marco totalmente automatizado de descarga
-diaria de las fichas de producto de la tienda en línea de la cadena.
-
-\textbf{Técnicas y metodología.} Selección de un producto representativo
-por partida, índice de Laspeyres con las ponderaciones oficiales de la
-oficina estadística (CSO), agregación a las categorías del IPC y
-comparación con la serie oficial.
-
-\textbf{Resultados.} Correlación de 0,96 con la inflación interanual
-oficial de alimentos (0,71 en variación mensual); el índice mensual puede
-obtenerse dos semanas antes del cierre del período y unos 30 días antes de
-la publicación oficial; RMSE de 0,005 durante la pandemia frente a 0,006 en
-la muestra completa.
-
-\textbf{Hueco.} Una sola cadena: no hay comparación entre cadenas ni
-análisis de dispersión. El índice es nacional, no un tablero por tienda.
+El índice alcanza una correlación de 0,96 con la inflación interanual
+oficial de alimentos (0,71 en la variación mensual), puede calcularse dos
+semanas antes de que cierre el período y unos 30 días antes de la
+publicación oficial, y tiene un RMSE de 0,005 durante la pandemia frente a
+0,006 en toda la muestra. Al observar una sola cadena, sin embargo, no
+compara cadenas ni analiza la dispersión, y produce un índice nacional,
+no un tablero por tienda.
 
 % ---------------------------------------------------------------------
 \subsection{Bueno (2024): ya corre en el Perú}
 % ---------------------------------------------------------------------
 
-\textbf{Nombre.} \emph{Inflation and Price Dynamics Analysis Using
-High-Frequency Data from Supermarkets: Evidence from Peru}.
-\textbf{Autor.} Gonzalo Bueno, Banco Central de Reserva del Perú.
-\textbf{Año.} 2024, \emph{BIS IFC Bulletin} n.º~66 \cite{bueno2024}.
+El antecedente más cercano es de Gonzalo Bueno, del Banco Central de
+Reserva del Perú: \emph{Inflation and Price Dynamics Analysis Using
+High-Frequency Data from Supermarkets: Evidence from Peru}, publicado en
+el \emph{IFC Bulletin} n.º~66 del Banco de Pagos Internacionales en 2024
+\cite{bueno2024}. El BCRP carecía de índices de alta frecuencia para
+seguir la inflación y entender cómo se formaron los precios durante el
+episodio inflacionario de 2020--2024, y el trabajo construye esa
+herramienta.
 
-\textbf{Problema.} El BCRP carecía de índices de alta frecuencia para
-monitorear la inflación y entender la formación de precios durante el
-episodio inflacionario 2020--2024.
+Bueno registra desde abril de 2020 los precios diarios de las páginas web
+de dos supermercados, unos 134\,000 registros de variedades de producto con
+nombre, precio, marca y categoría, y hasta tres precios por producto: el
+regular, el ``online'' o con descuento, y el precio con tarjeta de la
+cadena. El scraping lee los listados de producto de cada sitio e
+identifica cada producto por su nombre normalizado, de modo que un cambio
+de nombre abre una serie nueva; el propio autor señala que un algoritmo
+para encontrar nombres parecidos ``no se ha implementado todavía''. Los
+productos se clasifican a mano en las doce divisiones de la COICOP, se
+imputan los faltantes, se usa una media móvil de 30 días y un filtro de
+precio regular para separar promociones de cambios permanentes, y se
+calculan índices por división y la frecuencia, el tamaño y la duración de
+los cambios de precio.
 
-\textbf{Base de datos.} Precios diarios de las páginas web de dos
-supermercados desde abril de 2020; unos 134\,000 registros de variedades de
-producto, con nombre, precio, marca y categoría. Se registran hasta tres
-precios por producto: el regular, el ``online'' o con descuento, y el precio
-con tarjeta de la cadena.
-
-\textbf{Técnica de scraping.} Web scraping de los listados de producto de
-cada sitio. Cada producto se identifica por su nombre normalizado; un cambio
-de nombre genera una serie nueva. El propio autor señala que un algoritmo
-para encontrar nombres similares ``no se ha implementado todavía''.
-
-\textbf{Técnicas y metodología.} Clasificación manual a la COICOP en doce
-divisiones; imputación de datos faltantes; media móvil de 30 días y filtro
-de precio regular para separar promociones de cambios permanentes; índices
-por división; frecuencia, tamaño y duración de los cambios de precio.
-
-\textbf{Resultados.} Los precios web alcanzaron su pico después que el
-índice oficial pero descendieron más rápido; la duración de los precios cae
-cuando sube la inflación; en alimentos, el 65,7\,\% de los cambios de precio
-son al alza; la distribución de cambios es bimodal, con picos en
-$\pm$20\,\%, y poca densidad en cambios pequeños.
-
-\textbf{Hueco.} Es el antecedente directo, y deja abiertos los tres
-problemas que este proyecto ataca: la identificación de productos (usa el
-nombre, no el EAN), la comparación entre cadenas (no la analiza) y la
-canasta en soles por tienda.
+Encuentra que los precios web alcanzaron su pico después que el índice
+oficial pero bajaron más rápido, que la duración de los precios cae cuando
+sube la inflación, que en alimentos el 65,7\,\% de los cambios son al alza
+y que la distribución de los cambios es bimodal, con picos en $\pm$20\,\% y
+poca densidad en cambios pequeños. El trabajo deja abiertos los tres
+problemas que este proyecto ataca: la identificación de productos, porque
+usa el nombre y no el EAN; la comparación entre cadenas, que no analiza; y
+la canasta en soles por tienda.
 
 % ---------------------------------------------------------------------
 \subsection{Cavallo (2018): rigidez de precios con datos scrapeados}
 % ---------------------------------------------------------------------
 
-\textbf{Nombre.} \emph{Scraped Data and Sticky Prices}. \textbf{Autor.}
-Alberto Cavallo. \textbf{Año.} 2018, \emph{Review of Economics and
-Statistics} \cite{cavallo2018sticky}.
+Alberto Cavallo vuelve sobre los datos en línea en \emph{Scraped Data and
+Sticky Prices} (\emph{Review of Economics and Statistics}, 2018)
+\cite{cavallo2018sticky}, esta vez para revisar lo que se sabe sobre la
+rigidez de precios. Las estadísticas de la literatura provienen de datos
+de escáner y del IPC, que promedian precios en el tiempo e imputan los
+faltantes, y la pregunta es cuánto de ese conocimiento es un artefacto de
+medición.
 
-\textbf{Problema.} Las estadísticas de rigidez de precios de la literatura
-provienen de datos de escáner y del IPC, que promedian precios en el tiempo
-e imputan valores faltantes. ¿Cuánto de lo que se sabe sobre rigidez es un
-artefacto de medición?
+El autor usa precios diarios scrapeados de grandes minoristas en línea de
+cinco países ---Argentina, Brasil, Chile, Colombia y Estados Unidos---,
+con estadísticas descriptivas adicionales de 181 minoristas en 31 países.
+La infraestructura es la del Billion Prices Project: descarga diaria de
+páginas de producto, sin promedios temporales ni imputación, de modo que
+cada observación es un precio efectivamente publicado ese día. Sobre esos
+datos calcula la frecuencia y la duración de los cambios de precio, la
+distribución de su tamaño y las funciones de riesgo (\emph{hazard}), y las
+compara con las mismas medidas calculadas con datos de escáner y del IPC
+para los mismos minoristas.
 
-\textbf{Base de datos.} Precios diarios scrapeados de grandes minoristas
-en línea en cinco países (Argentina, Brasil, Chile, Colombia y Estados
-Unidos), con estadísticas descriptivas adicionales de 181 minoristas en 31
-países.
-
-\textbf{Técnica de scraping.} La infraestructura del Billion Prices
-Project: descarga diaria de páginas de producto, sin promedios temporales
-ni imputación, de modo que cada observación es un precio efectivamente
-publicado ese día.
-
-\textbf{Técnicas y metodología.} Frecuencia y duración de cambios de
-precio, distribución del tamaño de los cambios y funciones de riesgo
-(\emph{hazard}), comparadas con las mismas estadísticas calculadas sobre
-datos de escáner y del IPC para los mismos minoristas.
-
-\textbf{Resultados.} Los precios en línea muestran duraciones más largas,
-menos cambios cercanos a cero y funciones de riesgo inicialmente
-crecientes. El promedio temporal y la imputación en los datos de escáner y
-del IPC explican por completo las diferencias con la literatura previa.
-
-\textbf{Hueco.} Es el marco para medir rigidez con este tipo de datos; no
+Los precios en línea muestran duraciones más largas, menos cambios
+cercanos a cero y funciones de riesgo inicialmente crecientes, y el
+promedio temporal y la imputación de los datos de escáner y del IPC
+explican por completo las diferencias con la literatura previa. El
+trabajo es el marco para medir rigidez con este tipo de datos, pero no
 compara cadenas ni estudia la estructura de propiedad.
 
 % ---------------------------------------------------------------------
 \subsection{Gorodnichenko y Talavera (2017): dispersión entre vendedores}
 % ---------------------------------------------------------------------
 
-\textbf{Nombre.} \emph{Price Setting in Online Markets: Basic Facts,
-International Comparisons, and Cross-Border Integration}.
-\textbf{Autores.} Yuriy Gorodnichenko y Oleksandr Talavera. \textbf{Año.}
-2017, \emph{American Economic Review} \cite{gorodnichenko2017}.
+Yuriy Gorodnichenko y Oleksandr Talavera estudian en \emph{Price Setting
+in Online Markets: Basic Facts, International Comparisons, and
+Cross-Border Integration} (\emph{American Economic Review}, 2017)
+\cite{gorodnichenko2017} cómo se fijan los precios en mercados en línea,
+donde cambiarlos casi no cuesta y el comprador puede comparar vendedores
+con unos clics, y si en ellos se cumple la ley de un solo precio.
 
-\textbf{Problema.} ¿Cómo se fijan los precios en mercados en línea, donde
-el costo de cambiarlos es casi nulo y el comprador puede comparar
-vendedores con unos clics? ¿Se cumple la ley de un solo precio?
+Su base son cinco años de cotizaciones de un sitio comparador de precios
+líder en Estados Unidos y Canadá: más de 115\,000 bienes y cerca de 20
+millones de cotizaciones, con un identificador único de producto
+equivalente al código de barras, el identificador del vendedor, su
+reputación y sus reseñas, sobre todo en bienes durables como software,
+electrónica, herramientas, componentes de cómputo y fotografía. La
+recolección diaria de los listados del comparador, que agrupa a varios
+vendedores bajo un mismo identificador, permite comparar precios de bienes
+idénticos entre vendedores y entre países sin emparejar nombres. Con esos
+datos miden la frecuencia y el tamaño de los cambios de precio, la
+sincronización entre vendedores, la dispersión ---como desviación estándar
+del logaritmo del precio por producto y semana---, el traspaso del tipo de
+cambio y la velocidad de convergencia, y relacionan esas medidas con
+características del bien, del vendedor y del mercado mediante regresiones.
 
-\textbf{Base de datos.} Cinco años de cotizaciones de un sitio comparador
-de precios líder en Estados Unidos y Canadá: más de 115\,000 bienes y cerca
-de 20 millones de cotizaciones, con identificador único de producto
-(equivalente al código de barras), identificador de vendedor, reputación y
-reseñas. Predominan bienes durables: software, electrónica, herramientas,
-componentes de cómputo, fotografía.
-
-\textbf{Técnica de scraping.} Recolección diaria de los listados del
-comparador, que agrupa a múltiples vendedores bajo un mismo identificador de
-producto; esto permite comparar precios de bienes idénticos entre
-vendedores y entre países sin emparejar nombres.
-
-\textbf{Técnicas y metodología.} Frecuencia y tamaño de cambios de
-precio, sincronización entre vendedores, dispersión (desviación estándar
-del logaritmo del precio por producto y semana), traspaso del tipo de
-cambio y velocidad de convergencia, con regresiones que relacionan estas
-medidas con características del bien, del vendedor y del mercado.
-
-\textbf{Resultados.} Los precios en línea cambian con más frecuencia (una
-vez cada tres semanas o menos) y en menor magnitud (alrededor de 4\,\%) que
-en tiendas físicas (cada cuatro o cinco meses, alrededor de 10\,\%). La
-dispersión es sustancial y persistente incluso para bienes definidos al
-nivel de código de barras: la desviación estándar del log-precio en una
-semana está entre 0,13 y 0,16. El traspaso del tipo de cambio es del
-60--75\,\% con vida media de dos a dos meses y medio.
-
-\textbf{Hueco.} Vendedores en línea puros y bienes durables, no cadenas de
-supermercados con tiendas físicas ni alimentos. Su medida de dispersión es
-el punto de comparación natural para la de este proyecto.
+Los precios en línea cambian con más frecuencia (una vez cada tres
+semanas o menos) y en menor magnitud (alrededor de 4\,\%) que en tiendas
+físicas (cada cuatro o cinco meses, alrededor de 10\,\%). La dispersión es
+sustancial y persistente incluso para bienes definidos al nivel de código
+de barras: la desviación estándar del log-precio en una semana está entre
+0,13 y 0,16. El traspaso del tipo de cambio es del 60--75\,\%, con una
+vida media de dos a dos meses y medio. Como el trabajo observa vendedores
+en línea puros y bienes durables, no cadenas de supermercados con tiendas
+físicas ni alimentos, su medida de dispersión es el punto de comparación
+natural para la de este proyecto.
 
 % ---------------------------------------------------------------------
 \subsection{DellaVigna y Gentzkow (2019): fijación uniforme de precios}
 % ---------------------------------------------------------------------
 
-\textbf{Nombre.} \emph{Uniform Pricing in U.S. Retail Chains}.
-\textbf{Autores.} Stefano DellaVigna y Matthew Gentzkow. \textbf{Año.}
-2019, \emph{Quarterly Journal of Economics} \cite{dellavigna2019}.
+Stefano DellaVigna y Matthew Gentzkow, en \emph{Uniform Pricing in U.S.
+Retail Chains} (\emph{Quarterly Journal of Economics}, 2019)
+\cite{dellavigna2019}, parten de que las cadenas minoristas operan tiendas
+en mercados con demanda y competencia muy distintas, y se preguntan si
+ajustan sus precios a cada tienda, como predice la teoría, o fijan precios
+uniformes en toda la cadena.
 
-\textbf{Problema.} Las cadenas minoristas operan tiendas en mercados con
-demanda y competencia muy distintas. ¿Ajustan sus precios a cada tienda,
-como predice la teoría, o fijan precios uniformes en toda la cadena?
+Es la única fuente de esta revisión que no usa scraping: trabaja con datos
+de escáner de Nielsen para cadenas de alimentos, farmacias y grandes
+superficies de Estados Unidos, con precios por tienda, producto y semana,
+junto con características demográficas y de competencia local. Los
+autores miden la similitud de precios entre tiendas de una misma cadena
+para productos idénticos, estiman elasticidades de demanda por tienda y
+calculan el beneficio que la cadena sacrifica frente a un precio óptimo
+por tienda.
 
-\textbf{Base de datos.} Datos de escáner de Nielsen para cadenas de
-alimentos, farmacias y grandes superficies en Estados Unidos, con precios
-por tienda, producto y semana, junto con características demográficas y de
-competencia local. No usa scraping: es la única fuente de esta revisión con
-datos de transacciones.
-
-\textbf{Técnicas y metodología.} Medidas de similitud de precios entre
-tiendas de una misma cadena para productos idénticos; estimación de
-elasticidades de demanda por tienda; cálculo del beneficio que la cadena
-sacrifica respecto de un precio óptimo por tienda.
-
-\textbf{Resultados.} La mayoría de las cadenas cobra precios casi
-uniformes en todas sus tiendas pese a la variación en demanda y
-competencia. La cadena mediana renuncia a unos 16 millones de dólares
-anuales frente al precio óptimo por tienda. Las diferencias de precio
-\emph{entre} cadenas, en cambio, sí son consistentes con la optimización.
-Los autores atribuyen la uniformidad a inercia gerencial y a preocupación
-por la imagen de marca.
-
-\textbf{Hueco.} Estudia uniformidad entre tiendas de una cadena, no entre
-cadenas distintas de un mismo grupo corporativo, que es exactamente la
-variación que este proyecto observa en Lima.
+La mayoría de las cadenas cobra precios casi uniformes en todas sus
+tiendas pese a la variación en demanda y competencia, y la cadena mediana
+renuncia a unos 16 millones de dólares anuales frente al precio óptimo por
+tienda; las diferencias de precio \emph{entre} cadenas, en cambio, sí son
+consistentes con la optimización. Los autores atribuyen la uniformidad a
+la inercia gerencial y a la preocupación por la imagen de marca. Su
+objeto es la uniformidad entre tiendas de una cadena, no entre cadenas
+distintas de un mismo grupo corporativo, que es exactamente la variación
+que este proyecto observa en Lima.
 
 % ---------------------------------------------------------------------
 % Tabla comparativa a doble columna
@@ -720,11 +688,12 @@ ningún índice ni se compara con el IPC.
 Las cantidades $q_i$ vienen de la canasta básica de alimentos del INEI:
 110 productos en gramos per cápita por día, año base 2010, de los cuales
 68 tienen cantidad para Lima Metropolitana. La canasta de trabajo es el
-cruce de esa lista con el panel: cada ítem se vincula a productos por
-descripción normalizada, gramaje y marca cuando la fuente la trae, sin
-sustituir marca; una vez hay un EAN de fabricante, las demás cadenas se
-unen por ese EAN; los productos a granel tienen un representante por kilo
-en cada cadena. Entran los ítems presentes en al menos cuatro de las cinco
+cruce de esa lista con el panel. Como las cadenas no venden la misma
+presentación de cada producto, el cruce no se limita a encontrar el mismo
+código de barras: estandariza las presentaciones a un precio por
+kilogramo, litro o unidad, y marca en cada fila por qué vía se estableció
+que dos productos son comparables. La subsección siguiente desarrolla esa
+metodología. Entran los ítems presentes en al menos cuatro de las cinco
 cadenas durante una ventana de inclusión, tras la cual la canasta se
 congela. Las reglas se fijan antes de mirar precios, y las exclusiones
 ---el consumo fuera del hogar, y lo que no tiene equivalente en la web---
@@ -756,6 +725,299 @@ disponibilidad. Para el optimizador, un producto agotado es infactible
 se entrega con y sin Tottus. La regla de arrastre con tope de siete días de
 \texttt{analisis/precios\_faltantes.py} queda para describir la serie de
 costo de una cadena a lo largo del tiempo, no para decidir compras.
+
+\subsection{Estandarización de presentaciones}
+\label{sec:estandar}
+
+Un mismo alimento aparece en la web en presentaciones distintas: arroz en
+bolsas de 750~g, 1~kg y 5~kg; huevos en bandejas de 15 y de 30; pollo con
+y sin menudencia; choclo por unidad. Comparar el precio publicado sería
+comparar cosas distintas, y descartar lo que no coincide dejaría fuera
+buena parte de la canasta. La metodología resuelve esa tensión en tres
+pasos: lleva cada presentación a la unidad de la canasta, declara con qué
+grado de certeza dos productos de cadenas distintas son el mismo, y
+calcula el costo por separado según esa certeza.
+
+\subsubsection{Cuatro cantidades que no se mezclan}
+
+La cantidad que el hogar necesita sale solo del INEI; la tienda aporta el
+precio. Para el ítem $i$ con $g_i$ gramos per cápita por día, la
+\emph{cantidad de referencia} mensual de un hogar de $H$ personas es
+\begin{equation}
+Q_i = \frac{30\, g_i\, H}{\gamma_i},
+\label{eq:q}
+\end{equation}
+donde $\gamma_i$ son los gramos por unidad base: 1\,000 por kilogramo, y
+por litro 1\,000 en general y 920 para el aceite, un supuesto declarado.
+La \emph{presentación comercial} $s$ de la cadena $c$ tiene un contenido
+$w_s$ en esa misma unidad, y su \emph{precio normalizado} es
+\begin{equation}
+p_s = \frac{\text{precio}_s}{w_s}.
+\label{eq:p}
+\end{equation}
+La \emph{cantidad comprada} es un número entero de envases $n_s$ que cubre
+$Q_i$. Con $H=1$, $Q_i$ es per cápita. Para el arroz, por ejemplo,
+$g_i = 147{,}4$ da $Q_i = 4{,}42$~kg per cápita al mes.
+
+Los gramos del INEI son de alimento tal como se adquiere. El anexo del
+informe de pobreza explica que la canasta se construyó con la Encuesta
+Nacional de Hogares de 2010 y que a cada producto se le aplican las
+calorías \emph{adquiridas} según la tabla del CENAN \cite{inei2020pobreza};
+la nota metodológica sobre esa tabla define los productos como los
+``adquiridos por el hogar, es decir, comprados, obtenidos como parte de
+pago, por autoconsumo'' \cite{inei2017tabla}. Ninguno de los dos
+documentos dice ``peso bruto'' con esas palabras: es una inferencia, y
+por ella se usa el peso bruto ---con cáscara, hueso o menudencia--- cuando
+hay que convertir unidades.
+
+El costo base se expresa per cápita, que es la unidad de la fuente: el
+costo de una familia es $H$ veces ese monto mientras las cantidades se
+traten como continuas. $H$ solo importa al redondear a envases enteros. Se
+toma $H=4$ y se reporta la sensibilidad a 3,4 y 4,4 personas, los
+promedios nacionales de 2019 para hogares no pobres y pobres
+\cite{inei2020pobreza}.
+
+\subsubsection{Identidad entre cadenas}
+
+Cada fila de la canasta de trabajo registra la vía por la que se
+estableció que el producto de una cadena es comparable con el de las
+demás (Tabla~\ref{tab:identidades}). Las tres primeras vías garantizan el
+mismo producto físico y forman el \emph{núcleo}; las otras dos amplían la
+cobertura a cambio de comparar productos parecidos, y se reportan aparte.
+Un ítem pertenece al nivel de su fila más débil, y una vía más débil solo
+se usa cuando la más fuerte no alcanza cuatro de las cinco cadenas: el
+núcleo no se diluye si no hace falta.
+
+\begin{table}[htbp]
+\caption{Vías de identidad entre cadenas y nivel del costo}
+\label{tab:identidades}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}P{2.05cm}P{4.15cm}P{1.2cm}@{}}
+\toprule
+Identidad & Qué garantiza & Nivel \\
+\midrule
+\texttt{ean} & mismo código de barras de fabricante & núcleo \\
+\texttt{ean\_equivalente} & mismo envase con otro código, o sin código de fabricante: misma marca, gramaje y nombre & núcleo \\
+\texttt{granel} & venta por kilo de la variedad fijada en la regla & núcleo \\
+\texttt{por\_kilo} & mismo alimento con otra marca, tamaño o variedad, dentro de la tolerancia de tamaño & ampliado 1 \\
+\texttt{por\_unidad} & venta por unidad convertida con el peso por unidad del CENAN & ampliado 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{El gramaje pertenece al EAN.} El contenido de un envase se lee del
+nombre ---``Bolsa 5 kg'', ``Paquete 6un 32g''--- porque la plataforma casi
+nunca lo publica en un campo propio. Como el EAN identifica un envase
+concreto, su contenido es el mismo en todas las cadenas: si una lo
+declara, en el nombre o en la especificación de contenido neto, vale para
+las demás. Cuando las cadenas difieren se toma el valor de la mayoría,
+\begin{equation}
+w_e = \operatorname{moda}_c \, w_{ec},
+\end{equation}
+y la fila se marca como discrepante si alguna cadena se aleja más de 2\,\%,
+$|\ln(w_{ec}/w_e)| > 0{,}02$. El 22 de septiembre, de 8\,885 EAN presentes
+en dos o más cadenas, 8\,004 (90\,\%) tenían exactamente el mismo gramaje
+en todas; las diferencias pequeñas eran errores de catálogo, como un
+whisky de 700~ml registrado con 750~ml en una cadena. Así entra, por
+ejemplo, una galleta de soda cuyo peso solo figura en el nombre que usan
+dos de las cinco cadenas.
+
+\textbf{Equivalencia sin EAN común.} Hay dos casos. En el primero, el
+fabricante recodificó el producto y una cadena conserva el código viejo:
+la margarina Dorina de 220, 450 y 900~g tiene un EAN en Metro y otro en las
+demás cadenas, con el mismo nombre, marca y gramaje. Esos pares se
+escriben a mano, con su motivo, en una tabla de equivalencias versionada.
+En el segundo, la cadena no publica el EAN o usa un código interno: Plaza
+Vea y Vivanda dejan vacío el campo en cerca del 28\,\% de sus productos.
+Se verificó en una muestra de esos productos que ni la interfaz de
+catálogo ni la página del producto lo traen, así que no es un dato que se pueda
+recuperar. Para ese caso, una fila sin EAN de fabricante $a$ es
+equivalente al envase $b$ con EAN si comparten la marca, el gramaje difiere
+en no más de 2\,\% y los nombres son parecidos:
+\begin{equation}
+\left|\ln\frac{w_a}{w_b}\right| \le 0{,}02, \qquad
+J(A,B) = \frac{|A \cap B|}{|A \cup B|} \ge 0{,}6,
+\end{equation}
+donde $A$ y $B$ son los conjuntos de palabras del nombre sin marca,
+cantidades ni envases, y $J$ es el coeficiente de Jaccard
+\cite{jaccard1912}. Es una regla de emparejamiento determinista, en la
+línea de la teoría de enlace de registros de Fellegi y Sunter
+\cite{fellegi1969}, fijada sin mirar precios.
+
+\textbf{Granel, peso variable y combos.} Un producto vendido por kilo
+tiene $w_s = 1$ y su precio ya es por kilo. Se reconoce por ``x kg'' en el
+nombre o porque VTEX lo publica con un multiplicador de unidad distinto
+de 1 ---el peso aproximado de una pieza en el carrito--- aunque el nombre
+no diga ``kg'': así aparece el pollo con menudencia de Vivanda. Un
+paquete de porciones con un solo EAN (``Paquete 6un'') es la presentación
+normal del producto y entra; se excluyen solo los combos de productos
+distintos y las promociones de contenido extra (``+''). Un nombre con dos
+gramajes que se contradicen se aparta del cruce.
+
+\subsubsection{El efecto del tamaño y la tolerancia}
+
+El precio por kilo no es neutral al tamaño del envase: el paquete grande
+suele salir más barato por kilo. Para medirlo se agrupan los productos en
+\emph{líneas} ---la misma cadena y el mismo nombre sin cantidad ni
+envase--- y se estima, con efectos fijos por línea \cite{wooldridge2010},
+\begin{equation}
+\ln p_s = \alpha_{\ell(s)} + \beta \ln w_s + \varepsilon_s,
+\label{eq:beta}
+\end{equation}
+con $p_s$ la mediana del precio por kilo o litro del SKU en la ventana.
+En los primeros cuatro días del panel (19--22 de septiembre; 3\,892
+líneas con dos o más tamaños y 9\,439 SKU), $\hat\beta = -0{,}268$ con
+error estándar 0,005: un envase del doble cuesta $2^{-0{,}268} = 0{,}83$
+veces por kilo. La Tabla~\ref{tab:tamano} muestra el mismo efecto sin
+modelo, en pares de tamaños de una misma línea.
+
+\begin{table}[htbp]
+\caption{Diferencia de precio por kilo entre dos tamaños de la misma línea y cadena (19--22/09/2026)}
+\label{tab:tamano}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Tamaño grande / chico & Pares & Mediana & Rango intercuartílico \\
+\midrule
+hasta 1,25 & 633 & $-2{,}2$\,\% & $-14{,}9$ a $+11{,}0$\,\% \\
+1,25 a 1,5 & 777 & $-6{,}7$\,\% & $-16{,}4$ a $+4{,}1$\,\% \\
+1,5 a 2 & 2\,023 & $-12{,}2$\,\% & $-21{,}9$ a $-3{,}3$\,\% \\
+2 a 3 & 1\,438 & $-18{,}9$\,\% & $-29{,}0$ a $-7{,}8$\,\% \\
+3 a 5 & 1\,274 & $-26{,}2$\,\% & $-39{,}3$ a $-12{,}3$\,\% \\
+más de 5 & 1\,305 & $-27{,}8$\,\% & $-49{,}3$ a $-11{,}6$\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El Manual del IPC trata este problema como ajuste por cantidad: escalar
+el precio por la razón de contenidos funciona mientras el precio unitario
+sea constante entre tamaños; si no lo es, el resultado depende de qué
+tamaño se eligió como reemplazo, una elección arbitraria, y un envase muy
+pequeño con precio unitario muy alto no es un buen sustituto de uno grande
+\cite[cap.~6]{cpimanual2020}. De ahí la regla: el precio por kilo se
+compara solo entre tamaños lo bastante parecidos como para que el sesgo
+por tamaño no supere un umbral $\delta$. Despejando de
+\eqref{eq:beta},
+\begin{equation}
+r_{\max} = \exp\left( \left| \frac{\ln(1-\delta)}{\beta} \right| \right),
+\label{eq:rmax}
+\end{equation}
+es la mayor razón entre dos tamaños admisible. Con $\delta$ igual a 5\,\%, una
+decisión del proyecto que se justifica porque el sesgo por tamaño debe
+quedar por debajo de las diferencias entre cadenas que se quieren
+detectar, $r_{\max}$ es 1,21 con el $\hat\beta$ del panel. Como el efecto
+cambia entre productos, se usa el $\hat\beta$ del propio ítem cuando se
+estima con al menos 20 líneas: el arroz ($\hat\beta=-0{,}111$) admite
+tamaños hasta 1,59 veces distintos, el azúcar ($-0{,}191$) hasta 1,31, y el
+café instantáneo ($-0{,}312$) solo hasta 1,18. Los básicos que se venden
+por peso tienen poco descuento por tamaño; los productos de marca en
+envases pequeños, mucho. $\hat\beta$ se estima con la misma ventana que
+decide la inclusión y se congela con la canasta, de modo que el cruce la
+recibe hecha y no mira precios.
+
+La tolerancia no es una corrección: una diferencia de tamaño dentro de
+$r_{\max}$ se acepta sin ajustar el precio, y una mayor impide usar esa
+presentación para comparar. Con cuatro días de panel, corregir con un
+$\hat\beta$ estimado agregaría más error del que quita.
+
+\subsubsection{Variantes de otra especificación}
+
+Pollo con y sin menudencia, tomate italiano y redondo, o mandarina de dos
+variedades no son el mismo producto con distinto envase, sino productos
+de distinta calidad. El Manual del IPC ofrece dos vías para hacerlos
+comparables \cite[cap.~6]{cpimanual2020}. El \emph{método de
+solapamiento} toma la razón de precios entre las dos variantes cuando se
+venden a la vez en el mismo punto de venta como medida de su diferencia de
+calidad; el \emph{ajuste explícito} la valora con un dato externo, como el
+peso de la menudencia. El manual trata cambios en el tiempo; aquí la misma
+lógica se aplicaría entre cadenas, con la cadena como punto de venta y los
+días en que vende ambas variantes como período común.
+
+El factor sería la media geométrica de esa razón en la ventana,
+\begin{equation}
+\hat f = \exp\left( \frac{1}{N} \sum_{c,t} \ln
+\frac{p^{\text{sin}}_{ct}}{p^{\text{con}}_{ct}} \right),
+\end{equation}
+estimado por cadena, reducido a uno común si las cadenas no difieren, y
+validado prediciendo el precio de una variante en una cadena con el factor
+estimado en otra. Los datos no lo permiten todavía. El único par limpio
+de pollo, en Wong, pasó de una razón de 1,48 a 1,23 en cuatro días; en
+Metro el pollo sin menudencia es además de otra marca; el tomate en Plaza
+Vea se movió entre 1,39 y 1,91; y ninguna cadena vende las dos variedades
+de mandarina. Por eso no se convierte: se fija la variedad más difundida
+entre cadenas (con menudencia, italiano, Hass, de mesa) y, si no alcanza
+cuatro cadenas, se completa con otra variedad marcada como tal en el
+nivel ampliado. No se convierte cuando no hay solapamiento, cuando la
+razón es inestable, cuando las variantes tienen usos distintos o cuando
+la diferencia está mezclada con la marca; el factor se reconsidera con
+unos 30 días de solapamiento.
+
+\subsubsection{Venta por unidad}
+
+El INEI da gramos y la tienda vende huevos por bandeja o choclo por
+unidad. La conversión exige un peso por unidad con fuente, que se toma de
+las tablas auxiliares del CENAN \cite{cenan2016}, en peso bruto por la
+razón expuesta arriba: huevo de gallina mediano, 68,4~g; choclo mediano,
+255,9~g; pan francés de supermercado mediano, 62,3~g. Para $n$ unidades,
+\begin{equation}
+w_s = \frac{n\, g^{\text{unidad}}}{1\,000},
+\end{equation}
+de modo que una bandeja de 30 huevos equivale a 2,052~kg. Lo que se vende
+por atado ---apio, culantro--- no tiene un peso de referencia que
+corresponda al atado de supermercado y no se convierte; tampoco el té
+filtrante, cuyo nombre no declara gramos por sobre. Un peso declarado como
+aproximado (``250g aprox.'') se usa, marcado, si cae dentro de la
+tolerancia de tamaño.
+
+\subsubsection{Costo comparable y costo de compra}
+
+El costo se calcula de dos maneras, con usos distintos. El \emph{costo
+continuo} per cápita del ítem en la cadena, $C_{ic} = Q_i\, p_{ic}$ con
+$H=1$, usa una sola presentación por cadena, fijada por las reglas del cruce
+antes de ver precios, y es el que compara cadenas. Se agrega por nivel, sobre los ítems
+$I_{L,t}$ que tienen precio en todas las cadenas comparadas ese día,
+\begin{equation}
+C^{L}_{ct} = \sum_{i \in I_{L,t}} Q_i\, p_{ict},
+\end{equation}
+con $L$ el núcleo, el núcleo más \texttt{por\_kilo}, o todo. En el núcleo
+la diferencia entre cadenas es solo de cadena; en los niveles ampliados
+incluye también marca, tamaño o variedad, y se reporta así.
+
+El \emph{costo de compra} responde cuánto paga un hogar de $H$ personas
+que solo puede llevar envases enteros, combinando los tamaños que la
+cadena ofrece de esa misma línea y marca:
+\begin{equation}
+C^{\text{ent}}_{ic} = \min_{n_s \in \mathbb{N}} \sum_{s \in S_{ic}} n_s\,
+\text{precio}_s \quad \text{s.a.} \quad \sum_{s \in S_{ic}} n_s\, w_s \ge
+H\, Q_i .
+\end{equation}
+Es un problema de mochila no acotado en su versión de cobertura mínima
+\cite{martello1990}, que se resuelve exactamente por programación dinámica
+en gramos. Lo que se vende pesado se compra en la cantidad exacta,
+$C^{\text{ent}}_{ic} = H\, Q_i\, p_{ic}$. El redondeo cambia la
+decisión: con los precios de Metro del 22 de septiembre, un hogar de
+cuatro cubre sus 17,7~kg de arroz con tres bolsas de 5~kg y tres de 1~kg
+(S/~78,60) y no con cuatro de 5~kg (S/~85,20); y sus 288~g de margarina con
+un pote de 450~g (S/~15,20), no con dos de 220~g (S/~15,80).
+
+\subsubsection{Resultado del cruce (provisional)}
+
+Con la ventana de 19 al 22 de septiembre, entran 48 de los 62 ítems de
+Lima que se compran en un supermercado ---antes de esta metodología eran
+36---: 40 en el núcleo, 6 en el primer nivel ampliado (cancha, grated,
+mandarina, arveja partida, papa blanca y sal) y 2 en el segundo (huevos y
+choclo). Treinta ítems están en las cinco cadenas y 18 en cuatro. Nueve
+ítems usan al menos una equivalencia sin EAN común, entre ellos sémola,
+canela, ají molido, tallarín y margarina. Quedan fuera, además de los seis
+de consumo fuera del hogar, el pan francés (fresco solo en dos cadenas),
+menudencia, jurel, olluco, ajo entero, pepinillo, plátano de la isla,
+verdura picada, ají seco, apio, arveja verde, lechuga, culantro y té
+filtrante. La canasta se congela al completar 14 días; estas cifras
+prueban la maquinaria y pueden cambiar. Dos ítems quedan en revisión: la
+gelatina, porque los 5~g diarios del INEI equivalen a cinco sobres de
+30~g al mes por persona y no está claro si la fuente mide el polvo o la
+gelatina preparada, y la cancha, porque el producto que entra es cancha
+chulpi y el INEI dice maíz blanco corriente.
 
 \subsection{Modelos predictivos sobre el panel}
 
@@ -838,6 +1100,13 @@ el problema se resuelve de forma exacta porque con cinco cadenas hay solo
 treinta y dos combinaciones posibles. Así el ahorro se descompone en lo que
 se gana eligiendo bien una sola cadena, lo que se gana repartiendo la
 compra, y lo que se gana esperando.
+
+El optimizador decide con el costo continuo per cápita de la
+Sección~\ref{sec:estandar} y lo reporta por nivel de identidad, porque
+fuera del núcleo parte del ahorro proviene de elegir otra marca o
+variedad y no otra cadena. El plan de compra del hogar se entrega además
+con el costo en envases enteros para $H$ personas, que combina los
+tamaños disponibles en cada cadena.
 
 \textbf{Técnica y evaluación.} A y B se implementan con \emph{gradient
 boosting} sobre árboles de decisión \cite{friedman2001, chen2016}: un
@@ -985,9 +1254,12 @@ precisión y exhaustividad, y la medición preliminar muestra que la
 similitud de tokens sola recupera menos de una cuarta parte de los pares
 verdaderos. Bueno \cite{bueno2024} dejó este problema explícitamente
 pendiente; aquí es el paso previo al análisis. Para la canasta de
-trabajo basta, por ahora, con reglas fijadas a priori y el EAN como
-identidad; un modelo de emparejamiento sin EAN es la extensión natural para
-incorporar marca propia y granel entre cadenas.
+trabajo se usan reglas fijadas a priori: el EAN como identidad, una tabla
+de equivalencias escrita a mano y, cuando una cadena no publica el código,
+la regla de marca, gramaje y coeficiente de Jaccard de la
+Sección~\ref{sec:estandar}. Un modelo de emparejamiento aprendido sobre
+los pares con EAN es la extensión natural para incorporar marca propia y
+granel entre cadenas.
 
 \subsection{Nota metodológica: reproducibilidad de las cifras}
 
@@ -997,7 +1269,8 @@ diarios del repositorio: ese comando descubre por sí mismo qué días hay,
 regenera cada derivado, pega las tablas en este documento entre marcadores
 y termina declarando qué medidas son sólidas y cuáles provisionales, con
 el número de días que faltan. El calendario es de diseño: la canasta de
-trabajo se congela tras 14 días de panel; el diagnóstico C se pronuncia
+trabajo se congela tras 14 días de panel, junto con la tolerancia de
+tamaño estimada en esa ventana; el diagnóstico C se pronuncia
 cuando un producto tiene 21 días observados; el Modelo A se entrena con
 unos 60 días; el Modelo B necesita, después de esos 21 días, orígenes
 suficientes para entrenar, un embargo igual al horizonte y una semana de
@@ -1113,6 +1386,36 @@ L. Grinsztajn, E. Oyallon y G. Varoquaux, ``Why do tree-based models still
 outperform deep learning on typical tabular data?,'' en \emph{Advances in
 Neural Information Processing Systems 35 (NeurIPS 2022), Datasets and
 Benchmarks Track}, 2022.
+
+\bibitem{inei2020pobreza}
+Instituto Nacional de Estadística e Informática, \emph{Evolución de la
+pobreza monetaria 2008--2019. Informe técnico}. Lima: INEI, mayo 2020,
+anexo ``Canasta básica de alimentos'', pp.~179--182. [En línea].
+Disponible: \url{https://www.inei.gob.pe/media/cifras_de_pobreza/informe_pobreza2019.pdf}
+
+\bibitem{inei2017tabla}
+Instituto Nacional de Estadística e Informática y Centro Nacional de
+Alimentación y Nutrición, \emph{Nueva tabla de composición de alimentos.
+Actualización metodológica para la medición de la pobreza}. Lima: INEI,
+2017. [En línea]. Disponible:
+\url{https://www.inei.gob.pe/media/cifras_de_pobreza/nota02.pdf}
+
+\bibitem{cenan2016}
+C. H. Domínguez Curi y D. A. Avilés Arias, \emph{Tablas auxiliares para
+la formulación y evaluación de regímenes alimentarios}. Lima: Instituto
+Nacional de Salud, Centro Nacional de Alimentación y Nutrición, 2016.
+
+\bibitem{jaccard1912}
+P. Jaccard, ``The distribution of the flora in the alpine zone,''
+\emph{New Phytologist}, vol.~11, n.º~2, pp.~37--50, 1912.
+
+\bibitem{wooldridge2010}
+J. M. Wooldridge, \emph{Econometric Analysis of Cross Section and Panel
+Data}, 2.ª ed. Cambridge, MA: MIT Press, 2010.
+
+\bibitem{martello1990}
+S. Martello y P. Toth, \emph{Knapsack Problems: Algorithms and Computer
+Implementations}. Chichester: Wiley, 1990.
 
 \end{thebibliography}
 
