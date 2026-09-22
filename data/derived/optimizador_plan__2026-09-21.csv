@@ -1,0 +1,73 @@
+escenario,id,descripcion,grupo,cadena,item_id,ean,cantidad,unidad,paquetes,precio_pagado,fuente_precio,costo,on_sale,fiable,oferta_real,fantasma,rebaja_silenciosa,accion,motivo_accion
+con_tottus,3,GALLETA DULCE,pan_y_cereales,metro,39304268,7622202294723,0.087,kg,0.805556,3.0,observado,2.416668,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,5,ARROZ CORRIENTE,pan_y_cereales,tottus,113705625,7755139002809,4.422,kg,0.8844,19.9,observado,17.599559999999997,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,6,AVENA,pan_y_cereales,metro,39192363,7755477001212,0.345,kg,0.69,4.7,observado,3.243,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,metro,39322718,7750885026024,0.543,kg,0.571579,4.2,observado,2.4006317999999998,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,17,OTROS FIDEOS ENVASADOS,pan_y_cereales,metro,2717,7750885021166,0.543,kg,1.206667,2.8,observado,3.3786675999999995,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,21,POLLO EVISCERADO,carnes,plaza_vea,9357,,1.626,kg,1.626,8.9,observado,14.4714,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,25,HOT DOG,carnes,plaza_vea,10048162,7750571002585,0.144,kg,0.576,6.5,observado,3.7439999999999998,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,32,QUESO FRESCO VACA,lacteos,plaza_vea,10125946,7751271029841,0.123,kg,0.123,36.7,observado,4.5141,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,33,YOGURT,lacteos,wong,5427,7750289000163,0.459,l,0.485201,9.2,observado,4.463849199999999,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,0.391304,l,0.217391,15.2,observado,3.3043432,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695953,8719200231252,0.072,kg,0.327273,7.8,observado,2.5527293999999996,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,0.414,kg,0.414,5.9,observado,2.4426,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,0.867,kg,0.867,2.97,observado,2.57499,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,56,TOMATE,hortalizas,plaza_vea,10933704,,0.48,kg,0.48,4.08,observado,1.9584,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,0.48,kg,0.48,3.69,observado,1.7711999999999999,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,59,ZAPALLO,hortalizas,plaza_vea,12373,,0.516,kg,0.516,3.7,observado,1.9092000000000002,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,61,LIMÓN,frutas,plaza_vea,9476,,0.432,kg,0.432,3.8,observado,1.6416,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,1.011,kg,1.011,2.79,observado,2.82069,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,64,MANZANAS,frutas,tottus,147373926,,0.723,kg,0.723,8.99,observado,6.49977,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,65,NARANJA,frutas,plaza_vea,10660,,1.083,kg,1.083,4.89,observado,5.29587,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,wong,14311,,0.348,kg,0.348,7.29,observado,2.53692,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,67,PAPAYA,frutas,metro,39140176,,0.867,kg,0.867,5.69,observado,4.93323,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,69,PLÁTANO DE SEDA,frutas,plaza_vea,10727,,1.182,kg,1.182,3.48,observado,4.11336,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,73,FREJOL,menestras,plaza_vea,14855,7751130000042,0.258,kg,0.516,6.4,observado,3.3024000000000004,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,75,LENTEJA,menestras,metro,39250208,7754725000724,0.345,kg,0.69,6.6,observado,4.553999999999999,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,76,CAMOTE,tuberculos,metro,33653,,0.687,kg,0.687,2.79,observado,1.9167300000000003,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,78,PAPA AMARILLA,tuberculos,plaza_vea,53413,,1.032,kg,1.032,7.99,observado,8.24568,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,79,PAPA BLANCA,tuberculos,metro,33912,,3.093,kg,3.093,1.89,observado,5.84577,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,84,AZÚCAR,azucar,plaza_vea,1870,7751160000203,1.734,kg,1.734,5.3,observado,9.190199999999999,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,85,COCOA,infusiones,plaza_vea,11429796,7752748011956,0.012,kg,0.066667,19.0,observado,1.2666730000000002,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,87,CAFÉ INSTANTÁNEO,infusiones,metro,39254444,7754308002916,0.009,kg,0.05,21.9,observado,1.095,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,89,GELATINA,postres,plaza_vea,10221444,7752230002301,0.147,kg,4.9,4.9,observado,24.010000000000005,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,93,AJO MOLIDO,condimentos,plaza_vea,1253,7750333000057,0.093,kg,0.265714,10.2,observado,2.7102828,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,94,AJI NO MOTO,condimentos,plaza_vea,11929154,7754487002929,0.027,kg,0.3,2.8,observado,0.84,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,plaza_vea,1071,7753121000352,0.027,kg,0.3375,5.5,observado,1.8562500000000002,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,101,BEBIDAS GASEOSAS,bebidas,metro,10814,7750182001236,1.299,l,1.299,4.9,observado,6.3651,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,3,GALLETA DULCE,pan_y_cereales,metro,39304268,7622202294723,0.087,kg,0.805556,3.0,observado,2.416668,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,5,ARROZ CORRIENTE,pan_y_cereales,plaza_vea,24925,7755139002809,4.422,kg,0.8844,20.5,observado,18.1302,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,6,AVENA,pan_y_cereales,metro,39192363,7755477001212,0.345,kg,0.69,4.7,observado,3.243,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,16,FIDEOS TALLARÍN ENVASADO,pan_y_cereales,metro,39322718,7750885026024,0.543,kg,0.571579,4.2,observado,2.4006317999999998,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,17,OTROS FIDEOS ENVASADOS,pan_y_cereales,metro,2717,7750885021166,0.543,kg,1.206667,2.8,observado,3.3786675999999995,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,21,POLLO EVISCERADO,carnes,plaza_vea,9357,,1.626,kg,1.626,8.9,observado,14.4714,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,25,HOT DOG,carnes,plaza_vea,10048162,7750571002585,0.144,kg,0.576,6.5,observado,3.7439999999999998,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,32,QUESO FRESCO VACA,lacteos,plaza_vea,10125946,7751271029841,0.123,kg,0.123,36.7,observado,4.5141,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,33,YOGURT,lacteos,wong,5427,7750289000163,0.459,l,0.485201,9.2,observado,4.463849199999999,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,0.391304,l,0.217391,15.2,observado,3.3043432,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695953,8719200231252,0.072,kg,0.327273,7.8,observado,2.5527293999999996,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,0.414,kg,0.414,5.9,observado,2.4426,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,0.867,kg,0.867,2.97,observado,2.57499,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,56,TOMATE,hortalizas,plaza_vea,10933704,,0.48,kg,0.48,4.08,observado,1.9584,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,0.48,kg,0.48,3.69,observado,1.7711999999999999,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,59,ZAPALLO,hortalizas,plaza_vea,12373,,0.516,kg,0.516,3.7,observado,1.9092000000000002,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,61,LIMÓN,frutas,plaza_vea,9476,,0.432,kg,0.432,3.8,observado,1.6416,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,1.011,kg,1.011,2.79,observado,2.82069,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,64,MANZANAS,frutas,metro,14059,,0.723,kg,0.723,9.89,observado,7.15047,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,65,NARANJA,frutas,plaza_vea,10660,,1.083,kg,1.083,4.89,observado,5.29587,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,wong,14311,,0.348,kg,0.348,7.29,observado,2.53692,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,67,PAPAYA,frutas,metro,39140176,,0.867,kg,0.867,5.69,observado,4.93323,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,69,PLÁTANO DE SEDA,frutas,plaza_vea,10727,,1.182,kg,1.182,3.48,observado,4.11336,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,73,FREJOL,menestras,plaza_vea,14855,7751130000042,0.258,kg,0.516,6.4,observado,3.3024000000000004,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,75,LENTEJA,menestras,metro,39250208,7754725000724,0.345,kg,0.69,6.6,observado,4.553999999999999,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,76,CAMOTE,tuberculos,metro,33653,,0.687,kg,0.687,2.79,observado,1.9167300000000003,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,78,PAPA AMARILLA,tuberculos,plaza_vea,53413,,1.032,kg,1.032,7.99,observado,8.24568,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,79,PAPA BLANCA,tuberculos,metro,33912,,3.093,kg,3.093,1.89,observado,5.84577,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,84,AZÚCAR,azucar,plaza_vea,1870,7751160000203,1.734,kg,1.734,5.3,observado,9.190199999999999,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,85,COCOA,infusiones,plaza_vea,11429796,7752748011956,0.012,kg,0.066667,19.0,observado,1.2666730000000002,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,87,CAFÉ INSTANTÁNEO,infusiones,metro,39254444,7754308002916,0.009,kg,0.05,21.9,observado,1.095,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,89,GELATINA,postres,plaza_vea,10221444,7752230002301,0.147,kg,4.9,4.9,observado,24.010000000000005,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,93,AJO MOLIDO,condimentos,plaza_vea,1253,7750333000057,0.093,kg,0.265714,10.2,observado,2.7102828,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,94,AJI NO MOTO,condimentos,plaza_vea,11929154,7754487002929,0.027,kg,0.3,2.8,observado,0.84,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,100,COLORANTE Y SABORIZANTE SIBARITA,condimentos,plaza_vea,1071,7753121000352,0.027,kg,0.3375,5.5,observado,1.8562500000000002,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,101,BEBIDAS GASEOSAS,bebidas,metro,10814,7750182001236,1.299,l,1.299,4.9,observado,6.3651,False,False,,,,comprar_hoy,sin_modelo_b
