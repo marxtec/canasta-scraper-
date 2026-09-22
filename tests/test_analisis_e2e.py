@@ -91,7 +91,7 @@ def test_oferta_real_se_vuelve_fiable_con_panel_largo():
         ult = prod[prod["retailer"] == "metro"].set_index("item_id")
         assert ult["fiable"].all()                                   # 40 dias > 21
         assert bool(ult.loc["metro-5", "oferta_real"]) is False       # la oferta ya termino
-        assert bool(ult.loc["metro-15", "tachado_permanente"]) is True
+        assert bool(ult.loc["metro-15", "fantasma"]) is True
         f = flags[(flags["retailer"] == "metro") & (flags["item_id"] == "metro-5")].sort_values("fecha")
         assert f.iloc[30:35]["oferta_real"].astype(bool).all()
         assert ult.loc["metro-22", "dias_con_hueco"] == 3

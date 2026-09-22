@@ -75,8 +75,8 @@ def main(argv=None):
         return None
 
     r1 = bloque("Bloque 1: oferta_real", lambda: oferta_real.correr())
-    veredictos.append(P.aviso_fiabilidad(n_dias, oferta_real.MIN_OBS_VENTANA,
-                                         "oferta_real / tachado_permanente"))
+    veredictos.append(P.aviso_fiabilidad(n_dias, oferta_real.MIN_OBS_VENTANA + 1,
+                                         "oferta_real / fantasma (C)"))
 
     r2 = bloque("Bloque 2: rigidez", lambda: rigidez.correr())
     if r2 is not None:
