@@ -1,6 +1,0 @@
-retailer,d0,d1,dias_entre,tipo,sku_seguidos,sube,baja,entra_oferta_decl,sale_oferta_decl,sku_evaluables_real,entra_oferta_real,sale_oferta_real,altas_catalogo,bajas_catalogo,mediana_abs_cambio,n_cambios
-metro,2026-09-19,2026-09-20,1,cruza_finde,9440,60,24,15,40,0,0,0,24,29,0.24317299993841224,84
-plaza_vea,2026-09-19,2026-09-20,1,cruza_finde,10961,9,13,12,7,0,0,0,1,0,0.17499402342816162,22
-tottus,2026-09-19,2026-09-20,1,cruza_finde,11944,20,8,2,0,0,0,0,396,371,0.010508686690223867,28
-vivanda,2026-09-19,2026-09-20,1,cruza_finde,7752,1,1,0,0,0,0,0,0,0,0.12320620555914674,2
-wong,2026-09-19,2026-09-20,1,cruza_finde,12354,51,43,27,42,0,0,0,37,29,0.12194055944055943,94

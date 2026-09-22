@@ -59,9 +59,19 @@ data/raw/              JSON crudo comprimido
 data/daily/            CSV normalizado, una fila por SKU por día
 data/trees/            Árbol de categorías y hojas recorridas, por cadena y día
 data/ean_tottus.json   Caché de EAN. VERSIONARLA: si se pierde, no converge
+data/canasta_oficial.csv   CBA del INEI (fuente en canasta_oficial.fuente.txt)
+data/canasta_reglas.csv    Reglas de emparejamiento, fijadas antes de mirar precios
+data/ean_equivalencias.csv Pares de EAN del mismo envase, con su motivo
+data/canasta_trabajo*.csv  Canasta de trabajo, exclusiones y tolerancia de tamaño
 data/derived/          Derivados del análisis, sufijo __<última fecha>; se regeneran
 data/derived/figuras/  Figuras (matplotlib, en español)
 data/derived/auditoria/ Auditoría API vs pantalla: una corrida por semana + acumulado
+BITACORA.md            Decisiones fechadas del proyecto
+docs/informe/          Informe de avance (LaTeX IEEE, run_all pega sus tablas) y resumen
+docs/diagnosticos/     Pasadas de diagnóstico del código
+docs/prompts/          Prompts de trabajo con el asistente
+docs/plantilla_paper/  Estructura del paper y enlace a la plantilla de Overleaf
+docs/presentaciones/   Presentaciones del curso
 ```
 
 **Por qué se guarda el JSON crudo:** el día que encuentres un bug en el
@@ -580,12 +590,12 @@ la cadena publica) pero no para la canasta.
 ```bash
 python3 -m analisis.run_all                  # bloques 1, 2, 3 y 5; pega tablas en el informe
 python3 -m analisis.run_all --con-auditoria  # además el bloque 4 (navegador, ~35 min)
-python3 -m analisis.run_all --sin-informe    # no toca informe_avance.txt
+python3 -m analisis.run_all --sin-informe    # no toca docs/informe/informe_avance.txt
 ```
 
 Regenera todos los CSV, el `.tex` de tablas y las figuras, sustituye el
 bloque entre `% >>> TABLAS GENERADAS` y `% <<< TABLAS GENERADAS` de
-`informe_avance.txt`, y termina con un **veredicto** por resultado: `SOLIDO`
+`docs/informe/informe_avance.txt`, y termina con un **veredicto** por resultado: `SOLIDO`
 o `PROVISIONAL`, con los días que faltan. Es el comando que se corre en
 noviembre con el panel completo, sin argumentos y sin editar nada.
 

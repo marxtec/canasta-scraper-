@@ -10,7 +10,13 @@
 %  sobre data/daily/. En esta version el panel tiene los primeros dias de
 %  recoleccion: prueban que el scraper y la maquinaria de analisis corren,
 %  no son resultados, y el texto no los comenta como tales. Las tablas
-%  entre los marcadores %>>> / %<<< las pega ese comando. Las cifras de
+%  entre los marcadores %>>> / %<<< (seccion Datos y recoleccion) las pega
+%  ese comando.
+%
+%  Estructura (revision del 22-09-2026): I Introduccion (con hipotesis),
+%  II Estado del arte, III Marco teorico, IV Datos y recoleccion,
+%  V Metodologia, Apendices (detalle de la estandarizacion y
+%  reproducibilidad). Las cifras de
 %  terceros fueron verificadas contra el texto de cada articulo el
 %  20-09-2026.
 % =====================================================================
@@ -33,6 +39,11 @@
 % columna de parrafo para las tablas comparativas
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 
+% tablas del panel (seccion Datos y recoleccion): ocultas mientras el panel
+% tenga menos de 14 dias; cambiar a \tablaspaneltrue para mostrarlas
+\newif\iftablaspanel
+\tablaspanelfalse
+
 \begin{document}
 
 \title{Inteligencia de precios para el consumidor. De la dispersión y la
@@ -53,18 +64,35 @@ de ahorro familiar}
 \maketitle
 
 \begin{abstract}
-% El resumen se redactara al cierre de la investigacion, cuando el
-% backtest fuera de muestra permita afirmar cuanto ahorra el sistema frente
-% a la linea base. Se deja el entorno vacio a proposito para que el
-% documento compile y para no presentar como resultado lo que todavia no
-% lo es.
+% Resumen de diseno: no reporta ahorro. Se reescribe al cierre, cuando el
+% backtest fuera de muestra permita afirmar cuanto ahorra el sistema.
+Un hogar limeño decide cada semana en qué supermercado comprar, si comprar
+ahora o esperar, y si creerle al precio tachado del cartel, y la web de
+las tiendas no le da lo necesario para decidir bien. Este trabajo recolecta
+cada día, desde el 19 de septiembre de 2026, el catálogo completo de
+alimentos de las cinco cadenas de supermercados de Lima con venta en línea
+---unas 54\,000 filas diarias leídas de sus interfaces internas--- y usa el
+código de barras EAN como identidad del mismo producto entre cadenas. Sobre
+ese panel se construye la canasta de trabajo a partir de la canasta básica
+de alimentos del INEI, con reglas de emparejamiento y estandarización de
+presentaciones fijadas antes de mirar precios, y un sistema de tres
+piezas: un diagnóstico que separa la oferta real de la anunciada, dos
+modelos de \emph{gradient boosting} que anticipan la cadena más barata y la
+próxima rebaja, y un optimizador que decide qué comprar, dónde y cuándo. El
+resultado será el costo de la canasta con el sistema frente a un
+consumidor ingenuo definido de antemano, medido fuera de muestra con
+precios realizados y con intervalos de confianza; esta versión presenta el
+diseño, las hipótesis ---registradas con los dos primeros días de panel---
+y el estado de la recolección.
 \end{abstract}
+
 
 \begin{IEEEkeywords}
 web scraping, precios en línea, dispersión de precios, rigidez de precios,
 ofertas, canasta básica, optimización, aprendizaje automático, supermercados,
 Perú, código EAN
 \end{IEEEkeywords}
+
 
 % =====================================================================
 \section{Introducción}
@@ -164,107 +192,85 @@ cerrar una ventana de inclusión. El \emph{universo scrapeado} es todo el
 panel; los productos que comparten EAN un día dado son universo común, no
 la canasta.
 
+
 Cada mecanismo de la pregunta corresponde a una pieza del sistema. La
 dispersión es lo que el optimizador aprovecha al asignar cada producto a
 la cadena más barata; la rigidez ---y su contracara, las rebajas
 transitorias--- es lo que el Modelo B puede anticipar para decidir si
 conviene esperar; la opacidad promocional es lo que el diagnóstico C
 separa: el cartel que promete un ahorro que la historia del producto no
-confirma. La línea base es la de un consumidor que compra toda la canasta
-hoy, en una sola cadena, y cree el cartel. El sistema aporta en la medida
-en que su costo, medido fuera de muestra con precios realizados, queda por
-debajo de esa regla.
+confirma. La línea base es un consumidor ingenuo definido de forma
+explícita en la Sección~\ref{sec:lineabase}: compra toda la canasta hoy, en
+una sola cadena, elegida por el ahorro que anuncian sus carteles, y toma
+ese ahorro como real. El sistema aporta en la medida en que su costo,
+medido fuera de muestra con precios realizados, queda por debajo del de esa
+regla.
 
-\subsection{Estado del panel}
+\subsection{Hipótesis}
+\label{sec:hipotesis}
 
-Las tablas de esta subsección las genera \texttt{analisis/run\_all.py}
-sobre los días que el panel tiene al momento de compilar. Con los primeros
-días de recolección prueban que el scraper y la maquinaria de análisis
-corren de punta a punta; no son resultados y no se comentan como tales. Se
-dejan porque son las medidas de las que depende el sistema. La
-Tabla~\ref{tab:identidad} mide, para cada par de cadenas, la fracción de
-observaciones EAN--día con precio \emph{idéntico} al céntimo (EAN de
-fabricante, 12 o más dígitos, sin el prefijo 2 de los códigos internos);
-la Tabla~\ref{tab:brecha}, la distribución de la brecha entre el precio
-máximo y el mínimo de un mismo producto, con la masa puntual en cero; y la
-Tabla~\ref{tab:varianza}, cuánto de la varianza del log-precio es
-sistemática por cadena, grupo o categoría y cuánto es idiosincrática.
+Las hipótesis sobre los mecanismos se registraron el 21 de septiembre de
+2026 en la bitácora del repositorio, con dos días de panel (19 y 20 de
+septiembre) y después de ver las tablas descriptivas de esos dos días: la
+identidad de precios por pares de cadenas, la brecha entre el precio
+máximo y el mínimo, la descomposición de la varianza y la frecuencia del
+cartel por cadena. No son, por tanto, hipótesis formuladas a ciegas. Esas
+tablas orientaron la dirección de H1, H2 y H4, pero no bastan para
+contrastarlas: cubren un solo fin de semana, sin transiciones entre días
+hábiles, y por eso no se muestran como resultado en la
+Sección~\ref{sec:panel}. Lo que el registro compromete es el criterio de
+contraste: cada hipótesis dice qué se espera, con qué medida se contrasta
+y qué resultado la falsaría, y los umbrales no se cambian al ver más
+datos. Se contrastan sobre el panel acumulado con el mismo comando que
+genera las tablas de la Sección~\ref{sec:datos}. El 22 de septiembre se
+corrigieron los criterios de falsación de H1, H3 y H4 para hacerlos
+coherentes con lo que cada hipótesis afirma; la redacción registrada el
+21 de septiembre, el cambio y su motivo están en el
+Apéndice~\ref{ap:hipotesis}.
 
-% >>> TABLAS GENERADAS por analisis/run_all.py -- NO EDITAR A MANO (se regeneran)
-% Generado por analisis/dispersion.py -- NO EDITAR A MANO.
-% Panel: 2 dia(s), ultimo 2026-09-20. Criterio: EAN de fabricante (12+ d\'igitos, sin prefijo 2).
+\textbf{H1: Cencosud uniforme, Supermercados Peruanos no.} Se espera que
+las dos cadenas de Cencosud (Metro y Wong) publiquen el mismo precio para
+el mismo EAN con más frecuencia que dos cadenas competidoras, y que las
+dos de Supermercados Peruanos (Plaza Vea y Vivanda) no lo hagan. Se
+contrasta con la fracción de EAN--días con precio idéntico al céntimo de
+Metro--Wong y de Plaza Vea--Vivanda frente al promedio de los ocho pares de
+competidores, sobre todos los días del panel. La falsaría cualquiera de
+dos resultados: que Metro--Wong no superara ese promedio, o que Plaza
+Vea--Vivanda lo superara. La comparación con Plaza Vea--Tottus queda
+solo en H2.
 
-\begin{table}[htbp]
-\caption{Precio id\'entico entre pares de cadenas para el mismo EAN, todos los d\'ias del panel (2 d\'ias, \'ultimo 2026-09-20)}
-\label{tab:identidad}
-\centering\scriptsize\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}llrrr@{}}
-\toprule
-Par & Relaci\'on & EAN-d\'ias & Id\'entico & Brecha med. \\
-\midrule
-Metro + Wong & mismo grupo & 8\,442 & 66.6\,\% & 0.0\,\% \\
-Wong + Vivanda & competidores & 3\,972 & 46.5\,\% & 1.8\,\% \\
-Plaza Vea + Tottus & competidores & 6\,171 & 44.9\,\% & 1.4\,\% \\
-Metro + Vivanda & competidores & 3\,745 & 34.0\,\% & 3.7\,\% \\
-Metro + Plaza Vea & competidores & 4\,575 & 27.5\,\% & 5.3\,\% \\
-Wong + Plaza Vea & competidores & 4\,665 & 24.7\,\% & 6.1\,\% \\
-Plaza Vea + Vivanda & mismo grupo & 7\,948 & 24.6\,\% & 2.9\,\% \\
-Metro + Tottus & competidores & 6\,659 & 18.2\,\% & 6.3\,\% \\
-Wong + Tottus & competidores & 6\,842 & 15.1\,\% & 7.1\,\% \\
-Vivanda + Tottus & competidores & 4\,956 & 14.4\,\% & 5.6\,\% \\
-\bottomrule\end{tabular}\end{table}
+\textbf{H2: competencia frente a propiedad común.} Se espera que Plaza Vea
+coincida más con Tottus ---mismo formato, distinto dueño--- que con Vivanda
+---mismo dueño, distinto formato---, en identidad de precios y en brecha
+mediana. Se contrasta día a día, y la falsaría que Plaza Vea--Vivanda
+superara a Plaza Vea--Tottus en la mayoría de los días del panel.
 
-\begin{table*}[t]
-\caption{Distribuci\'on de la brecha m\'ax/m\'in del precio por EAN-d\'ia y masa en cero, todos los d\'ias del panel}
-\label{tab:brecha}
-\centering\scriptsize\setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}lrrrrrrrrr@{}}
-\toprule
-Subconjunto & EAN-d\'ias & Masa en 0 & p10 & p25 & p50 & p75 & p90 & SD log \\
-\midrule
-$\geq 2$ cadenas & 18\,078 & 25.0\,\% & 0.0\,\% & 0.0\,\% & 5.8\,\% & 16.3\,\% & 30.4\,\% & 0.062 \\
-$\geq 3$ cadenas & 9\,420 & 11.4\,\% & 0.0\,\% & 3.5\,\% & 10.4\,\% & 21.7\,\% & 35.0\,\% & 0.071 \\
-las 5 cadenas & 1\,821 & 5.7\,\% & 2.1\,\% & 6.1\,\% & 13.8\,\% & 26.3\,\% & 41.4\,\% & 0.074 \\
-\bottomrule\end{tabular}
-\par\smallskip\raggedright\scriptsize SD log: desviaci\'on est\'andar media del log-precio dentro del EAN-d\'ia; referencia de Gorodnichenko y Talavera (2017): 0.13--0.16.
-\end{table*}
+\textbf{H3: intensidad promocional real.} Se espera que la intensidad
+promocional medida por el diagnóstico C, y no por el cartel, ordene las
+cadenas por posicionamiento ---Plaza Vea y las de Cencosud arriba, Vivanda
+abajo, Tottus en medio--- y que una parte grande del cartel sea tachado
+permanente, es decir, precio ancla y no oferta. La falsaría que el orden
+de las cadenas por intensidad de oferta real no respetara el orden por
+posicionamiento ---que Vivanda no quedara última, o que Tottus no quedara
+por debajo de Plaza Vea, Metro y Wong---, o que el tachado permanente
+fuera menos del 10\,\% del cartel en todas las cadenas. Es la
+más abierta: requiere 21 días de historia por producto y hoy no hay
+evidencia sobre ella.
 
-\begin{table}[htbp]
-\caption{Descomposici\'on de la varianza de $\log$(precio) por efectos fijos anidados, todos los d\'ias del panel}
-\label{tab:varianza}
-\centering\scriptsize\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}llrrr@{}}
-\toprule
-Orden & Nivel & $R^2$ acum. & $R^2$ incr. & \% var. intra-prod. \\
-\midrule
-A & dia & 0.00\,\% & 0.00\,\% & -- \\
- & producto & 98.74\,\% & 98.74\,\% & -- \\
- & categoria & 98.74\,\% & 0.00\,\% & -- \\
- & grupo & 98.75\,\% & 0.01\,\% & 0.6\,\% \\
- & cadena & 98.79\,\% & 0.04\,\% & 3.5\,\% \\
- & cadena $\times$ categoria & 98.81\,\% & 0.02\,\% & 1.3\,\% \\
-\midrule
-B & dia & 0.00\,\% & 0.00\,\% & -- \\
- & categoria & 39.63\,\% & 39.63\,\% & -- \\
- & grupo & 39.67\,\% & 0.04\,\% & -- \\
- & cadena & 39.93\,\% & 0.26\,\% & -- \\
- & cadena $\times$ categoria & 40.55\,\% & 0.62\,\% & -- \\
- & producto & 98.81\,\% & 58.26\,\% & -- \\
-\bottomrule\end{tabular}
-\par\smallskip\raggedright\scriptsize Orden A: producto (EAN$\times$d\'ia) primero; la categor\'ia queda absorbida. Orden B: sin producto hasta el final. $n$ = 51\,988 observaciones EAN$\times$cadena$\times$d\'ia.
-\end{table}
-% <<< TABLAS GENERADAS
+\textbf{H4: qué explica la dispersión.} Se espera que el producto explique
+casi toda la varianza del log-precio y que, dentro de la varianza
+intra-producto ---la dispersión entre cadenas---, la parte sistemática por
+cadena sea pequeña frente a la idiosincrática, con cadena $\times$
+categoría por encima de grupo. La falsaría que grupo, cadena y cadena
+$\times$ categoría explicaran juntos más de la mitad de la varianza
+intra-producto, o que grupo explicara más que cadena $\times$ categoría.
 
-Cada tabla responde una pregunta que el sistema necesita contestar sobre
-el panel acumulado. La brecha fuera de la masa en cero es el espacio de
-ahorro que tiene el optimizador al elegir cadena: donde el precio es
-idéntico en todas, elegir no ahorra nada. La coincidencia entre cadenas
-del mismo grupo corporativo dice si comprar en la cadena hermana es, en la
-práctica, la misma decisión. La parte sistemática de la varianza es la que
-el Modelo A puede aprender a partir de atributos del producto; la
-idiosincrática, la que solo se ve observando el precio. Las hipótesis
-descriptivas sobre estas medidas y sus umbrales se fijaron antes de tener
-el panel, y se contrastan sin cambiarlos.
+H4 condiciona al sistema: si se cumple, los atributos del producto dicen
+poco sobre qué cadena es más barata y el Modelo A tiene un techo bajo
+(Sección~\ref{sec:modelos}). El ahorro del sistema no tiene un umbral de
+éxito registrado: se reporta como magnitud con su intervalo de
+confianza (Sección~\ref{sec:lineabase}), y un ahorro cercano a cero es un
+resultado tan informativo como uno grande.
 
 \subsection{Alcance y aporte}
 
@@ -279,9 +285,9 @@ observa, y el \textbf{Modelo B} anticipa si un producto entrará en oferta
 real en los próximos días. La \emph{prescriptiva} es un optimizador que
 decide qué comprar, dónde y cuándo, apoyado en un diagnóstico (C) que
 separa la oferta real de la oferta fantasma. El resultado del proyecto es
-el costo de la canasta con ese sistema frente a la línea base de un
-consumidor que compra todo hoy, en una sola cadena, creyendo el cartel,
-medido fuera de muestra.
+el costo de la canasta con ese sistema frente al del consumidor ingenuo
+de la Sección~\ref{sec:lineabase}, medido fuera de muestra y con su
+intervalo de confianza.
 
 El emparejamiento de productos ---entre la lista del INEI y el panel, y
 entre cadenas--- es preprocesamiento: se hace con reglas fijadas antes de
@@ -301,13 +307,19 @@ más de una década, y para alimentos ya se aplicó en Polonia y en el propio
 Perú. Lo que no existe es un trabajo que use ese panel para decirle al
 consumidor dónde y cuándo comprar, ni que mida cuánto ahorra con ello
 frente a creerle al cartel. Se revisan seis
-fuentes: tres fundacionales del método (Billion Prices Project, el caso
-polaco y el caso peruano) y tres que sustentan los análisis específicos de
-este proyecto (rigidez con datos scrapeados, dispersión entre vendedores en
-línea y fijación uniforme de precios en cadenas). Cada una se presenta en
-el orden en que se leyó: la pregunta que se hace, los datos y la forma de
-recolectarlos, el método, lo que encuentra y el hueco que deja para este
-proyecto. La Tabla~\ref{tab:sota} resume la comparación.
+fuentes sobre la medición de precios, más la literatura del lado del
+consumidor que se trata al final de la sección. Las seis son tres
+fundacionales del método (Billion Prices Project, el caso polaco y el caso peruano) y tres que
+sustentan los análisis específicos de este proyecto (rigidez con datos
+scrapeados, dispersión entre vendedores en línea y fijación uniforme de
+precios en cadenas). Cada una se presenta en el orden en que se leyó: la
+pregunta que se hace, los datos y la forma de recolectarlos, el método, lo
+que encuentra y el hueco que deja para este proyecto. La
+Tabla~\ref{tab:sota} resume la comparación. Como las seis miden precios y
+el aporte de este trabajo está del lado del consumidor, la literatura de
+ese lado cierra la revisión: la búsqueda de precios en varias tiendas y en el
+tiempo, la ofuscación en línea y la regulación de los precios de
+referencia.
 
 % ---------------------------------------------------------------------
 \subsection{Cavallo y Rigobon (2016): el método global}
@@ -559,6 +571,81 @@ DellaVigna y Gentzkow (2019) \cite{dellavigna2019}
 \end{tabular}
 \end{table*}
 
+% ---------------------------------------------------------------------
+\subsection{El lado del consumidor: búsqueda, ofuscación y precios de referencia}
+% ---------------------------------------------------------------------
+
+Que comprar en varias tiendas ahorra no es una suposición del proyecto.
+Edward Fox y Stephen Hoch, en \emph{Cherry-Picking} (\emph{Journal of
+Marketing}, 2005) \cite{foxhoch2005}, compararon con datos de compras de
+hogares estadounidenses los días en que un hogar visita dos supermercados
+---el 8\,\% de los viajes de compra--- con los días en que visita uno.
+% [VERIFICAR: 8 % de viajes, US$ 22,90 y US$ 7,85 tomados de un resumen
+% del articulo (Knowledge at Wharton / PDF del autor); confirmar contra el
+% texto publicado en J. Marketing 69(1) y citar la pagina]
+Encontraron que el ahorro frente a los precios más altos disponibles era de
+22,90 dólares en los días de dos tiendas y de 7,85 en los de una, que la
+diferencia venía tanto de un descuento porcentual mayor como de canastas
+más grandes, y que superaba el costo de oportunidad del tiempo adicional:
+el comportamiento era racional. Dinesh Gauri, K. Sudhir y Debabrata
+Talukdar, en \emph{The Temporal and Spatial Dimensions of Price Search}
+(\emph{Journal of Marketing Research}, 2008) \cite{gauri2008}, mostraron
+con encuestas y compras de los mismos hogares que la búsqueda de precios
+tiene dos dimensiones ---entre tiendas y a lo largo del tiempo--- y que
+estudiarlas por separado subestima cuánto responden los hogares a las
+promociones. Son las dos primeras decisiones de este proyecto, dónde y
+cuándo. Ambos trabajos describen lo que los hogares hacen por su cuenta;
+ninguno construye una herramienta que lo haga por ellos, ni mide cuánto
+dejaría de pagar un hogar que no busca.
+
+Del lado de la optimización, repartir una lista de compras entre varias
+tiendas con un costo por desplazarse es el \emph{problema del comprador
+viajero}, formulado por Ramesh \cite{ramesh1981}: elegir qué comprar en
+cada mercado y en qué orden visitarlos, un problema difícil en general
+porque combina la asignación de productos con una ruta. El caso de este
+proyecto es su versión más simple: con cinco cadenas y un costo fijo por
+cadena visitada, sin ruta, se resuelve de forma exacta enumerando las
+treinta y dos combinaciones de cadenas (Sección~\ref{sec:modelos}).
+
+Que la tienda pueda dificultar la comparación también está documentado.
+Glenn Ellison y Sara Fisher Ellison, en \emph{Search, Obfuscation, and
+Price Elasticities on the Internet} (\emph{Econometrica}, 2009)
+\cite{ellison2009}, estudiaron minoristas en línea que compiten en un
+buscador de precios: para algunos productos la búsqueda fácil vuelve la
+demanda extremadamente sensible al precio, y los minoristas responden con
+prácticas de \emph{ofuscación} que frustran la búsqueda o la vuelven menos
+dañina para ellos, con lo que la sensibilidad cae en otros productos. Un
+precio tachado que nunca rigió es una forma de esa opacidad: no oculta el
+precio, pero distorsiona la referencia contra la que el comprador lo juzga.
+
+La regulación europea ya convirtió en norma la idea que el diagnóstico C
+aplica. La Directiva (UE) 2019/2161, llamada Ómnibus \cite{omnibus2019},
+añadió a la directiva de indicación de precios un artículo 6~bis: todo
+anuncio de una reducción de precio debe indicar como precio anterior el
+más bajo que el comerciante aplicó en un período no inferior a los 30 días
+previos, precisamente para impedir que se infle la referencia y se exagere
+el descuento. La regla europea es un punto de comparación natural para la
+de este proyecto ---mínimo de 30 días frente a mediana de 45--- y entra
+como variante en la sensibilidad de C. En el Perú, el Código de Protección
+y Defensa del Consumidor \cite{ley29571} exige en su artículo 14 que la
+publicidad de promociones indique su duración y la cantidad mínima de
+unidades disponibles,
+% [VERIFICAR: descripcion del art. 14 de la Ley 29571 tomada de fuentes
+% secundarias (consumoteca.pe, lpderecho.pe); confirmar contra el texto
+% vigente en El Peruano, con sus modificatorias]
+y la Ley de Represión de la Competencia Desleal
+\cite{dleg1044} prohíbe en su artículo 8 los actos que induzcan a error
+sobre el precio y pone en el anunciante la carga de probar lo que afirma.
+% [VERIFICAR: descripcion del art. 8 del D. Leg. 1044 (actos de engano y
+% carga de la prueba) tomada de fuentes secundarias; confirmar contra el
+% texto oficial y, si la carga de la prueba esta en otro numeral, citarlo]
+No se encontró una norma peruana que fije, como la europea, contra qué
+precio anterior debe medirse un descuento; la revisión de las resoluciones
+del INDECOPI sobre anuncios de ``antes'' y ``ahora'' en supermercados queda
+pendiente para la versión final. Si esa regla no existe, el panel es una
+forma de observar desde fuera lo que la norma europea exige declarar.
+
+
 \subsection{Síntesis}
 
 Las seis fuentes establecen que el método es sólido y que ya se ha aplicado
@@ -571,10 +658,13 @@ mercado o anticipar la inflación, y ninguna los usa para prescribir una
 compra ni para verificar si el descuento que anuncia la tienda es real. El
 tercero es de entregable: ninguna produce el costo, en soles y por cadena,
 de una canasta oficial de referencia, ni lo compara con una regla de
-compra ingenua.
+compra ingenua. La literatura del lado del consumidor confirma que buscar
+entre tiendas y en el tiempo ahorra, y que la referencia del cartel puede
+distorsionarse; la europea resolvió esto último por ley, y en el Perú
+nadie lo mide.
 
 % =====================================================================
-\section{Bases teóricas}
+\section{Marco teórico}
 % =====================================================================
 
 \subsection{Ley de un solo precio y dispersión}
@@ -627,25 +717,29 @@ esperar: si los precios casi no cambian, esperar no ahorra nada; si las
 rebajas transitorias son frecuentes y previsibles, esperar puede ahorrar.
 El módulo \texttt{analisis/rigidez.py} mide la tasa de cambio separando las
 transiciones entre días hábiles de las que cruzan fin de semana o feriado,
-porque los supermercados hacen \emph{repricing} en días hábiles, y mide la
-tasa de entrada en oferta real a varios horizontes, que es la viabilidad
-del Modelo B.
+porque los supermercados hacen \emph{repricing} en días hábiles; mide si la
+distribución del tamaño de los cambios es bimodal, como la encontró Bueno
+\cite{bueno2024}, con el coeficiente de bimodalidad de Sarle, en la
+formulación de Pfister et al. \cite{pfister2013}; y mide la tasa de entrada en oferta real a varios
+horizontes, que es la viabilidad del Modelo B.
+
 
 Esta distinción también afecta a la variable \texttt{on\_sale}: es el
-cartel de la tienda, y un producto con el precio tachado nueve de cada
-diez días no está en oferta, tiene un ancla. Siguiendo a Nakamura y
-Steinsson \cite{nakamura2008}, a Kehoe y Midrigan \cite{kehoe2015} y el
-filtro de precio regular de Bueno \cite{bueno2024}, el diagnóstico C
-define el precio habitual como la mediana de \texttt{price} del propio
-producto en los 45 días anteriores, sin contar el de hoy. Hay
-\emph{oferta real} si el precio de hoy cae al menos 10\,\% frente a ese
-habitual y el cartel no estuvo encendido más de la mitad de los días de
-la ventana; hay \emph{oferta fantasma} si el cartel está encendido y no se
-cumple lo anterior; y hay \emph{rebaja silenciosa} si el precio cae sin
-cartel. La regla necesita 21 días observados antes de pronunciarse; hasta
-entonces, el sistema no usa el cartel. La opacidad promocional de la
-pregunta es la distancia entre el ahorro que el cartel anuncia y el que la
-historia del producto confirma.
+cartel de la tienda, no una medida de la oferta, y un producto con el
+precio tachado nueve de cada diez días no está en oferta: tiene un ancla.
+La literatura resuelve esto definiendo el precio habitual a partir de la
+historia del propio producto ---el precio regular filtrado de Nakamura y
+Steinsson \cite{nakamura2008}, Kehoe y Midrigan \cite{kehoe2015} y Bueno
+\cite{bueno2024}, o el precio de referencia como la moda en una ventana
+móvil de Eichenbaum, Jaimovich y Rebelo \cite{eichenbaum2011}---, y la
+regulación europea hace lo mismo al exigir que un descuento se anuncie
+contra el precio más bajo de los 30 días previos \cite{omnibus2019}. El
+diagnóstico C de la Sección~\ref{sec:modelos} aplica esa idea para
+clasificar cada día de cada producto en oferta real, oferta fantasma o
+rebaja silenciosa. La opacidad promocional de la pregunta es la distancia
+entre el ahorro que el cartel anuncia y el que la historia del producto
+confirma; la Sección~\ref{sec:lineabase} la traduce a soles.
+
 
 \subsection{Fijación uniforme de precios en cadenas}
 
@@ -678,7 +772,8 @@ canasta de referencia, en soles, según dónde y cuándo se compre,
 
 donde $q_i$ es la cantidad física del producto $i$, y $c(i)$ y $t(i)$ son
 la cadena y el día en que se compra. La línea base fija una sola cadena
-para todos los productos y el día de hoy; el sistema elige $c(i)$ y
+para todos los productos y el día de hoy (Sección~\ref{sec:lineabase}); el
+sistema elige $c(i)$ y
 $t(i)$. Se distingue del IPC oficial, que es un índice de Laspeyres
 ponderado por gasto \cite{cpimanual2020} y que Jaworski \cite{jaworski2021}
 replicó con precios en línea: un índice mide variación relativa; este
@@ -692,7 +787,7 @@ cruce de esa lista con el panel. Como las cadenas no venden la misma
 presentación de cada producto, el cruce no se limita a encontrar el mismo
 código de barras: estandariza las presentaciones a un precio por
 kilogramo, litro o unidad, y marca en cada fila por qué vía se estableció
-que dos productos son comparables. La subsección siguiente desarrolla esa
+que dos productos son comparables. La Sección~\ref{sec:estandar} desarrolla esa
 metodología. Entran los ítems presentes en al menos cuatro de las cinco
 cadenas durante una ventana de inclusión, tras la cual la canasta se
 congela. Las reglas se fijan antes de mirar precios, y las exclusiones
@@ -726,414 +821,10 @@ se entrega con y sin Tottus. La regla de arrastre con tope de siete días de
 \texttt{analisis/precios\_faltantes.py} queda para describir la serie de
 costo de una cadena a lo largo del tiempo, no para decidir compras.
 
-\subsection{Estandarización de presentaciones}
-\label{sec:estandar}
-
-Un mismo alimento aparece en la web en presentaciones distintas: arroz en
-bolsas de 750~g, 1~kg y 5~kg; huevos en bandejas de 15 y de 30; pollo con
-y sin menudencia; choclo por unidad. Comparar el precio publicado sería
-comparar cosas distintas, y descartar lo que no coincide dejaría fuera
-buena parte de la canasta. La metodología resuelve esa tensión en tres
-pasos: lleva cada presentación a la unidad de la canasta, declara con qué
-grado de certeza dos productos de cadenas distintas son el mismo, y
-calcula el costo por separado según esa certeza.
-
-\subsubsection{Cuatro cantidades que no se mezclan}
-
-La cantidad que el hogar necesita sale solo del INEI; la tienda aporta el
-precio. Para el ítem $i$ con $g_i$ gramos per cápita por día, la
-\emph{cantidad de referencia} mensual de un hogar de $H$ personas es
-\begin{equation}
-Q_i = \frac{30\, g_i\, H}{\gamma_i},
-\label{eq:q}
-\end{equation}
-donde $\gamma_i$ son los gramos por unidad base: 1\,000 por kilogramo, y
-por litro 1\,000 en general y 920 para el aceite, un supuesto declarado.
-La \emph{presentación comercial} $s$ de la cadena $c$ tiene un contenido
-$w_s$ en esa misma unidad, y su \emph{precio normalizado} es
-\begin{equation}
-p_s = \frac{\text{precio}_s}{w_s}.
-\label{eq:p}
-\end{equation}
-La \emph{cantidad comprada} es un número entero de envases $n_s$ que cubre
-$Q_i$. Con $H=1$, $Q_i$ es per cápita. Para el arroz, por ejemplo,
-$g_i = 147{,}4$ da $Q_i = 4{,}42$~kg per cápita al mes.
-
-Los gramos del INEI son de alimento tal como se adquiere. El anexo del
-informe de pobreza explica que la canasta se construyó con la Encuesta
-Nacional de Hogares de 2010 y que a cada producto se le aplican las
-calorías \emph{adquiridas} según la tabla del CENAN \cite{inei2020pobreza};
-la nota metodológica sobre esa tabla define los productos como los
-``adquiridos por el hogar, es decir, comprados, obtenidos como parte de
-pago, por autoconsumo'' \cite{inei2017tabla}. Ninguno de los dos
-documentos dice ``peso bruto'' con esas palabras: es una inferencia, y
-por ella se usa el peso bruto ---con cáscara, hueso o menudencia--- cuando
-hay que convertir unidades.
-
-El costo base se expresa per cápita, que es la unidad de la fuente: el
-costo de una familia es $H$ veces ese monto mientras las cantidades se
-traten como continuas. $H$ solo importa al redondear a envases enteros. Se
-toma $H=4$ y se reporta la sensibilidad a 3,4 y 4,4 personas, los
-promedios nacionales de 2019 para hogares no pobres y pobres
-\cite{inei2020pobreza}.
-
-\subsubsection{Identidad entre cadenas}
-
-Cada fila de la canasta de trabajo registra la vía por la que se
-estableció que el producto de una cadena es comparable con el de las
-demás (Tabla~\ref{tab:identidades}). Las tres primeras vías garantizan el
-mismo producto físico y forman el \emph{núcleo}; las otras dos amplían la
-cobertura a cambio de comparar productos parecidos, y se reportan aparte.
-Un ítem pertenece al nivel de su fila más débil, y una vía más débil solo
-se usa cuando la más fuerte no alcanza cuatro de las cinco cadenas: el
-núcleo no se diluye si no hace falta.
-
-\begin{table}[htbp]
-\caption{Vías de identidad entre cadenas y nivel del costo}
-\label{tab:identidades}
-\centering\scriptsize\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}P{2.05cm}P{4.15cm}P{1.2cm}@{}}
-\toprule
-Identidad & Qué garantiza & Nivel \\
-\midrule
-\texttt{ean} & mismo código de barras de fabricante & núcleo \\
-\texttt{ean\_equivalente} & mismo envase con otro código, o sin código de fabricante: misma marca, gramaje y nombre & núcleo \\
-\texttt{granel} & venta por kilo de la variedad fijada en la regla & núcleo \\
-\texttt{por\_kilo} & mismo alimento con otra marca, tamaño o variedad, dentro de la tolerancia de tamaño & ampliado 1 \\
-\texttt{por\_unidad} & venta por unidad convertida con el peso por unidad del CENAN & ampliado 2 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{El gramaje pertenece al EAN.} El contenido de un envase se lee del
-nombre ---``Bolsa 5 kg'', ``Paquete 6un 32g''--- porque la plataforma casi
-nunca lo publica en un campo propio. Como el EAN identifica un envase
-concreto, su contenido es el mismo en todas las cadenas: si una lo
-declara, en el nombre o en la especificación de contenido neto, vale para
-las demás. Cuando las cadenas difieren se toma el valor de la mayoría,
-\begin{equation}
-w_e = \operatorname{moda}_c \, w_{ec},
-\end{equation}
-y la fila se marca como discrepante si alguna cadena se aleja más de 2\,\%,
-$|\ln(w_{ec}/w_e)| > 0{,}02$. El 22 de septiembre, de 8\,885 EAN presentes
-en dos o más cadenas, 8\,004 (90\,\%) tenían exactamente el mismo gramaje
-en todas; las diferencias pequeñas eran errores de catálogo, como un
-whisky de 700~ml registrado con 750~ml en una cadena. Así entra, por
-ejemplo, una galleta de soda cuyo peso solo figura en el nombre que usan
-dos de las cinco cadenas.
-
-\textbf{Equivalencia sin EAN común.} Hay dos casos. En el primero, el
-fabricante recodificó el producto y una cadena conserva el código viejo:
-la margarina Dorina de 220, 450 y 900~g tiene un EAN en Metro y otro en las
-demás cadenas, con el mismo nombre, marca y gramaje. Esos pares se
-escriben a mano, con su motivo, en una tabla de equivalencias versionada.
-En el segundo, la cadena no publica el EAN o usa un código interno: Plaza
-Vea y Vivanda dejan vacío el campo en cerca del 28\,\% de sus productos.
-Se verificó en una muestra de esos productos que ni la interfaz de
-catálogo ni la página del producto lo traen, así que no es un dato que se pueda
-recuperar. Para ese caso, una fila sin EAN de fabricante $a$ es
-equivalente al envase $b$ con EAN si comparten la marca, el gramaje difiere
-en no más de 2\,\% y los nombres son parecidos:
-\begin{equation}
-\left|\ln\frac{w_a}{w_b}\right| \le 0{,}02, \qquad
-J(A,B) = \frac{|A \cap B|}{|A \cup B|} \ge 0{,}6,
-\end{equation}
-donde $A$ y $B$ son los conjuntos de palabras del nombre sin marca,
-cantidades ni envases, y $J$ es el coeficiente de Jaccard
-\cite{jaccard1912}. Es una regla de emparejamiento determinista, en la
-línea de la teoría de enlace de registros de Fellegi y Sunter
-\cite{fellegi1969}, fijada sin mirar precios.
-
-\textbf{Granel, peso variable y combos.} Un producto vendido por kilo
-tiene $w_s = 1$ y su precio ya es por kilo. Se reconoce por ``x kg'' en el
-nombre o porque VTEX lo publica con un multiplicador de unidad distinto
-de 1 ---el peso aproximado de una pieza en el carrito--- aunque el nombre
-no diga ``kg'': así aparece el pollo con menudencia de Vivanda. Un
-paquete de porciones con un solo EAN (``Paquete 6un'') es la presentación
-normal del producto y entra; se excluyen solo los combos de productos
-distintos y las promociones de contenido extra (``+''). Un nombre con dos
-gramajes que se contradicen se aparta del cruce.
-
-\subsubsection{El efecto del tamaño y la tolerancia}
-
-El precio por kilo no es neutral al tamaño del envase: el paquete grande
-suele salir más barato por kilo. Para medirlo se agrupan los productos en
-\emph{líneas} ---la misma cadena y el mismo nombre sin cantidad ni
-envase--- y se estima, con efectos fijos por línea \cite{wooldridge2010},
-\begin{equation}
-\ln p_s = \alpha_{\ell(s)} + \beta \ln w_s + \varepsilon_s,
-\label{eq:beta}
-\end{equation}
-con $p_s$ la mediana del precio por kilo o litro del SKU en la ventana.
-En los primeros cuatro días del panel (19--22 de septiembre; 3\,892
-líneas con dos o más tamaños y 9\,439 SKU), $\hat\beta = -0{,}268$ con
-error estándar 0,005: un envase del doble cuesta $2^{-0{,}268} = 0{,}83$
-veces por kilo. La Tabla~\ref{tab:tamano} muestra el mismo efecto sin
-modelo, en pares de tamaños de una misma línea.
-
-\begin{table}[htbp]
-\caption{Diferencia de precio por kilo entre dos tamaños de la misma línea y cadena (19--22/09/2026)}
-\label{tab:tamano}
-\centering\scriptsize\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-Tamaño grande / chico & Pares & Mediana & Rango intercuartílico \\
-\midrule
-hasta 1,25 & 633 & $-2{,}2$\,\% & $-14{,}9$ a $+11{,}0$\,\% \\
-1,25 a 1,5 & 777 & $-6{,}7$\,\% & $-16{,}4$ a $+4{,}1$\,\% \\
-1,5 a 2 & 2\,023 & $-12{,}2$\,\% & $-21{,}9$ a $-3{,}3$\,\% \\
-2 a 3 & 1\,438 & $-18{,}9$\,\% & $-29{,}0$ a $-7{,}8$\,\% \\
-3 a 5 & 1\,274 & $-26{,}2$\,\% & $-39{,}3$ a $-12{,}3$\,\% \\
-más de 5 & 1\,305 & $-27{,}8$\,\% & $-49{,}3$ a $-11{,}6$\,\% \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-El Manual del IPC trata este problema como ajuste por cantidad: escalar
-el precio por la razón de contenidos funciona mientras el precio unitario
-sea constante entre tamaños; si no lo es, el resultado depende de qué
-tamaño se eligió como reemplazo, una elección arbitraria, y un envase muy
-pequeño con precio unitario muy alto no es un buen sustituto de uno grande
-\cite[cap.~6]{cpimanual2020}. De ahí la regla: el precio por kilo se
-compara solo entre tamaños lo bastante parecidos como para que el sesgo
-por tamaño no supere un umbral $\delta$. Despejando de
-\eqref{eq:beta},
-\begin{equation}
-r_{\max} = \exp\left( \left| \frac{\ln(1-\delta)}{\beta} \right| \right),
-\label{eq:rmax}
-\end{equation}
-es la mayor razón entre dos tamaños admisible. Con $\delta$ igual a 5\,\%, una
-decisión del proyecto que se justifica porque el sesgo por tamaño debe
-quedar por debajo de las diferencias entre cadenas que se quieren
-detectar, $r_{\max}$ es 1,21 con el $\hat\beta$ del panel. Como el efecto
-cambia entre productos, se usa el $\hat\beta$ del propio ítem cuando se
-estima con al menos 20 líneas: el arroz ($\hat\beta=-0{,}111$) admite
-tamaños hasta 1,59 veces distintos, el azúcar ($-0{,}191$) hasta 1,31, y el
-café instantáneo ($-0{,}312$) solo hasta 1,18. Los básicos que se venden
-por peso tienen poco descuento por tamaño; los productos de marca en
-envases pequeños, mucho. $\hat\beta$ se estima con la misma ventana que
-decide la inclusión y se congela con la canasta, de modo que el cruce la
-recibe hecha y no mira precios.
-
-La tolerancia no es una corrección: una diferencia de tamaño dentro de
-$r_{\max}$ se acepta sin ajustar el precio, y una mayor impide usar esa
-presentación para comparar. Con cuatro días de panel, corregir con un
-$\hat\beta$ estimado agregaría más error del que quita.
-
-\subsubsection{Variantes de otra especificación}
-
-Pollo con y sin menudencia, tomate italiano y redondo, o mandarina de dos
-variedades no son el mismo producto con distinto envase, sino productos
-de distinta calidad. El Manual del IPC ofrece dos vías para hacerlos
-comparables \cite[cap.~6]{cpimanual2020}. El \emph{método de
-solapamiento} toma la razón de precios entre las dos variantes cuando se
-venden a la vez en el mismo punto de venta como medida de su diferencia de
-calidad; el \emph{ajuste explícito} la valora con un dato externo, como el
-peso de la menudencia. El manual trata cambios en el tiempo; aquí la misma
-lógica se aplicaría entre cadenas, con la cadena como punto de venta y los
-días en que vende ambas variantes como período común.
-
-El factor sería la media geométrica de esa razón en la ventana,
-\begin{equation}
-\hat f = \exp\left( \frac{1}{N} \sum_{c,t} \ln
-\frac{p^{\text{sin}}_{ct}}{p^{\text{con}}_{ct}} \right),
-\end{equation}
-estimado por cadena, reducido a uno común si las cadenas no difieren, y
-validado prediciendo el precio de una variante en una cadena con el factor
-estimado en otra. Los datos no lo permiten todavía. El único par limpio
-de pollo, en Wong, pasó de una razón de 1,48 a 1,23 en cuatro días; en
-Metro el pollo sin menudencia es además de otra marca; el tomate en Plaza
-Vea se movió entre 1,39 y 1,91; y ninguna cadena vende las dos variedades
-de mandarina. Por eso no se convierte: se fija la variedad más difundida
-entre cadenas (con menudencia, italiano, Hass, de mesa) y, si no alcanza
-cuatro cadenas, se completa con otra variedad marcada como tal en el
-nivel ampliado. No se convierte cuando no hay solapamiento, cuando la
-razón es inestable, cuando las variantes tienen usos distintos o cuando
-la diferencia está mezclada con la marca; el factor se reconsidera con
-unos 30 días de solapamiento.
-
-\subsubsection{Venta por unidad}
-
-El INEI da gramos y la tienda vende huevos por bandeja o choclo por
-unidad. La conversión exige un peso por unidad con fuente, que se toma de
-las tablas auxiliares del CENAN \cite{cenan2016}, en peso bruto por la
-razón expuesta arriba: huevo de gallina mediano, 68,4~g; choclo mediano,
-255,9~g; pan francés de supermercado mediano, 62,3~g. Para $n$ unidades,
-\begin{equation}
-w_s = \frac{n\, g^{\text{unidad}}}{1\,000},
-\end{equation}
-de modo que una bandeja de 30 huevos equivale a 2,052~kg. Lo que se vende
-por atado ---apio, culantro--- no tiene un peso de referencia que
-corresponda al atado de supermercado y no se convierte; tampoco el té
-filtrante, cuyo nombre no declara gramos por sobre. Un peso declarado como
-aproximado (``250g aprox.'') se usa, marcado, si cae dentro de la
-tolerancia de tamaño.
-
-\subsubsection{Costo comparable y costo de compra}
-
-El costo se calcula de dos maneras, con usos distintos. El \emph{costo
-continuo} per cápita del ítem en la cadena, $C_{ic} = Q_i\, p_{ic}$ con
-$H=1$, usa una sola presentación por cadena, fijada por las reglas del cruce
-antes de ver precios, y es el que compara cadenas. Se agrega por nivel, sobre los ítems
-$I_{L,t}$ que tienen precio en todas las cadenas comparadas ese día,
-\begin{equation}
-C^{L}_{ct} = \sum_{i \in I_{L,t}} Q_i\, p_{ict},
-\end{equation}
-con $L$ el núcleo, el núcleo más \texttt{por\_kilo}, o todo. En el núcleo
-la diferencia entre cadenas es solo de cadena; en los niveles ampliados
-incluye también marca, tamaño o variedad, y se reporta así.
-
-El \emph{costo de compra} responde cuánto paga un hogar de $H$ personas
-que solo puede llevar envases enteros, combinando los tamaños que la
-cadena ofrece de esa misma línea y marca:
-\begin{equation}
-C^{\text{ent}}_{ic} = \min_{n_s \in \mathbb{N}} \sum_{s \in S_{ic}} n_s\,
-\text{precio}_s \quad \text{s.a.} \quad \sum_{s \in S_{ic}} n_s\, w_s \ge
-H\, Q_i .
-\end{equation}
-Es un problema de mochila no acotado en su versión de cobertura mínima
-\cite{martello1990}, que se resuelve exactamente por programación dinámica
-en gramos. Lo que se vende pesado se compra en la cantidad exacta,
-$C^{\text{ent}}_{ic} = H\, Q_i\, p_{ic}$. El redondeo cambia la
-decisión: con los precios de Metro del 22 de septiembre, un hogar de
-cuatro cubre sus 17,7~kg de arroz con tres bolsas de 5~kg y tres de 1~kg
-(S/~78,60) y no con cuatro de 5~kg (S/~85,20); y sus 288~g de margarina con
-un pote de 450~g (S/~15,20), no con dos de 220~g (S/~15,80).
-
-\subsubsection{Resultado del cruce (provisional)}
-
-Con la ventana de 19 al 22 de septiembre, entran 48 de los 62 ítems de
-Lima que se compran en un supermercado ---antes de esta metodología eran
-36---: 40 en el núcleo, 6 en el primer nivel ampliado (cancha, grated,
-mandarina, arveja partida, papa blanca y sal) y 2 en el segundo (huevos y
-choclo). Treinta ítems están en las cinco cadenas y 18 en cuatro. Nueve
-ítems usan al menos una equivalencia sin EAN común, entre ellos sémola,
-canela, ají molido, tallarín y margarina. Quedan fuera, además de los seis
-de consumo fuera del hogar, el pan francés (fresco solo en dos cadenas),
-menudencia, jurel, olluco, ajo entero, pepinillo, plátano de la isla,
-verdura picada, ají seco, apio, arveja verde, lechuga, culantro y té
-filtrante. La canasta se congela al completar 14 días; estas cifras
-prueban la maquinaria y pueden cambiar. Dos ítems quedan en revisión: la
-gelatina, porque los 5~g diarios del INEI equivalen a cinco sobres de
-30~g al mes por persona y no está claro si la fuente mide el polvo o la
-gelatina preparada, y la cancha, porque el producto que entra es cancha
-chulpi y el INEI dice maíz blanco corriente.
-
-\subsection{Modelos predictivos sobre el panel}
-
-La parte de modelamiento no predice el precio de mañana: con más del 99\,\%
-de los precios sin cambio de un día al siguiente, un modelo que predijera
-``igual que hoy'' acertaría casi siempre sin haber aprendido nada. El
-sistema tiene cuatro piezas con papeles distintos: un diagnóstico (C), dos
-modelos predictivos (A y B) y un optimizador prescriptivo que es el que
-responde la pregunta.
-
-\textbf{C: diagnóstico de la oferta.} No es un modelo entrenado sino una
-regla sobre la historia del mismo producto, en la línea de Nakamura y
-Steinsson \cite{nakamura2008}, Kehoe y Midrigan \cite{kehoe2015} y, para el
-Perú, Bueno \cite{bueno2024}. El precio habitual es la mediana de
-\texttt{price} del mismo SKU en una ventana hacia atrás de 45 días que no
-incluye el día de hoy. Hay \emph{oferta real} si el precio de hoy cae al
-menos 10\,\% frente a ese habitual y el cartel no estuvo encendido más de
-la mitad de los días de la ventana; hay \emph{oferta fantasma} si el
-cartel está encendido y no se cumple lo anterior; hay \emph{rebaja
-silenciosa} si el precio cae sin cartel. Con menos de 21 días observados
-la regla no se pronuncia. La sensibilidad (umbrales de 0, 5 y 15\,\% y la
-moda como referencia, a la Eichenbaum, Jaimovich y Rebelo) se reporta
-aparte y no reemplaza la regla. El precio con tarjeta no entra.
-
-\textbf{Modelo A: ¿en qué cadena?} Es un problema de sección transversal.
-La variable objetivo es la prima relativa de cada cadena sobre el precio
-habitual del producto, $r_{ic} = \log p_{ic} - \overline{\log p_{i\cdot}}$,
-y la cadena más barata predicha es la de menor $\hat r_{ic}$. Las variables
-explicativas son atributos del producto ---categoría, marca, marca propia
-frente a nacional, gramaje y unidad--- más la cadena, el grupo y la
-interacción cadena--categoría; nunca precios de otras cadenas, ni el del
-día, ni un nivel de precio del producto. Las líneas base son la cadena
-ganadora más frecuente y la ganadora por categoría. Se valida con grupos
-por EAN, de modo que un producto nunca está a la vez en entrenamiento y
-prueba, más un \emph{holdout} temporal con productos no vistos. La métrica
-que importa es el \emph{regret} en soles: el precio en la cadena predicha
-menos el mínimo. A solo le entrega al optimizador precios para celdas sin
-precio observado; elegir el menor precio ya visto no es A.
-
-\textbf{Modelo B: ¿compro hoy o espero?} Es un problema longitudinal. La
-unidad es el par cadena--SKU en un día $t$ en que el producto no está en
-oferta real ---si lo está, se compra hoy por regla---, y la variable
-objetivo es si entra en oferta real en los siete días siguientes y, por
-separado, en los catorce; la segunda salida es la profundidad esperada de
-esa caída. El horizonte de treinta días no se entrena: con un panel del
-orden de dos meses y las tres semanas que la regla C necesita para
-pronunciarse, no deja orígenes para validar. Las variables explicativas
-usan solo información hasta $t$: días desde la última oferta real,
-frecuencia histórica del producto y de su categoría, si el cartel de hoy
-es fantasma, la fecha de fin de la promoción que publican Metro y Wong, si
-la cadena hermana ya tiene el producto en oferta, el día de la semana y la
-quincena. Se valida con un corte temporal y un embargo de al menos $h$
-días entre entrenamiento y prueba, para que ninguna etiqueta de
-entrenamiento mire el periodo de prueba. La línea base predictiva es la
-tasa histórica de ofertas del producto o de la categoría; la de decisión,
-comprar hoy.
-
-\textbf{Optimizador.} Es la pieza prescriptiva. Minimiza el costo de hoy
-de la canasta de trabajo asignando cada producto a la cadena más barata
-entre las que lo tienen emparejado, con precio observado y disponible. Se
-paga \texttt{price}: C no cambia ese monto, pero sí la línea base, porque
-el ahorro que anuncia un tachado fantasma no se cuenta como ahorro, y ---cuando
-B exista--- la decisión de esperar, en la que un fantasma no empuja ni a
-comprar ni a esperar. Un producto agotado es infactible; no se arrastra su
-último precio como si pudiera comprarse. Como Tottus no publica stock, el
-plan se entrega con y sin Tottus.
-
-La versión principal no penaliza comprar en varias cadenas: cada producto
-va a la cadena donde está más barato, aunque eso reparta la canasta entre
-cinco supermercados. No supone que el hogar recorra cinco tiendas; da la
-cota superior de lo que se puede ahorrar eligiendo cadena, la que tendría
-quien compra en línea sin costo de envío. Para el hogar que compra en un
-solo lugar, el mismo optimizador resuelve el caso con tope de cadenas: con
-tope uno elige la mejor cadena única, que es la de menor costo
-\emph{total} de la canasta, no la que tiene más productos baratos ---una
-cadena puede ganar en la mayoría de los productos y perder en los pocos que
-pesan más en la canasta---; con tope dos, el mejor par. Un costo por
-cadena visitada (el envío, o el tiempo de ir) se agrega como escenario, y
-el problema se resuelve de forma exacta porque con cinco cadenas hay solo
-treinta y dos combinaciones posibles. Así el ahorro se descompone en lo que
-se gana eligiendo bien una sola cadena, lo que se gana repartiendo la
-compra, y lo que se gana esperando.
-
-El optimizador decide con el costo continuo per cápita de la
-Sección~\ref{sec:estandar} y lo reporta por nivel de identidad, porque
-fuera del núcleo parte del ahorro proviene de elegir otra marca o
-variedad y no otra cadena. El plan de compra del hogar se entrega además
-con el costo en envases enteros para $H$ personas, que combina los
-tamaños disponibles en cada cadena.
-
-\textbf{Técnica y evaluación.} A y B se implementan con \emph{gradient
-boosting} sobre árboles de decisión \cite{friedman2001, chen2016}: un
-conjunto de árboles pequeños en el que cada árbol corrige los errores de
-los anteriores. Se elige por la forma de los datos. Son tabulares y
-mezclan variables categóricas de muchos valores (marca, categoría,
-cadena) con numéricas (gramaje, días desde la última oferta); tienen
-faltantes que no son un error sino información ---la fecha de fin de la
-promoción solo la publican Metro y Wong, y un producto que nunca estuvo en
-oferta no tiene ``días desde la última''---, y los árboles los manejan sin
-imputar. La relación que interesa no es lineal ni aditiva: que una cadena
-sea más cara depende de la categoría, y que una oferta llegue depende de
-cuánto hace que terminó la anterior. Una regresión lineal o logística
-exigiría escribir esas interacciones a mano; los árboles las encuentran
-solos. Con decenas de miles de filas y no millones, las redes profundas no
-tienen ventaja sobre los árboles en datos tabulares
-\cite{grinsztajn2022}, y el \emph{gradient boosting} es el punto de
-referencia en ese tipo de problemas. Por último, se entrena en segundos
-y sus predicciones se pueden descomponer variable por variable, lo que
-permite explicar cada recomendación. B se
-reporta con el área bajo la curva precisión--exhaustividad
-\cite{saito2015}, calibración y el ahorro de su política en un
-\emph{backtest}; A, con el \emph{regret} frente a sus dos líneas base. La
-interpretación se hace con valores de Shapley \cite{lundberg2017}. El
-ahorro del sistema frente a la línea base se mide fuera de muestra, con los
-precios realizados, cuando el panel lo permita; ninguna comparación de un
-solo día se presenta como resultado.
+% =====================================================================
+\section{Datos y recolección}
+\label{sec:datos}
+% =====================================================================
 
 \subsection{Web scraping como método de medición}
 
@@ -1147,7 +838,14 @@ y la subsección siguiente justifica la elección con números. La segunda
 decisión es la frecuencia: diaria, porque un día no recolectado es un hueco
 permanente en la serie. La tercera es la cortesía: identificación explícita
 en el \emph{User-Agent}, un límite de una petición cada 1,5 segundos y
-respeto del \texttt{robots.txt} de cada cadena.
+respeto del \texttt{robots.txt} de cada cadena. Las interfaces que se
+leen son las que el navegador de cualquier visitante consulta sin
+autenticarse: no se usa cuenta de usuario, no se evade ningún control de
+acceso y no se recolectan datos personales, solo catálogo y precios, con
+fines académicos y no comerciales. Que una interfaz sea accesible no
+equivale a que su uso esté autorizado; los términos de uso de cada cadena
+se declaran y discuten en la versión final.
+% PENDIENTE: confirmar esta frase contra los terminos de uso de cada sitio.
 
 Una consecuencia metodológica del scraping, señalada por Cavallo
 \cite{cavallo2018sticky}, es que cada observación es un precio publicado
@@ -1261,23 +959,826 @@ Sección~\ref{sec:estandar}. Un modelo de emparejamiento aprendido sobre
 los pares con EAN es la extensión natural para incorporar marca propia y
 granel entre cadenas.
 
-\subsection{Nota metodológica: reproducibilidad de las cifras}
+\subsection{Estado del panel}
+\label{sec:panel}
+
+La recolección corre desde el 19 de septiembre de 2026 sin días perdidos,
+con unas 54\,000 filas diarias de las cinco cadenas. Sobre el panel
+acumulado, \texttt{analisis/run\_all.py} calcula tres medidas descriptivas:
+para cada par de cadenas, la fracción de observaciones EAN--día con precio
+\emph{idéntico} al céntimo (EAN de fabricante, 12 o más dígitos, sin el
+prefijo 2 de los códigos internos); la distribución de la brecha entre el
+precio máximo y el mínimo de un mismo producto, con la masa puntual en
+cero; y cuánto de la varianza del log-precio es sistemática por cadena,
+grupo o categoría y cuánto es idiosincrática.
+
+Esas tablas no se muestran en esta versión. Con los primeros días de
+panel, que cubren un solo fin de semana y casi ninguna transición entre
+días hábiles, prueban que el scraper y la maquinaria de análisis corren de
+punta a punta, pero no aportan una medida que se pueda interpretar como
+resultado. Sí se miraron, y orientaron la dirección de las hipótesis
+(Sección~\ref{sec:hipotesis}); para contrastarlas hace falta el panel
+acumulado. El
+comando las sigue generando y pegando en este documento cada vez que se
+corre, y se incorporan al texto cuando el panel alcance 14 días, la
+ventana en que se congela la canasta de trabajo. Las cifras escritas a
+mano en la Sección~\ref{sec:estandar} usan en cambio la ventana fija del
+19 al 22 de septiembre, que es la de inclusión provisional de la canasta.
+
+% Las tablas generadas quedan dentro de \iftablaspanel (ver preambulo):
+% activar con \tablaspaneltrue cuando el panel tenga 14+ dias.
+\iftablaspanel
+% >>> TABLAS GENERADAS por analisis/run_all.py -- NO EDITAR A MANO (se regeneran)
+% Generado por analisis/dispersion.py -- NO EDITAR A MANO.
+% Panel: 4 dia(s), ultimo 2026-09-22. Criterio: EAN de fabricante (12+ d\'igitos, sin prefijo 2).
+
+\begin{table}[htbp]
+\caption{Precio id\'entico entre pares de cadenas para el mismo EAN, todos los d\'ias del panel (4 d\'ias, \'ultimo 2026-09-22)}
+\label{tab:identidad}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Par & Relaci\'on & EAN-d\'ias & Id\'entico & Brecha med. \\
+\midrule
+Metro + Wong & mismo grupo & 16\,887 & 66.5\,\% & 0.0\,\% \\
+Wong + Vivanda & competidores & 7\,945 & 46.3\,\% & 1.8\,\% \\
+Plaza Vea + Tottus & competidores & 12\,318 & 45.0\,\% & 1.4\,\% \\
+Metro + Vivanda & competidores & 7\,484 & 34.2\,\% & 3.7\,\% \\
+Metro + Plaza Vea & competidores & 9\,149 & 27.3\,\% & 5.3\,\% \\
+Plaza Vea + Vivanda & mismo grupo & 15\,892 & 26.1\,\% & 2.5\,\% \\
+Wong + Plaza Vea & competidores & 9\,346 & 24.4\,\% & 6.1\,\% \\
+Metro + Tottus & competidores & 13\,287 & 18.5\,\% & 6.2\,\% \\
+Wong + Tottus & competidores & 13\,656 & 15.1\,\% & 7.1\,\% \\
+Vivanda + Tottus & competidores & 9\,882 & 14.3\,\% & 5.6\,\% \\
+\bottomrule\end{tabular}\end{table}
+
+\begin{table*}[t]
+\caption{Distribuci\'on de la brecha m\'ax/m\'in del precio por EAN-d\'ia y masa en cero, todos los d\'ias del panel}
+\label{tab:brecha}
+\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+Subconjunto & EAN-d\'ias & Masa en 0 & p10 & p25 & p50 & p75 & p90 & SD log \\
+\midrule
+$\geq 2$ cadenas & 36\,153 & 25.3\,\% & 0.0\,\% & 0.0\,\% & 5.6\,\% & 16.0\,\% & 29.6\,\% & 0.061 \\
+$\geq 3$ cadenas & 18\,824 & 11.6\,\% & 0.0\,\% & 3.5\,\% & 10.1\,\% & 21.0\,\% & 34.5\,\% & 0.071 \\
+las 5 cadenas & 3\,633 & 5.9\,\% & 2.1\,\% & 6.0\,\% & 13.4\,\% & 25.3\,\% & 40.9\,\% & 0.073 \\
+\bottomrule\end{tabular}
+\par\smallskip\raggedright\scriptsize SD log: desviaci\'on est\'andar media del log-precio dentro del EAN-d\'ia; referencia de Gorodnichenko y Talavera (2017): 0.13--0.16.
+\end{table*}
+
+\begin{table}[htbp]
+\caption{Descomposici\'on de la varianza de $\log$(precio) por efectos fijos anidados, todos los d\'ias del panel}
+\label{tab:varianza}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Orden & Nivel & $R^2$ acum. & $R^2$ incr. & \% var. intra-prod. \\
+\midrule
+A & dia & 0.00\,\% & 0.00\,\% & -- \\
+ & producto & 98.73\,\% & 98.73\,\% & -- \\
+ & categoria & 98.73\,\% & 0.00\,\% & -- \\
+ & grupo & 98.74\,\% & 0.01\,\% & 0.5\,\% \\
+ & cadena & 98.78\,\% & 0.04\,\% & 2.9\,\% \\
+ & cadena $\times$ categoria & 98.79\,\% & 0.02\,\% & 1.3\,\% \\
+\midrule
+B & dia & 0.00\,\% & 0.00\,\% & -- \\
+ & categoria & 39.63\,\% & 39.63\,\% & -- \\
+ & grupo & 39.67\,\% & 0.04\,\% & -- \\
+ & cadena & 39.92\,\% & 0.25\,\% & -- \\
+ & cadena $\times$ categoria & 40.53\,\% & 0.62\,\% & -- \\
+ & producto & 98.79\,\% & 58.26\,\% & -- \\
+\bottomrule\end{tabular}
+\par\smallskip\raggedright\scriptsize Orden A: producto (EAN$\times$d\'ia) primero; la categor\'ia queda absorbida. Orden B: sin producto hasta el final. $n$ = 103\,934 observaciones EAN$\times$cadena$\times$d\'ia.
+\end{table}
+% <<< TABLAS GENERADAS
+\fi
+
+Cada medida responde una pregunta que el sistema necesita contestar sobre
+el panel acumulado. La brecha fuera de la masa en cero es el espacio de
+ahorro que tiene el optimizador al elegir cadena: donde el precio es
+idéntico en todas, elegir no ahorra nada. La coincidencia entre cadenas
+del mismo grupo corporativo dice si comprar en la cadena hermana es, en la
+práctica, la misma decisión. La parte sistemática de la varianza es la que
+el Modelo A puede aprender a partir de atributos del producto; la
+idiosincrática, la que solo se ve observando el precio. Sobre la primera y
+la tercera se contrastan H1, H2 y H4 (Sección~\ref{sec:hipotesis}), con
+los umbrales fijados y sin cambiarlos.
+
+% =====================================================================
+\section{Metodología}
+% =====================================================================
+
+La metodología tiene cuatro partes: cómo se convierte la canasta del INEI
+en precios comparables entre cadenas, qué hacen el diagnóstico, los dos
+modelos y el optimizador, contra qué consumidor se mide el ahorro y con
+qué incertidumbre, y qué puede fallar en el calendario. El detalle de los
+casos especiales de la estandarización está en el
+Apéndice~\ref{ap:estandar}.
+
+\subsection{Estandarización de presentaciones}
+\label{sec:estandar}
+
+Un mismo alimento aparece en la web en presentaciones distintas: arroz en
+bolsas de 750~g, 1~kg y 5~kg; huevos en bandejas de 15 y de 30; pollo con
+y sin menudencia; choclo por unidad. Comparar el precio publicado sería
+comparar cosas distintas, y descartar lo que no coincide dejaría fuera
+buena parte de la canasta. La metodología resuelve esa tensión en tres
+pasos: lleva cada presentación a la unidad de la canasta, declara con qué
+grado de certeza dos productos de cadenas distintas son el mismo, y
+calcula el costo por separado según esa certeza.
+
+\subsubsection{Cuatro cantidades que no se mezclan}
+
+La cantidad que el hogar necesita sale solo del INEI; la tienda aporta el
+precio. Para el ítem $i$ con $g_i$ gramos per cápita por día, la
+\emph{cantidad de referencia} mensual de un hogar de $H$ personas es
+\begin{equation}
+Q_i = \frac{30\, g_i\, H}{\gamma_i},
+\label{eq:q}
+\end{equation}
+donde $\gamma_i$ son los gramos por unidad base: 1\,000 por kilogramo, y
+por litro 1\,000 en general y 920 para el aceite, un supuesto declarado.
+La \emph{presentación comercial} $s$ de la cadena $c$ tiene un contenido
+$w_s$ en esa misma unidad, y su \emph{precio normalizado} es
+\begin{equation}
+p_s = \frac{\text{precio}_s}{w_s}.
+\label{eq:p}
+\end{equation}
+La \emph{cantidad comprada} es un número entero de envases $n_s$ que cubre
+$Q_i$. Con $H=1$, $Q_i$ es per cápita. Para el arroz, por ejemplo,
+$g_i = 147{,}4$ da $Q_i = 4{,}42$~kg per cápita al mes.
+
+
+Los gramos del INEI son de alimento tal como se adquiere, por lo que se
+usa el peso bruto cuando hay que convertir unidades; la fuente de esa
+inferencia está en el Apéndice~\ref{ap:estandar}.
+
+El costo base se expresa per cápita, que es la unidad de la fuente: el
+costo de una familia es $H$ veces ese monto mientras las cantidades se
+traten como continuas. $H$ solo importa al redondear a envases enteros. Se
+toma $H=4$ y se reporta la sensibilidad a 3,4 y 4,4 personas, los
+promedios nacionales de 2019 para hogares no pobres y pobres
+\cite{inei2020pobreza}.
+
+\subsubsection{Identidad entre cadenas}
+
+Cada fila de la canasta de trabajo registra la vía por la que se
+estableció que el producto de una cadena es comparable con el de las
+demás (Tabla~\ref{tab:identidades}). Las tres primeras vías garantizan el
+mismo producto físico y forman el \emph{núcleo}; las otras dos amplían la
+cobertura a cambio de comparar productos parecidos, y se reportan aparte.
+Un ítem pertenece al nivel de su fila más débil, y una vía más débil solo
+se usa cuando la más fuerte no alcanza cuatro de las cinco cadenas: el
+núcleo no se diluye si no hace falta.
+
+\begin{table}[htbp]
+\caption{Vías de identidad entre cadenas y nivel del costo}
+\label{tab:identidades}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}P{2.05cm}P{4.15cm}P{1.2cm}@{}}
+\toprule
+Identidad & Qué garantiza & Nivel \\
+\midrule
+\texttt{ean} & mismo código de barras de fabricante & núcleo \\
+\texttt{ean\_equivalente} & mismo envase con otro código, o sin código de fabricante: misma marca, gramaje y nombre & núcleo \\
+\texttt{granel} & venta por kilo de la variedad fijada en la regla & núcleo \\
+\texttt{por\_kilo} & mismo alimento con otra marca, tamaño o variedad, dentro de la tolerancia de tamaño & ampliado 1 \\
+\texttt{por\_unidad} & venta por unidad convertida con el peso por unidad del CENAN & ampliado 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{El gramaje pertenece al EAN.} El contenido de un envase se lee del
+nombre ---``Bolsa 5 kg'', ``Paquete 6un 32g''--- porque la plataforma casi
+nunca lo publica en un campo propio. Como el EAN identifica un envase
+concreto, su contenido es el mismo en todas las cadenas: si una lo
+declara, en el nombre o en la especificación de contenido neto, vale para
+las demás. Cuando las cadenas difieren se toma el valor de la mayoría,
+\begin{equation}
+w_e = \operatorname{moda}_c \, w_{ec},
+\end{equation}
+y la fila se marca como discrepante si alguna cadena se aleja más de 2\,\%,
+$|\ln(w_{ec}/w_e)| > 0{,}02$. El 22 de septiembre, de 8\,885 EAN presentes
+en dos o más cadenas, 8\,004 (90\,\%) tenían exactamente el mismo gramaje
+en todas; las diferencias pequeñas eran errores de catálogo, como un
+whisky de 700~ml registrado con 750~ml en una cadena. Así entra, por
+ejemplo, una galleta de soda cuyo peso solo figura en el nombre que usan
+dos de las cinco cadenas.
+
+\textbf{Equivalencia sin EAN común.} Hay dos casos. En el primero, el
+fabricante recodificó el producto y una cadena conserva el código viejo:
+la margarina Dorina de 220, 450 y 900~g tiene un EAN en Metro y otro en las
+demás cadenas, con el mismo nombre, marca y gramaje. Esos pares se
+escriben a mano, con su motivo, en una tabla de equivalencias versionada.
+En el segundo, la cadena no publica el EAN o usa un código interno: Plaza
+Vea y Vivanda dejan vacío el campo en cerca del 28\,\% de sus productos.
+Se verificó en una muestra de esos productos que ni la interfaz de
+catálogo ni la página del producto lo traen, así que no es un dato que se pueda
+recuperar. Para ese caso, una fila sin EAN de fabricante $a$ es
+equivalente al envase $b$ con EAN si comparten la marca, el gramaje difiere
+en no más de 2\,\% y los nombres son parecidos:
+\begin{equation}
+\left|\ln\frac{w_a}{w_b}\right| \le 0{,}02, \qquad
+J(A,B) = \frac{|A \cap B|}{|A \cup B|} \ge 0{,}6,
+\end{equation}
+donde $A$ y $B$ son los conjuntos de palabras del nombre sin marca,
+cantidades ni envases, y $J$ es el coeficiente de Jaccard
+\cite{jaccard1912}. Es una regla de emparejamiento determinista, en la
+línea de la teoría de enlace de registros de Fellegi y Sunter
+\cite{fellegi1969}, fijada sin mirar precios.
+
+Los productos a granel, de peso variable y los paquetes de porciones
+siguen reglas propias, descritas en el Apéndice~\ref{ap:estandar}.
+
+\subsubsection{El efecto del tamaño y la tolerancia}
+
+El precio por kilo no es neutral al tamaño del envase: el paquete grande
+suele salir más barato por kilo. Para medirlo se agrupan los productos en
+\emph{líneas} ---la misma cadena y el mismo nombre sin cantidad ni
+envase--- y se estima, con efectos fijos por línea \cite{wooldridge2010},
+\begin{equation}
+\ln p_s = \alpha_{\ell(s)} + \beta \ln w_s + \varepsilon_s,
+\label{eq:beta}
+\end{equation}
+con $p_s$ la mediana del precio por kilo o litro del SKU en la ventana.
+En los primeros cuatro días del panel (19--22 de septiembre; 3\,892
+líneas con dos o más tamaños y 9\,439 SKU), $\hat\beta = -0{,}268$ con
+error estándar 0,005: un envase del doble cuesta $2^{-0{,}268} = 0{,}83$
+veces por kilo. La Tabla~\ref{tab:tamano} muestra el mismo efecto sin
+modelo, en pares de tamaños de una misma línea.
+
+\begin{table}[htbp]
+\caption{Diferencia de precio por kilo entre dos tamaños de la misma línea y cadena (19--22/09/2026)}
+\label{tab:tamano}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Tamaño grande / chico & Pares & Mediana & Rango intercuartílico \\
+\midrule
+hasta 1,25 & 633 & $-2{,}2$\,\% & $-14{,}9$ a $+11{,}0$\,\% \\
+1,25 a 1,5 & 777 & $-6{,}7$\,\% & $-16{,}4$ a $+4{,}1$\,\% \\
+1,5 a 2 & 2\,023 & $-12{,}2$\,\% & $-21{,}9$ a $-3{,}3$\,\% \\
+2 a 3 & 1\,438 & $-18{,}9$\,\% & $-29{,}0$ a $-7{,}8$\,\% \\
+3 a 5 & 1\,274 & $-26{,}2$\,\% & $-39{,}3$ a $-12{,}3$\,\% \\
+más de 5 & 1\,305 & $-27{,}8$\,\% & $-49{,}3$ a $-11{,}6$\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El Manual del IPC trata este problema como ajuste por cantidad: escalar
+el precio por la razón de contenidos funciona mientras el precio unitario
+sea constante entre tamaños; si no lo es, el resultado depende de qué
+tamaño se eligió como reemplazo, una elección arbitraria, y un envase muy
+pequeño con precio unitario muy alto no es un buen sustituto de uno grande
+\cite[cap.~6]{cpimanual2020}. De ahí la regla: el precio por kilo se
+compara solo entre tamaños lo bastante parecidos como para que el sesgo
+por tamaño no supere un umbral $\delta$. Despejando de
+\eqref{eq:beta},
+\begin{equation}
+r_{\max} = \exp\left( \left| \frac{\ln(1-\delta)}{\beta} \right| \right),
+\label{eq:rmax}
+\end{equation}
+es la mayor razón entre dos tamaños admisible. Con $\delta$ igual a 5\,\%, una
+decisión del proyecto que se justifica porque el sesgo por tamaño debe
+quedar por debajo de las diferencias entre cadenas que se quieren
+detectar, $r_{\max}$ es 1,21 con el $\hat\beta$ del panel. Como el efecto
+cambia entre productos, se usa el $\hat\beta$ del propio ítem cuando se
+estima con al menos 20 líneas: el arroz ($\hat\beta=-0{,}111$) admite
+tamaños hasta 1,59 veces distintos, el azúcar ($-0{,}191$) hasta 1,31, y el
+café instantáneo ($-0{,}312$) solo hasta 1,18. Los básicos que se venden
+por peso tienen poco descuento por tamaño; los productos de marca en
+envases pequeños, mucho. $\hat\beta$ se estima con la misma ventana que
+decide la inclusión y se congela con la canasta, de modo que el cruce la
+recibe hecha y no mira precios.
+
+La tolerancia no es una corrección: una diferencia de tamaño dentro de
+$r_{\max}$ se acepta sin ajustar el precio, y una mayor impide usar esa
+presentación para comparar. Con cuatro días de panel, corregir con un
+$\hat\beta$ estimado agregaría más error del que quita.
+
+\subsubsection{Variantes y venta por unidad}
+
+Dos casos no se resuelven con el precio por kilo. Las variantes de otra
+especificación ---pollo con y sin menudencia, tomate italiano y redondo---
+no se convierten entre sí: se fija la variedad más difundida entre
+cadenas, y la otra solo completa cobertura en el nivel ampliado. Lo que se
+vende por unidad ---huevos, choclo--- se lleva a kilos con el peso por
+unidad del CENAN \cite{cenan2016}. Los criterios, el factor de
+solapamiento que se descartó y sus razones están en el
+Apéndice~\ref{ap:estandar}.
+
+\subsubsection{Costo comparable y costo de compra}
+
+El costo se calcula de dos maneras, con usos distintos. El \emph{costo
+continuo} per cápita del ítem en la cadena, $C_{ic} = Q_i\, p_{ic}$ con
+$H=1$, usa una sola presentación por cadena, fijada por las reglas del cruce
+antes de ver precios, y es el que compara cadenas. Se agrega por nivel, sobre los ítems
+$I_{L,t}$ que tienen precio en todas las cadenas comparadas ese día,
+\begin{equation}
+C^{L}_{ct} = \sum_{i \in I_{L,t}} Q_i\, p_{ict},
+\end{equation}
+con $L$ el núcleo, el núcleo más \texttt{por\_kilo}, o todo. En el núcleo
+la diferencia entre cadenas es solo de cadena; en los niveles ampliados
+incluye también marca, tamaño o variedad, y se reporta así.
+
+El \emph{costo de compra} responde cuánto paga un hogar de $H$ personas
+que solo puede llevar envases enteros, combinando los tamaños que la
+cadena ofrece de esa misma línea y marca:
+\begin{equation}
+C^{\text{ent}}_{ic} = \min_{n_s \in \mathbb{N}} \sum_{s \in S_{ic}} n_s\,
+\text{precio}_s \quad \text{s.a.} \quad \sum_{s \in S_{ic}} n_s\, w_s \ge
+H\, Q_i .
+\end{equation}
+Es un problema de mochila no acotado en su versión de cobertura mínima
+\cite{martello1990}, que se resuelve exactamente por programación dinámica
+en gramos. Lo que se vende pesado se compra en la cantidad exacta,
+$C^{\text{ent}}_{ic} = H\, Q_i\, p_{ic}$. El redondeo cambia la
+decisión: con los precios de Metro del 22 de septiembre, un hogar de
+cuatro cubre sus 17,7~kg de arroz con tres bolsas de 5~kg y tres de 1~kg
+(S/~78,60) y no con cuatro de 5~kg (S/~85,20); y sus 288~g de margarina con
+un pote de 450~g (S/~15,20), no con dos de 220~g (S/~15,80).
+
+\subsubsection{Resultado del cruce (provisional)}
+
+Con la ventana de 19 al 22 de septiembre, entran 48 de los 62 ítems de
+Lima que se compran en un supermercado ---antes de esta metodología eran
+36---: 40 en el núcleo, 6 en el primer nivel ampliado (cancha, grated,
+mandarina, arveja partida, papa blanca y sal) y 2 en el segundo (huevos y
+choclo). Treinta ítems están en las cinco cadenas y 18 en cuatro. Nueve
+ítems usan al menos una equivalencia sin EAN común, entre ellos sémola,
+canela, ají molido, tallarín y margarina. Quedan fuera, además de los seis
+de consumo fuera del hogar, el pan francés (fresco solo en dos cadenas),
+menudencia, jurel, olluco, ajo entero, pepinillo, plátano de la isla,
+verdura picada, ají seco, apio, arveja verde, lechuga, culantro y té
+filtrante. La canasta se congela al completar 14 días; estas cifras
+prueban la maquinaria y pueden cambiar. Dos ítems quedan en revisión: la
+gelatina, porque los 5~g diarios del INEI equivalen a cinco sobres de
+30~g al mes por persona y no está claro si la fuente mide el polvo o la
+gelatina preparada, y la cancha, porque el producto que entra es cancha
+chulpi y el INEI dice maíz blanco corriente.
+
+
+\subsection{Diagnóstico, modelos y optimizador}
+\label{sec:modelos}
+
+La parte de modelamiento no predice el precio de mañana: con más del 99\,\%
+de los precios sin cambio de un día al siguiente, un modelo que predijera
+``igual que hoy'' acertaría casi siempre sin haber aprendido nada. El
+sistema tiene cuatro piezas con papeles distintos: un diagnóstico (C), dos
+modelos predictivos (A y B) y un optimizador prescriptivo que es el que
+responde la pregunta.
+
+\textbf{C: diagnóstico de la oferta.} No es un modelo entrenado sino una
+regla sobre la historia del mismo producto, en la línea de Nakamura y
+Steinsson \cite{nakamura2008}, Kehoe y Midrigan \cite{kehoe2015} y, para el
+Perú, Bueno \cite{bueno2024}. El precio habitual es la mediana de
+\texttt{price} del mismo SKU en una ventana hacia atrás de 45 días que no
+incluye el día de hoy. Hay \emph{oferta real} si el precio de hoy cae al
+menos 10\,\% frente a ese habitual y el cartel no estuvo encendido más de
+la mitad de los días de la ventana; hay \emph{oferta fantasma} si el
+cartel está encendido y no se cumple lo anterior; hay \emph{rebaja
+silenciosa} si el precio cae sin cartel. Con menos de 21 días observados
+la regla no se pronuncia. La sensibilidad ---umbrales de 0, 5 y 15\,\%, la
+moda como referencia, a la manera de Eichenbaum, Jaimovich y Rebelo
+\cite{eichenbaum2011}, y el mínimo de los 30 días previos de la Directiva
+Ómnibus \cite{omnibus2019}--- se reporta aparte y no reemplaza la regla. El precio con tarjeta no entra.
+
+\textbf{Modelo A: ¿en qué cadena?} Es un problema de sección transversal.
+Para el producto $i$ y la cadena $c$, el precio habitual $\tilde p_{ic}$ es
+la mediana de \texttt{price} en la ventana de entrenamiento, la misma
+definición de habitual que usa C, y la variable objetivo es la prima
+relativa de la cadena,
+\begin{equation}
+r_{ic} = \ln \tilde p_{ic} - \frac{1}{|C_i|} \sum_{c' \in C_i} \ln \tilde p_{ic'},
+\end{equation}
+donde $C_i$ son las cadenas que venden el producto: la referencia es la
+media de los log-precios habituales, el logaritmo de la media geométrica
+entre cadenas. La cadena más barata predicha es la de menor $\hat r_{ic}$.
+Las variables explicativas son atributos del producto ---categoría, marca,
+marca propia frente a nacional, gramaje y unidad--- más la cadena, el grupo
+y la interacción cadena--categoría; nunca precios de otras cadenas, ni el
+del día, ni un nivel de precio del producto. Las líneas base son la cadena
+ganadora más frecuente y la ganadora por categoría. Se valida con grupos
+por EAN, de modo que un producto nunca está a la vez en entrenamiento y
+prueba, más un \emph{holdout} temporal con productos no vistos. La métrica
+que importa es el \emph{regret} en soles: el precio en la cadena predicha
+menos el mínimo.
+
+A solo le entrega al optimizador precios para celdas sin precio observado;
+elegir el menor precio ya visto no es A. Una celda así es un producto que
+la cadena tiene en su catálogo ---apareció en días anteriores--- y no
+declara agotado, pero que ese día no trae precio: la categoría falló en la
+recolección, el producto salió del listado, o la cadena lo publica sin EAN
+---Plaza Vea y Vivanda lo hacen en cerca del 28\,\% de sus productos--- y
+la equivalencia de la Sección~\ref{sec:estandar} no lo emparejó ese día. El
+precio predicho compone la prima estimada con los precios observados del
+mismo producto en las otras cadenas. Si estas celdas resultan pocas, el
+aporte de A al ahorro será marginal, y así se reportará.
+
+A tiene además un techo que conviene anticipar, y que se deriva de H4. Si
+grupo, cadena y cadena $\times$ categoría explican una fracción pequeña de
+la varianza intra-producto, como H4 espera, los atributos dicen poco sobre
+qué cadena es más barata para un producto concreto, y A difícilmente superará por mucho a la ganadora por categoría.
+Ese resultado no sería un fracaso del modelo sino un hallazgo: la prima de
+cada cadena sería propia de cada producto, y la única manera de conocerla
+sería observar el precio, que es lo que hace el panel.
+
+\textbf{Modelo B: ¿compro hoy o espero?} Es un problema longitudinal. La
+unidad es el par cadena--SKU en un día $t$ en que el producto no está en
+oferta real ---si lo está, se compra hoy por regla---, y la variable
+objetivo es si entra en oferta real en los siete días siguientes y, por
+separado, en los catorce; la segunda salida es la profundidad esperada de
+esa caída. El horizonte de treinta días no se entrena: con un panel del
+orden de dos meses y las tres semanas que la regla C necesita para
+pronunciarse, no deja orígenes para validar. Las variables explicativas
+usan solo información hasta $t$: días desde la última oferta real,
+frecuencia histórica del producto y de su categoría, si el cartel de hoy
+es fantasma, la fecha de fin de la promoción que publican Metro y Wong, si
+la cadena hermana ya tiene el producto en oferta, el día de la semana y la
+quincena. Se valida con un corte temporal y un embargo de al menos $h$
+días entre entrenamiento y prueba, para que ninguna etiqueta de
+entrenamiento mire el periodo de prueba. La línea base predictiva es la
+tasa histórica de ofertas del producto o de la categoría; la de decisión,
+comprar hoy.
+
+\textbf{Optimizador.} Es la pieza prescriptiva. Minimiza el costo de hoy
+de la canasta de trabajo asignando cada producto a la cadena más barata
+entre las que lo tienen emparejado, con precio observado y disponible. Se
+paga \texttt{price}. C no cambia ese monto: cambia las decisiones ---cuándo
+comprar--- y la cuenta de cuánto se ahorró (Sección~\ref{sec:lineabase}).
+Cuando B exista, un fantasma no empuja ni a comprar ni a esperar. Un producto agotado es infactible; no se arrastra su
+último precio como si pudiera comprarse. Como Tottus no publica stock, el
+plan se entrega con y sin Tottus.
+
+La versión principal no penaliza comprar en varias cadenas: cada producto
+va a la cadena donde está más barato, aunque eso reparta la canasta entre
+cinco supermercados. No supone que el hogar recorra cinco tiendas; da la
+cota superior de lo que se puede ahorrar eligiendo cadena, la que tendría
+quien compra en línea sin costo de envío. Para el hogar que compra en un
+solo lugar, el mismo optimizador resuelve el caso con tope de cadenas: con
+tope uno elige la mejor cadena única, que es la de menor costo
+\emph{total} de la canasta, no la que tiene más productos baratos ---una
+cadena puede ganar en la mayoría de los productos y perder en los pocos que
+pesan más en la canasta---; con tope dos, el mejor par. Un costo por
+cadena visitada (el envío, o el tiempo de ir) se agrega como escenario, y
+el problema se resuelve de forma exacta porque con cinco cadenas hay solo
+treinta y dos combinaciones posibles. Así el ahorro se descompone en lo que
+se gana eligiendo bien una sola cadena, lo que se gana repartiendo la
+compra, y lo que se gana esperando.
+
+El optimizador decide con el costo continuo per cápita de la
+Sección~\ref{sec:estandar} y lo reporta por nivel de identidad, porque
+fuera del núcleo parte del ahorro proviene de elegir otra marca o
+variedad y no otra cadena. El plan de compra del hogar se entrega además
+con el costo en envases enteros para $H$ personas, que combina los
+tamaños disponibles en cada cadena.
+
+\textbf{Técnica y evaluación.} A y B se implementan con \emph{gradient
+boosting} sobre árboles de decisión \cite{friedman2001, chen2016}: un
+conjunto de árboles pequeños en el que cada árbol corrige los errores de
+los anteriores. Se elige por la forma de los datos. Son tabulares y
+mezclan variables categóricas de muchos valores (marca, categoría,
+cadena) con numéricas (gramaje, días desde la última oferta); tienen
+faltantes que no son un error sino información ---la fecha de fin de la
+promoción solo la publican Metro y Wong, y un producto que nunca estuvo en
+oferta no tiene ``días desde la última''---, y los árboles los manejan sin
+imputar. La relación que interesa no es lineal ni aditiva: que una cadena
+sea más cara depende de la categoría, y que una oferta llegue depende de
+cuánto hace que terminó la anterior. Una regresión lineal o logística
+exigiría escribir esas interacciones a mano; los árboles las encuentran
+solos. Con decenas de miles de filas y no millones, las redes profundas no
+tienen ventaja sobre los árboles en datos tabulares
+\cite{grinsztajn2022}, y el \emph{gradient boosting} es el punto de
+referencia en ese tipo de problemas. Por último, se entrena en segundos
+y sus predicciones se pueden descomponer variable por variable, lo que
+permite explicar cada recomendación. B se
+reporta con el área bajo la curva precisión--exhaustividad
+\cite{saito2015}, calibración y el ahorro de su política en un
+\emph{backtest}; A, con el \emph{regret} frente a sus dos líneas base. La
+interpretación se hace con valores de Shapley \cite{lundberg2017}. El
+ahorro del sistema frente a la línea base se mide fuera de muestra, con los
+precios realizados, como se describe a continuación; ninguna comparación de
+un solo día se presenta como resultado.
+
+\subsection{Línea base, consumidor ingenuo y medida del ahorro}
+\label{sec:lineabase}
+
+La variable de resultado es el costo de la canasta de trabajo en soles. El
+ahorro se mide contra un consumidor ingenuo cuyo comportamiento se fija
+por escrito ---y en el código del optimizador--- antes de calcular ningún
+ahorro. Toma las tres decisiones de la Introducción con lo que ve en la
+web de una cadena a la vez.
+
+\textbf{Dónde.} Compra la canasta entera en una sola cadena, y la elige
+por el cartel. Son elegibles las cadenas que ese día tienen con precio y
+disponibles al menos el 90\,\% de los ítems de la canasta de trabajo; el
+umbral admite que falten unos pocos ítems, como le ocurre a quien hace
+toda su compra en un solo lugar, sin dejar entrar a una cadena donde el
+hogar no encontraría una parte apreciable de lo que busca. Si ninguna
+cadena llega al umbral, son elegibles las que tienen más ítems. Entre las
+elegibles, va a la que le promete más ahorro,
+\begin{equation}
+c^{0}_t = \arg\max_{c}\; A^{\text{anun}}_{ct}, \qquad
+A^{\text{anun}}_{ct} = \sum_{i \in \mathcal{O}_{ct}} Q_i \left( p^{\text{reg}}_{ict} - p_{ict} \right),
+\label{eq:anunciado}
+\end{equation}
+donde $\mathcal{O}_{ct}$ son los ítems con el cartel encendido en la cadena
+$c$ el día $t$, y $p^{\text{reg}}$ y $p$ son el precio tachado y el de venta
+por kilo. Es quien entra a la tienda que más ahorro anuncia. Ponderar el
+ahorro anunciado por $Q_i$ es una estilización del comportamiento, no una
+descripción literal: supone que el cartel de un ítem pesa en la decisión
+en proporción a cuánto de ese ítem compra el hogar, no que el consumidor
+haga esa suma.
+
+\textbf{Cuándo.} Compra hoy. Para medir el valor de esperar, el consumidor
+y el sistema tienen la misma ventana de compra de $h = 7$ días por ítem,
+la de una compra semanal: el ingenuo compra el primer día.
+
+\textbf{El cartel.} Toma el ahorro anunciado $A^{\text{anun}}$ como real.
+
+Como el ahorro reportado depende de qué cadena se toma como base, se
+calcula además frente a cada una de las cinco cadenas por separado ---el
+consumidor fiel a una cadena--- y frente a su promedio, que equivale a un
+consumidor fiel a una cadena elegida al azar. El rango entre esas cinco
+cifras muestra cuánto del resultado se debe a la elección de la base. Toda
+comparación se hace sobre el conjunto común de ítems $I^{*}_t$ definido
+más abajo.
+
+\textbf{La opacidad en soles.} Creerle al cartel no cambia el precio que se
+paga, así que su costo no aparece en la compra de hoy: aparece en la
+brecha entre lo prometido y lo confirmado, y en las decisiones que el
+cartel induce. Se mide de dos maneras. La primera es descriptiva: el
+ahorro anunciado de \eqref{eq:anunciado} se parte con C en el anunciado
+sobre ofertas reales, el anunciado sobre ofertas fantasma y el no
+verificable (productos con menos de 21 días observados), y la opacidad de
+la canasta es la parte fantasma, en soles, junto con el ahorro que C
+confirma,
+\begin{equation}
+A^{\text{conf}}_{ct} = \sum_{i \in \mathcal{R}_{ct}} Q_i \left( \tilde p_{ict} - p_{ict} \right),
+\end{equation}
+con $\mathcal{R}_{ct}$ los ítems en oferta real y $\tilde p$ el precio
+habitual. La segunda mide el costo de decidir con el cartel. Dentro de la
+ventana de $h$ días, un consumidor que cree el cartel compra cada ítem el
+primer día en que lo ve en oferta, y el último si no lo ve; el mismo
+consumidor con C compra el primer día de oferta real, y el último si no la
+hay. Los dos compran en la misma cadena, de modo que la diferencia de su
+costo realizado,
+\begin{equation}
+\Delta^{\text{op}} = C(\text{cartel}) - C(\text{C}),
+\end{equation}
+se debe solo a creerle al cartel: un fantasma hace comprar antes y perder
+la rebaja real que llega después dentro de la ventana. Hay, así, dos
+consumidores ingenuos que no deben confundirse: el de $C^{0}$ compra el
+primer día de la ventana, haya o no cartel, y es la línea base del
+ahorro; el de $\Delta^{\text{op}}$ espera hasta el primer día con cartel, y
+solo sirve para aislar el costo de creerle. En la elección de
+cadena, la diferencia entre la cadena elegida por el cartel y la mejor
+cadena única mezcla la opacidad con la falta de comparación, y se reporta
+como tal.
+
+\textbf{Descomposición del ahorro.} Los cuatro costos se calculan sobre un
+mismo conjunto de ítems, $I^{*}_t$: los que la cadena base $c^{0}_t$ tiene
+ese día con precio y disponibles, y que además están disponibles en al
+menos otra cadena. Los ítems que solo vende la cadena base no admiten
+elección y solo diluirían el porcentaje; se reportan aparte. Sobre
+$I^{*}_t$, $C^{0}$ es el costo del consumidor ingenuo en $c^{0}_t$;
+$C^{(1)}$, el de la mejor cadena única entre las que venden todos los ítems
+de $I^{*}_t$, entre las que siempre está $c^{0}_t$; $C^{(5)}$, el de
+comprar cada ítem en la cadena más barata que lo vende ese día, comprando
+hoy; y $C^{\text{sis}}$, el del sistema completo, que además decide cuándo
+comprar dentro de la ventana. Como los cuatro comparten ítems, la suma
+siguiente es una identidad,
+\begin{equation}
+C^{0} - C^{\text{sis}} =
+\underbrace{C^{0} - C^{(1)}}_{\text{elegir cadena}} +
+\underbrace{C^{(1)} - C^{(5)}}_{\text{repartir}} +
+\underbrace{C^{(5)} - C^{\text{sis}}}_{\text{esperar}},
+\end{equation}
+cada término se expresa en soles y como porcentaje de $C^{0}$. Los dos
+primeros se deciden con los precios observados de hoy; el tercero, con la
+predicción de B, y se evalúa con los precios que efectivamente rigieron en
+los días siguientes. La descomposición depende del orden: el valor de
+esperar se mide después de repartir, es decir, desde el precio de la
+cadena más barata de cada ítem, y medido desde la cadena base sería otro
+número. Se fija este orden porque sigue la secuencia de decisiones del
+optimizador ---primero dónde, después cuándo---. Se reporta por nivel de
+identidad, con y sin Tottus.
+
+\textbf{Incertidumbre.} Los términos ``elegir cadena'' y ``repartir'' no
+dependen de B: se calculan para cada día del panel desde que se congela la
+canasta (hacia el 3 de octubre) hasta el final. Solo ``esperar'' ---y con
+él $C^{\text{sis}}$--- se restringe al período de prueba de B. La media de
+cada término se reporta con un intervalo de confianza del 95\,\% por
+\emph{bootstrap} de bloques móviles sobre días, con bloques de siete días
+para conservar la dependencia semanal de las promociones
+\cite{kunsch1989}, y con un segundo intervalo que remuestrea los ítems de
+la canasta \cite{efron1993}, que muestra cuánto depende la cifra de qué
+productos la componen. En el período de prueba, que dura del orden de una
+a dos semanas, el \emph{bootstrap} de bloques dispone de muy pocos bloques
+y su intervalo es poco informativo; por eso cada intervalo se publica
+junto con el número de bloques que lo sostiene, y para ``esperar'' el
+intervalo por ítems se reporta como complemento, sabiendo que mide la
+variabilidad por composición de la canasta y no la temporal. Ningún
+porcentaje de ahorro se presenta sin su intervalo.
+
+\subsection{Calendario, plan alternativo y limitaciones}
+\label{sec:calendario}
+
+El calendario es de diseño y los módulos de entrenamiento se niegan a
+correr antes de tiempo. Con el panel iniciado el 19 de septiembre, la
+canasta de trabajo se congela tras 14 días (hacia el 3 de octubre), junto
+con la tolerancia de tamaño; el diagnóstico C se pronuncia cuando un
+producto tiene 21 días observados (hacia el 10 de octubre), y antes de esa
+fecha no hay etiquetas de oferta real con las que entrenar B; el Modelo A
+necesita unos 60 días (hacia el 18 de noviembre); y el Modelo B, después de
+los 21 días de C, necesita orígenes para entrenar, un embargo igual al
+horizonte y una semana de prueba, lo que da unos 56 días para el horizonte
+de siete días (hacia el 14 de noviembre) y unos 70 para el de catorce
+(hacia el 28 de noviembre). Es un calendario justo para una entrega en
+diciembre.
+
+Por eso se declara el plan alternativo. Si B no alcanza a validarse ---por
+falta de días o porque no supera a su línea base, la tasa histórica de
+ofertas del producto---, el componente ``esperar'' se mide con la regla que
+solo usa C: comprar el primer día de oferta real dentro de la ventana, y el
+último si no la hay. Esa regla no necesita entrenamiento, está disponible
+desde que C se pronuncia y es la misma que mide $\Delta^{\text{op}}$; el
+resultado de B se reporta entonces como negativo o incompleto, no se
+omite. Si el horizonte de catorce días no llega, se reporta solo el de
+siete. Si A no se entrena a tiempo, el optimizador trabaja solo con celdas
+observadas, lo que por el techo anticipado cambia poco. El calendario
+también limita la potencia: el componente ``esperar'' se evalúa sobre un
+período de prueba corto, con pocos bloques de siete días, de modo que su
+estimación será la más imprecisa de las tres y sus conclusiones se
+presentarán como tentativas; ``elegir cadena'' y ``repartir'', medidos
+sobre unas ocho semanas de panel, deberían tener intervalos más
+estrechos.
+
+\textbf{Estacionalidad.} Las últimas semanas del panel, que son el período
+de prueba, coinciden con el Black Friday (27 de noviembre de 2026) y el
+inicio de la campaña navideña. Las promociones de esas semanas no son
+representativas del resto del año, y B se entrenaría con el régimen de
+octubre para predecir uno distinto. Se tratará de tres maneras: los días de
+campaña se marcan como variable de B; el ahorro se reporta por separado
+para las semanas previas a la campaña y para las de campaña; y la
+conclusión principal se apoya en las primeras, con las segundas como
+prueba de estrés. Aun así, el panel cubre tres meses de un solo año, y el
+ahorro medido no debe extrapolarse a otras estaciones.
+
+Las demás limitaciones ya declaradas se mantienen: el panel observa solo el
+canal supermercado y no el mercado de abastos, el descuento duro ni el
+precio con tarjeta; la canasta del INEI refleja hábitos de 2010; y Tottus
+no publica disponibilidad.
+
+% =====================================================================
+\appendices
+% =====================================================================
+
+\section{Detalle de la estandarización}
+\label{ap:estandar}
+
+\subsection{Peso bruto}
+
+Los gramos del INEI son de alimento tal como se adquiere. El anexo del
+informe de pobreza explica que la canasta se construyó con la Encuesta
+Nacional de Hogares de 2010 y que a cada producto se le aplican las
+calorías \emph{adquiridas} según la tabla del CENAN \cite{inei2020pobreza};
+la nota metodológica sobre esa tabla define los productos como los
+``adquiridos por el hogar, es decir, comprados, obtenidos como parte de
+pago, por autoconsumo'' \cite{inei2017tabla}. Ninguno de los dos
+documentos dice ``peso bruto'' con esas palabras: es una inferencia, y
+por ella se usa el peso bruto ---con cáscara, hueso o menudencia--- cuando
+hay que convertir unidades.
+
+\subsection{Granel, peso variable y combos}
+
+Un producto vendido por kilo
+tiene $w_s = 1$ y su precio ya es por kilo. Se reconoce por ``x kg'' en el
+nombre o porque VTEX lo publica con un multiplicador de unidad distinto
+de 1 ---el peso aproximado de una pieza en el carrito--- aunque el nombre
+no diga ``kg'': así aparece el pollo con menudencia de Vivanda. Un
+paquete de porciones con un solo EAN (``Paquete 6un'') es la presentación
+normal del producto y entra; se excluyen solo los combos de productos
+distintos y las promociones de contenido extra (``+''). Un nombre con dos
+gramajes que se contradicen se aparta del cruce.
+
+\subsection{Variantes de otra especificación}
+
+Pollo con y sin menudencia, tomate italiano y redondo, o mandarina de dos
+variedades no son el mismo producto con distinto envase, sino productos
+de distinta calidad. El Manual del IPC ofrece dos vías para hacerlos
+comparables \cite[cap.~6]{cpimanual2020}. El \emph{método de
+solapamiento} toma la razón de precios entre las dos variantes cuando se
+venden a la vez en el mismo punto de venta como medida de su diferencia de
+calidad; el \emph{ajuste explícito} la valora con un dato externo, como el
+peso de la menudencia. El manual trata cambios en el tiempo; aquí la misma
+lógica se aplicaría entre cadenas, con la cadena como punto de venta y los
+días en que vende ambas variantes como período común.
+
+El factor sería la media geométrica de esa razón en la ventana,
+\begin{equation}
+\hat f = \exp\left( \frac{1}{N} \sum_{c,t} \ln
+\frac{p^{\text{sin}}_{ct}}{p^{\text{con}}_{ct}} \right),
+\end{equation}
+estimado por cadena, reducido a uno común si las cadenas no difieren, y
+validado prediciendo el precio de una variante en una cadena con el factor
+estimado en otra. Los datos no lo permiten todavía. El único par limpio
+de pollo, en Wong, pasó de una razón de 1,48 a 1,23 en cuatro días; en
+Metro el pollo sin menudencia es además de otra marca; el tomate en Plaza
+Vea se movió entre 1,39 y 1,91; y ninguna cadena vende las dos variedades
+de mandarina. Por eso no se convierte: se fija la variedad más difundida
+entre cadenas (con menudencia, italiano, Hass, de mesa) y, si no alcanza
+cuatro cadenas, se completa con otra variedad marcada como tal en el
+nivel ampliado. No se convierte cuando no hay solapamiento, cuando la
+razón es inestable, cuando las variantes tienen usos distintos o cuando
+la diferencia está mezclada con la marca; el factor se reconsidera con
+unos 30 días de solapamiento.
+
+\subsection{Venta por unidad}
+
+El INEI da gramos y la tienda vende huevos por bandeja o choclo por
+unidad. La conversión exige un peso por unidad con fuente, que se toma de
+las tablas auxiliares del CENAN \cite{cenan2016}, en peso bruto por la
+razón expuesta arriba: huevo de gallina mediano, 68,4~g; choclo mediano,
+255,9~g; pan francés de supermercado mediano, 62,3~g. Para $n$ unidades,
+\begin{equation}
+w_s = \frac{n\, g^{\text{unidad}}}{1\,000},
+\end{equation}
+de modo que una bandeja de 30 huevos equivale a 2,052~kg. Lo que se vende
+por atado ---apio, culantro--- no tiene un peso de referencia que
+corresponda al atado de supermercado y no se convierte; tampoco el té
+filtrante, cuyo nombre no declara gramos por sobre. Un peso declarado como
+aproximado (``250g aprox.'') se usa, marcado, si cae dentro de la
+tolerancia de tamaño.
+
+\section{Reproducibilidad de las cifras}
+\label{ap:reproducibilidad}
 
 Toda cifra del proyecto propio que aparece en este informe se calcula con
 un solo comando, \texttt{python -m analisis.run\_all}, sobre los archivos
 diarios del repositorio: ese comando descubre por sí mismo qué días hay,
-regenera cada derivado, pega las tablas en este documento entre marcadores
-y termina declarando qué medidas son sólidas y cuáles provisionales, con
-el número de días que faltan. El calendario es de diseño: la canasta de
-trabajo se congela tras 14 días de panel, junto con la tolerancia de
-tamaño estimada en esa ventana; el diagnóstico C se pronuncia
-cuando un producto tiene 21 días observados; el Modelo A se entrena con
-unos 60 días; el Modelo B necesita, después de esos 21 días, orígenes
-suficientes para entrenar, un embargo igual al horizonte y una semana de
-prueba, lo que da unos 56 días de panel para el horizonte de siete días y
-unos 70 para el de catorce. Los módulos de entrenamiento se niegan a correr
-antes. El ahorro del sistema se mide fuera de muestra, con precios
-realizados, sobre las últimas semanas del panel.
+regenera cada derivado, pega las tablas de la Sección~\ref{sec:panel} en
+este documento entre marcadores y termina declarando qué medidas son
+sólidas y cuáles provisionales, con el número de días que faltan según el
+calendario de la Sección~\ref{sec:calendario}. Los módulos de
+entrenamiento se niegan a correr antes de tiempo. Las cifras de terceros
+se verificaron contra el texto de cada fuente, salvo las de la literatura
+del lado del consumidor que llevan una marca de verificación pendiente en
+el código fuente del informe.
+
+\section{Registro de hipótesis y cambios}
+\label{ap:hipotesis}
+
+Las hipótesis se registraron el 21 de septiembre de 2026 en la bitácora
+del repositorio, que conserva la versión original sin editar. H2 no ha
+cambiado. El 22 de septiembre de 2026 se corrigieron los criterios de
+falsación de H1, H3 y H4; ningún umbral numérico cambió. Esta es la
+redacción registrada de las tres, seguida del cambio y su motivo.
+
+\textbf{H1, versión del 21 de septiembre.} Se esperaba que la fracción de
+EAN con precio idéntico fuera mayor dentro de un grupo que entre grupos, y
+que Cencosud fuera mucho más uniforme que Supermercados Peruanos. Se
+contrastaba con la identidad de Metro--Wong y Plaza Vea--Vivanda frente al
+promedio de los ocho pares de competidores, sobre todos los días. La
+falsaba que Metro--Wong cayera por debajo del promedio de los
+competidores, o que Plaza Vea--Vivanda subiera por encima de Plaza
+Vea--Tottus de forma estable.
+
+\emph{Cambio y motivo.} El criterio era asimétrico: preveía que Metro--Wong
+cayera, pero no qué pasaba si Plaza Vea--Vivanda quedaba bajo el promedio
+de los competidores, lo que contradice la primera mitad de lo esperado
+(uniformidad dentro de cualquier grupo) y confirma la segunda (Cencosud
+más uniforme que Supermercados Peruanos). Además, su segunda condición
+repetía el contraste de H2. La nueva redacción afirma solo la segunda
+mitad y la contrasta de forma simétrica contra el mismo promedio de
+competidores. Debe leerse con una advertencia: en los dos días vistos al
+registrar la hipótesis, Plaza Vea--Vivanda ya estaba por debajo de ese
+promedio, de modo que esa mitad se reformuló conociendo su dirección y esos
+días no cuentan como evidencia a su favor.
+
+\textbf{H3, versión del 21 de septiembre.} La hipótesis era la misma que
+la actual. La falsaba que el orden de las cadenas por oferta real no
+coincidiera con el orden por cartel, o que el tachado permanente fuera
+despreciable, menos del 10\,\% del cartel, en todas las cadenas.
+
+\emph{Cambio y motivo.} La hipótesis afirma un orden por posicionamiento,
+pero el criterio lo comparaba con el orden del cartel, que es otra
+afirmación. Se alineó el criterio con lo que la hipótesis dice. El cambio
+no usa datos: al 22 de septiembre ningún producto tiene los 21 días que C
+necesita, y la oferta real no se ha medido en ninguna cadena.
+
+\textbf{H4, versión del 21 de septiembre.} La hipótesis era la misma que
+la actual. La falsaba que grupo, cadena y cadena $\times$ categoría
+explicaran más de la mitad de la varianza intra-producto, o que grupo
+superara a cadena.
+
+\emph{Cambio y motivo.} La hipótesis compara cadena $\times$ categoría con
+grupo, pero el criterio comparaba grupo con cadena. Se unificó al
+contraste que la hipótesis enuncia. En los días vistos, grupo explicaba
+menos que cadena y que cadena $\times$ categoría, de modo que ninguna de
+las dos versiones del criterio falsaba la hipótesis; el cambio no altera
+el veredicto preliminar.
 
 % =====================================================================
 \begin{thebibliography}{00}
@@ -1360,10 +1861,6 @@ S. M. Lundberg y S.-I. Lee, ``A unified approach to interpreting model
 predictions,'' en \emph{Advances in Neural Information Processing Systems
 30}, 2017, pp.~4765--4774.
 
-\bibitem{cox1972}
-D. R. Cox, ``Regression models and life-tables,'' \emph{Journal of the
-Royal Statistical Society: Series B}, vol.~34, n.º~2, pp.~187--220, 1972.
-
 \bibitem{reimers2019}
 N. Reimers e I. Gurevych, ``Sentence-BERT: Sentence embeddings using
 Siamese BERT-networks,'' en \emph{Proc. EMNLP-IJCNLP}, 2019,
@@ -1416,6 +1913,55 @@ Data}, 2.ª ed. Cambridge, MA: MIT Press, 2010.
 \bibitem{martello1990}
 S. Martello y P. Toth, \emph{Knapsack Problems: Algorithms and Computer
 Implementations}. Chichester: Wiley, 1990.
+
+\bibitem{eichenbaum2011}
+M. Eichenbaum, N. Jaimovich y S. Rebelo, ``Reference prices, costs, and
+nominal rigidities,'' \emph{American Economic Review}, vol.~101, n.º~1,
+pp.~234--262, 2011, doi: 10.1257/aer.101.1.234.
+
+\bibitem{foxhoch2005}
+E. J. Fox y S. J. Hoch, ``Cherry-picking,'' \emph{Journal of Marketing},
+vol.~69, n.º~1, pp.~46--62, 2005, doi: 10.1509/jmkg.69.1.46.55506.
+
+\bibitem{gauri2008}
+D. K. Gauri, K. Sudhir y D. Talukdar, ``The temporal and spatial
+dimensions of price search: Insights from matching household survey and
+purchase data,'' \emph{Journal of Marketing Research}, vol.~45, n.º~2,
+pp.~226--240, 2008, doi: 10.1509/jmkr.45.2.226.
+
+\bibitem{ramesh1981}
+T. Ramesh, ``Traveling purchaser problem,'' \emph{Opsearch}, vol.~18,
+pp.~78--91, 1981.
+
+\bibitem{ellison2009}
+G. Ellison y S. F. Ellison, ``Search, obfuscation, and price elasticities
+on the Internet,'' \emph{Econometrica}, vol.~77, n.º~2, pp.~427--452,
+2009, doi: 10.3982/ECTA5708.
+
+\bibitem{omnibus2019}
+Parlamento Europeo y Consejo de la Unión Europea, ``Directiva (UE)
+2019/2161 por la que se modifican la Directiva 93/13/CEE del Consejo y las
+Directivas 98/6/CE, 2005/29/CE y 2011/83/UE [\ldots] en lo que atañe a la
+mejora de la aplicación y la modernización de las normas de protección de
+los consumidores de la Unión,'' \emph{Diario Oficial de la Unión Europea},
+L~328, 18 dic. 2019, art.~2.
+
+\bibitem{ley29571}
+Congreso de la República del Perú, \emph{Ley N.º 29571, Código de
+Protección y Defensa del Consumidor}. Lima, 2010, art.~14.
+
+\bibitem{dleg1044}
+Presidencia de la República del Perú, \emph{Decreto Legislativo N.º 1044,
+Ley de Represión de la Competencia Desleal}. Lima, 2008, art.~8.
+
+\bibitem{kunsch1989}
+H. R. Künsch, ``The jackknife and the bootstrap for general stationary
+observations,'' \emph{Annals of Statistics}, vol.~17, n.º~3,
+pp.~1217--1241, 1989.
+
+\bibitem{efron1993}
+B. Efron y R. J. Tibshirani, \emph{An Introduction to the Bootstrap}.
+Nueva York: Chapman \& Hall, 1993.
 
 \end{thebibliography}
 

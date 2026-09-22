@@ -20,7 +20,7 @@ import traceback
 
 from analisis import dispersion, oferta_real, panel as P, precios_faltantes, rigidez
 
-INFORME = P.ROOT / "informe_avance.txt"
+INFORME = P.ROOT / "docs" / "informe" / "informe_avance.txt"
 MARCA_INI = "% >>> TABLAS GENERADAS por analisis/run_all.py -- NO EDITAR A MANO (se regeneran)"
 MARCA_FIN = "% <<< TABLAS GENERADAS"
 

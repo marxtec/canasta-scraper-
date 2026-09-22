@@ -1,0 +1,11 @@
+cadena,items,dias,celdas,faltantes,tasa_faltante,items_con_algun_hueco,bloque,divergencia_max,divergencia_media,indiferente,|arrastre-exclusion|_max,|arrastre-imputacion|_max,|exclusion-imputacion|_max
+metro,701.0,4,2804.0,3.0,0.0010699001426533524,3.0,incidencia,,,,,,
+plaza_vea,701.0,4,2804.0,3.0,0.0010699001426533524,2.0,incidencia,,,,,,
+tottus,701.0,4,2804.0,23.0,0.008202567760342368,20.0,incidencia,,,,,,
+vivanda,701.0,4,2804.0,0.0,0.0,0.0,incidencia,,,,,,
+wong,701.0,4,2804.0,1.0,0.0003566333808844508,1.0,incidencia,,,,,,
+metro,,4,,,,,contraste,0.00021556368217545696,5.3890920547416954e-05,True,0.00021556368217545696,0.0,0.00021556368217545696
+plaza_vea,,4,,,,,contraste,0.002417832846560941,0.0007138367750947339,True,0.002417832846560941,0.0,0.002417832846560941
+tottus,,4,,,,,contraste,0.06515363494523285,0.03202672695466546,True,0.06515363494523285,0.0,0.06515363494523285
+vivanda,,4,,,,,contraste,0.0,0.0,True,0.0,0.0,0.0
+wong,,4,,,,,contraste,8.594963958330482e-07,4.296058513375556e-07,True,8.594963958330482e-07,0.0,8.594963958330482e-07
