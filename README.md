@@ -616,6 +616,27 @@ La auditoría corre además **semanalmente** en `.github/workflows/auditoria-val
 en un workflow independiente del de recolección: si falla, la captura de
 precios no se entera. Necesita `requirements-browser.txt` y Chromium.
 
+### Análisis diario automático
+
+`.github/workflows/analisis-diario.yml` corre cuando termina con éxito la
+recolección, en un workflow aparte: si falla, la recolección no se entera.
+Trabaja solo si hay datos diarios más nuevos que el último análisis, así
+que los intentos del cron que no recolectaron no repiten nada. Hace tres
+cosas y un commit (`analisis <fecha>`):
+
+1. **Canasta de trabajo**, solo si existe `data/canasta_reglas.APROBADAS` y
+   todavía no está congelada. Ese archivo lo crea el equipo cuando termina
+   de revisar `data/canasta_reglas.csv`; sin él el bot no toca la canasta.
+   Con 14+ días de panel, la primera corrida la congela.
+2. `run_all --sin-informe --sin-figuras`: derivados y veredicto, sin pegar
+   tablas en `informe_avance.txt` (eso se hace a mano al entregar).
+3. `optimizador`: el plan del día, guardado en git antes de conocer los
+   precios siguientes.
+
+No entrena los Modelos A ni B: eso se hace una vez, a mano. También se
+puede lanzar desde la pestaña Actions (`forzar` corre aunque no haya datos
+nuevos).
+
 ### Tests
 
 ```bash

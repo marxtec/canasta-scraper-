@@ -1,0 +1,118 @@
+name: Analisis diario
+
+# Corre DESPUES de la recoleccion y TOTALMENTE APARTE de ella (scrape.yml):
+# otro workflow, otro grupo de concurrencia, otro commit. Si esto falla, la
+# captura diaria de precios ni se entera.
+#
+# Que hace, en este orden:
+#   1. Canasta de trabajo: SOLO si existe data/canasta_reglas.APROBADAS (lo
+#      crea el equipo al terminar de revisar las reglas) y la canasta aun no
+#      esta congelada. Con 14+ dias de panel eso la congela, una sola vez.
+#      Sin el archivo de aprobacion no toca la canasta.
+#   2. run_all --sin-informe --sin-figuras: regenera los derivados y el
+#      veredicto SOLIDO/PROVISIONAL. No pega tablas en informe_avance.txt
+#      (eso se hace a mano al entregar) ni reescribe las figuras cada dia.
+#   3. Optimizador: el plan del dia, escrito antes de conocer los precios
+#      siguientes. Queda en git con su fecha: es el registro fuera de
+#      muestra del sistema.
+# NO entrena los Modelos A ni B: eso se hace una vez, a mano, mirando las
+# metricas.
+#
+# Cuando corre: al terminar con exito cada intento de scrape.yml (hasta 4
+# por dia). Solo trabaja si hay datos diarios mas nuevos que el ultimo
+# analisis, asi que los intentos que no recolectaron no repiten nada.
+
+on:
+  workflow_run:
+    workflows: ["Recoleccion diaria de precios"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      forzar:
+        description: "Correr aunque no haya datos nuevos"
+        type: boolean
+        default: false
+
+concurrency:
+  group: analisis-diario
+  cancel-in-progress: false
+
+jobs:
+  analizar:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0          # hace falta la historia para el guardia
+
+      # Hay trabajo si el ultimo commit que toco data/daily/ es posterior al
+      # ultimo que toco el resumen del optimizador.
+      - id: guardia
+        run: |
+          datos=$(git log -1 --format=%ct -- data/daily/ || echo 0)
+          analisis=$(git log -1 --format=%ct -- 'data/derived/optimizador_resumen__*' || echo 0)
+          datos=${datos:-0}; analisis=${analisis:-0}
+          echo "ultimo commit de datos: $datos | ultimo analisis: $analisis"
+          if [ "${{ inputs.forzar }}" = "true" ] || [ "$datos" -gt "$analisis" ]; then
+            echo "correr=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Sin datos nuevos desde el ultimo analisis."
+            echo "correr=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.guardia.outputs.correr == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        if: steps.guardia.outputs.correr == 'true'
+        run: pip install -r requirements.txt -r requirements-analisis.txt
+
+      - name: Canasta de trabajo (solo con reglas aprobadas)
+        if: steps.guardia.outputs.correr == 'true'
+        run: |
+          if [ ! -f data/canasta_reglas.APROBADAS ]; then
+            echo "Sin data/canasta_reglas.APROBADAS: las reglas no estan revisadas; no se toca la canasta."
+            exit 0
+          fi
+          if python -c "import sys; from analisis import canasta_trabajo as CT; sys.exit(0 if CT.congelada() else 1)"; then
+            echo "La canasta de trabajo ya esta congelada; no se rearma."
+            exit 0
+          fi
+          python -m analisis.canasta_trabajo
+
+      - name: Regenerar derivados (sin tocar el informe)
+        if: steps.guardia.outputs.correr == 'true'
+        run: python -m analisis.run_all --sin-informe --sin-figuras
+
+      - name: Plan del optimizador
+        if: steps.guardia.outputs.correr == 'true'
+        run: python -m analisis.optimizador
+
+      - name: Commitear resultados
+        if: steps.guardia.outputs.correr == 'true'
+        run: |
+          git config user.name  "canasta-bot"
+          git config user.email "actions@github.com"
+          git add data/derived/ data/canasta_trabajo.csv data/canasta_trabajo_exclusiones.csv
+          if git diff --staged --quiet; then
+            echo "Sin cambios en los derivados."
+            exit 0
+          fi
+          git commit -m "analisis $(TZ=America/Lima date +%Y-%m-%d)"
+          for intento in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
+            git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "push fallido, reintento $intento"
+            sleep 5
+          done
+          echo "::error::No se pudo empujar el analisis (la recoleccion diaria no se ve afectada)."
+          exit 1
