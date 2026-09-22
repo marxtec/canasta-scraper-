@@ -137,6 +137,16 @@ def test_panel_de_un_dia_no_revienta():
     assert R.agregar(tr, cb).empty
 
 
+def test_transiciones_habiles_cuentan_el_calendario_no_las_cadenas():
+    """Un solo par habil medido por cinco cadenas es UNA transicion."""
+    tr = pd.DataFrame({"retailer": ["metro", "wong", "plaza_vea", "vivanda", "tottus", "metro"],
+                       "d0": ["2026-09-21"] * 5 + ["2026-09-20"],
+                       "d1": ["2026-09-22"] * 5 + ["2026-09-21"],
+                       "tipo": ["habil"] * 5 + ["cruza_finde"]})
+    assert R.transiciones_habiles(tr) == 1
+    assert R.transiciones_habiles(tr.iloc[:0]) == 0
+
+
 if __name__ == "__main__":
     fns = [(n, f) for n, f in sorted(globals().items())
            if n.startswith("test_") and callable(f)]

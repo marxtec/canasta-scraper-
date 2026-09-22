@@ -264,6 +264,15 @@ def correr(hs=HORIZONTES, panel_df=None, silencioso=False):
     return agg, tr, hz, tam
 
 
+def transiciones_habiles(tr):
+    """Transiciones habiles DEL CALENDARIO: pares (d0, d1) distintos. Un
+    mismo par cuenta una vez aunque lo midan las cinco cadenas; es lo que
+    compara MIN_TRANSICIONES_HABILES."""
+    if tr.empty:
+        return 0
+    return int(len(tr.loc[tr["tipo"] == "habil", ["d0", "d1"]].drop_duplicates()))
+
+
 def _imprimir(fecha, df, tr, agg, hz):
     n_dias = df["fecha"].nunique()
     print(f"=== rigidez | ultimo dia {fecha} | {n_dias} dias | "
@@ -283,7 +292,7 @@ def _imprimir(fecha, df, tr, agg, hz):
         vista[c] = vista[c].map(lambda v: P.pct(v, 2))
     print(P.tabla(vista))
     print()
-    n_hab = int((tr["tipo"] == "habil").sum())
+    n_hab = transiciones_habiles(tr)
     if n_hab == 0:
         print("NO HAY TRANSICIONES ENTRE DIAS HABILES TODAVIA. La tasa de cambio\n"
               "diaria de arriba mide fines de semana y NO ES PUBLICABLE como rigidez.")

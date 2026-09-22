@@ -81,7 +81,7 @@ def main(argv=None):
     r2 = bloque("Bloque 2: rigidez", lambda: rigidez.correr())
     if r2 is not None:
         agg, tr, hz, _ = r2
-        n_hab = int((tr["tipo"] == "habil").sum()) if not tr.empty else 0
+        n_hab = rigidez.transiciones_habiles(tr)
         if n_hab == 0:
             veredictos.append("PROVISIONAL: rigidez en dias habiles: 0 transiciones habiles "
                               "todavia; NO PUBLICAR la tasa diaria.")
