@@ -18,7 +18,7 @@ con_tottus,34,HUEVOS A GRANEL DE GALLINA,huevos,plaza_vea,42082,7754470000024,po
 con_tottus,35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,ean,nucleo,0.391304,l,0.217391,14.9,observado,3.2391259,14.9,1x1.8,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695956,8719200231429,ean,nucleo,0.072,kg,0.16,14.6,observado,2.336,14.6,1x0.45,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,granel,nucleo,0.414,kg,0.414,5.9,observado,2.4426,9.7704,1.656 a granel,False,False,,,,comprar_hoy,sin_modelo_b
-con_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,metro,33903,,granel,nucleo,0.867,kg,0.867,2.99,observado,2.59233,10.36932,3.468 a granel,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,2.97,observado,2.57499,10.29996,3.468 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,47,CHOCLO,hortalizas,plaza_vea,10124,,por_unidad,ampliado_2,0.36,kg,1.4068,2.59,observado,3.643612,15.54,6x0.2559,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,5.89,observado,2.8272,11.3088,1.920 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,granel,nucleo,0.48,kg,0.48,3.69,observado,1.7711999999999999,7.0847999999999995,1.920 a granel,False,False,,,,comprar_hoy,sin_modelo_b
@@ -66,7 +66,7 @@ sin_tottus,34,HUEVOS A GRANEL DE GALLINA,huevos,plaza_vea,42082,7754470000024,po
 sin_tottus,35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,ean,nucleo,0.391304,l,0.217391,14.9,observado,3.2391259,14.9,1x1.8,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695956,8719200231429,ean,nucleo,0.072,kg,0.16,14.6,observado,2.336,14.6,1x0.45,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,granel,nucleo,0.414,kg,0.414,5.9,observado,2.4426,9.7704,1.656 a granel,False,False,,,,comprar_hoy,sin_modelo_b
-sin_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,metro,33903,,granel,nucleo,0.867,kg,0.867,2.99,observado,2.59233,10.36932,3.468 a granel,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,2.97,observado,2.57499,10.29996,3.468 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,47,CHOCLO,hortalizas,plaza_vea,10124,,por_unidad,ampliado_2,0.36,kg,1.4068,2.59,observado,3.643612,15.54,6x0.2559,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,5.89,observado,2.8272,11.3088,1.920 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,granel,nucleo,0.48,kg,0.48,3.69,observado,1.7711999999999999,7.0847999999999995,1.920 a granel,False,False,,,,comprar_hoy,sin_modelo_b
