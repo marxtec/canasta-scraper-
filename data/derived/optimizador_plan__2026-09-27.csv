@@ -27,7 +27,7 @@ con_tottus,61,LIMÓN,frutas,plaza_vea,9476,,granel,nucleo,0.432,kg,0.432,3.4,obs
 con_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,por_kilo,ampliado_1,1.011,kg,1.011,2.79,observado,2.82069,11.28276,4.044 a granel,False,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,64,MANZANAS,frutas,metro,14059,,granel,nucleo,0.723,kg,0.723,9.89,observado,7.15047,28.60188,2.892 a granel,False,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,65,NARANJA,frutas,tottus,118684949,,granel,nucleo,1.083,kg,1.083,6.9,observado,7.472700000000001,29.890800000000002,4.332 a granel,False,False,,,,comprar_hoy,sin_modelo_b
-con_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,plaza_vea,10627,,granel,nucleo,0.348,kg,0.348,7.99,observado,2.78052,11.12208,1.392 a granel,False,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,metro,39207032,,granel,nucleo,0.348,kg,0.348,5.59,observado,1.9453199999999997,7.781279999999999,1.392 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,67,PAPAYA,frutas,metro,39140176,,granel,nucleo,0.867,kg,0.867,5.69,observado,4.93323,19.73292,3.468 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,69,PLÁTANO DE SEDA,frutas,metro,40815,,granel,nucleo,1.182,kg,1.182,3.29,observado,3.8887799999999997,15.555119999999999,4.728 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 con_tottus,72,ARVEJA SECA PARTIDA,menestras,metro,39320452,7757786000054,por_kilo,ampliado_1,0.207,kg,0.414,4.0,observado,1.656,8.0,2x0.5,False,False,,,,comprar_hoy,sin_modelo_b
@@ -75,7 +75,7 @@ sin_tottus,61,LIMÓN,frutas,plaza_vea,9476,,granel,nucleo,0.432,kg,0.432,3.4,obs
 sin_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,por_kilo,ampliado_1,1.011,kg,1.011,2.79,observado,2.82069,11.28276,4.044 a granel,False,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,64,MANZANAS,frutas,metro,14059,,granel,nucleo,0.723,kg,0.723,9.89,observado,7.15047,28.60188,2.892 a granel,False,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,65,NARANJA,frutas,metro,2781,,granel,nucleo,1.083,kg,1.083,7.49,observado,8.11167,32.44668,4.332 a granel,True,False,,,,comprar_hoy,sin_modelo_b
-sin_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,plaza_vea,10627,,granel,nucleo,0.348,kg,0.348,7.99,observado,2.78052,11.12208,1.392 a granel,False,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,metro,39207032,,granel,nucleo,0.348,kg,0.348,5.59,observado,1.9453199999999997,7.781279999999999,1.392 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,67,PAPAYA,frutas,metro,39140176,,granel,nucleo,0.867,kg,0.867,5.69,observado,4.93323,19.73292,3.468 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,69,PLÁTANO DE SEDA,frutas,metro,40815,,granel,nucleo,1.182,kg,1.182,3.29,observado,3.8887799999999997,15.555119999999999,4.728 a granel,True,False,,,,comprar_hoy,sin_modelo_b
 sin_tottus,72,ARVEJA SECA PARTIDA,menestras,metro,39320452,7757786000054,por_kilo,ampliado_1,0.207,kg,0.414,4.0,observado,1.656,8.0,2x0.5,False,False,,,,comprar_hoy,sin_modelo_b
