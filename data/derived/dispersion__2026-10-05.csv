@@ -1,0 +1,58 @@
+bloque,subconjunto,metrica,valor
+brecha,n_cadenas>=2,ean_dias,152864.0
+brecha,n_cadenas>=2,ean_unicos,9381.0
+brecha,n_cadenas>=2,masa_cero,0.2477561754239062
+brecha,n_cadenas>=2,sd_log_media,0.06446568497814417
+brecha,n_cadenas>=2,sd_log_mediana,0.03447891623078016
+brecha,n_cadenas>=2,p10,0.0
+brecha,n_cadenas>=2,p25,0.002008032128514081
+brecha,n_cadenas>=2,p50,0.06060606060606055
+brecha,n_cadenas>=2,p75,0.16666666666666674
+brecha,n_cadenas>=2,p90,0.30567685589519655
+brecha,n_cadenas>=3,ean_dias,79356.0
+brecha,n_cadenas>=3,ean_unicos,4900.0
+brecha,n_cadenas>=3,masa_cero,0.11221583749180906
+brecha,n_cadenas>=3,sd_log_media,0.07427231218524716
+brecha,n_cadenas>=3,sd_log_mediana,0.05306204372472121
+brecha,n_cadenas>=3,p10,0.0
+brecha,n_cadenas>=3,p25,0.037735849056603765
+brecha,n_cadenas>=3,p50,0.11111111111111116
+brecha,n_cadenas>=3,p75,0.22115384615384603
+brecha,n_cadenas>=3,p90,0.3571428571428572
+brecha,n_cadenas=5,ean_dias,15080.0
+brecha,n_cadenas=5,ean_unicos,958.0
+brecha,n_cadenas=5,masa_cero,0.05417771883289125
+brecha,n_cadenas=5,sd_log_media,0.0751809445302691
+brecha,n_cadenas=5,sd_log_mediana,0.059717054207729284
+brecha,n_cadenas=5,p10,0.02409638554216853
+brecha,n_cadenas=5,p25,0.06257822277847302
+brecha,n_cadenas=5,p50,0.13953488372093026
+brecha,n_cadenas=5,p75,0.256
+brecha,n_cadenas=5,p90,0.41025641025641035
+varianza,orden B,r2_incremental[dia],0.0011155422078895018
+varianza,orden B,r2_acumulado[dia],0.0011155422078894528
+varianza,orden B,r2_incremental[categoria],0.3864490363592864
+varianza,orden B,r2_acumulado[categoria],0.38756457856717597
+varianza,orden B,r2_incremental[grupo],0.0005914066907647277
+varianza,orden B,r2_acumulado[grupo],0.3881559852579407
+varianza,orden B,r2_incremental[cadena],0.0023543253790658373
+varianza,orden B,r2_acumulado[cadena],0.3905103106370065
+varianza,orden B,r2_incremental[cadena x categoria],0.006459340523100458
+varianza,orden B,r2_acumulado[cadena x categoria],0.39696965116010696
+varianza,orden B,r2_incremental[producto],0.5900178610274096
+varianza,orden B,r2_acumulado[producto],0.9869875121875166
+varianza,orden A,r2_incremental[dia],0.0011155422078894528
+varianza,orden A,r2_acumulado[dia],0.0011155422078894528
+varianza,orden A,r2_incremental[producto],0.9851286889549794
+varianza,orden A,r2_acumulado[producto],0.9862442311628689
+varianza,orden A,r2_incremental[categoria],0.0
+varianza,orden A,r2_acumulado[categoria],0.9862442311628689
+varianza,orden A,r2_incremental[grupo],0.00011968120312743703
+varianza,orden A,r2_acumulado[grupo],0.9863639123659963
+varianza,orden A,r2_incremental[cadena],0.0004495387411394604
+varianza,orden A,r2_acumulado[cadena],0.9868134511071358
+varianza,orden A,r2_incremental[cadena x categoria],0.00017406108038075553
+varianza,orden A,r2_acumulado[cadena x categoria],0.9869875121875166
+panel,,n_dias,17.0
+panel,,incluir_internos,0.0
+panel,,solo_disponibles,0.0
