@@ -1,0 +1,10 @@
+cadena,items,costo,ahorro_anunciado,ahorro_anunciado_en_oferta_real,ahorro_anunciado_fantasma,ahorro_anunciado_no_verificable,elegida,escenario
+metro,44,247.38087575,8.4855737,0.0,0.0,8.4855737,False,con_tottus
+plaza_vea,48,236.8069194,8.068047400000001,0.0,0.0,8.068047400000001,True,con_tottus
+tottus,36,176.5270016,7.027539499999998,0.0,0.0,7.027539499999998,False,con_tottus
+vivanda,45,234.71461989000002,0.0,0.0,0.0,0.0,False,con_tottus
+wong,46,237.84989447,9.83511493,0.0,0.0,9.83511493,False,con_tottus
+metro,44,247.38087575,8.4855737,0.0,0.0,8.4855737,False,sin_tottus
+plaza_vea,48,236.8069194,8.068047400000001,0.0,0.0,8.068047400000001,True,sin_tottus
+vivanda,45,234.71461989000002,0.0,0.0,0.0,0.0,False,sin_tottus
+wong,46,237.84989447,9.83511493,0.0,0.0,9.83511493,False,sin_tottus
