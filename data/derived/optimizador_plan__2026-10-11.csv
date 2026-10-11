@@ -20,7 +20,7 @@ con_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695956,8719200231429,ean,nu
 con_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,granel,nucleo,0.414,kg,0.414,5.9,observado,2.4426,9.7704,1.656 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 con_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,3.25,observado,2.81775,11.271,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,47,CHOCLO,hortalizas,plaza_vea,10124,,por_unidad,ampliado_2,0.36,kg,1.4068,2.6,observado,3.65768,15.6,6x0.2559,True,True,False,True,False,comprar_hoy,sin_modelo_b
-con_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,6.59,observado,3.1632,12.6528,1.920 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
+con_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,5.69,observado,2.7312000000000003,10.924800000000001,1.920 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
 con_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,granel,nucleo,0.48,kg,0.48,3.79,observado,1.8192,7.2768,1.920 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 con_tottus,59,ZAPALLO,hortalizas,metro,2835,,granel,nucleo,0.516,kg,0.516,2.99,observado,1.5428400000000002,6.171360000000001,2.064 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
 con_tottus,61,LIMÓN,frutas,metro,2823,,granel,nucleo,0.432,kg,0.432,3.4,observado,1.4687999999999999,5.8751999999999995,1.728 a granel,False,True,True,False,True,comprar_hoy,oferta_real_hoy
@@ -28,7 +28,7 @@ con_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,por_kilo,ampliado_1,1.011,kg,
 con_tottus,64,MANZANAS,frutas,metro,14059,,granel,nucleo,0.723,kg,0.723,9.89,observado,7.15047,28.60188,2.892 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 con_tottus,65,NARANJA,frutas,tottus,118684949,,granel,nucleo,1.083,kg,1.083,6.9,observado,7.472700000000001,29.890800000000002,4.332 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 con_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,plaza_vea,10627,,granel,nucleo,0.348,kg,0.348,8.49,observado,2.95452,11.81808,1.392 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
-con_tottus,67,PAPAYA,frutas,metro,39140176,,granel,nucleo,0.867,kg,0.867,4.59,observado,3.97953,15.91812,3.468 a granel,True,False,,,,comprar_hoy,sin_modelo_b
+con_tottus,67,PAPAYA,frutas,metro,39140176,,granel,nucleo,0.867,kg,0.867,4.59,observado,3.97953,15.91812,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,69,PLÁTANO DE SEDA,frutas,metro,40815,,granel,nucleo,1.182,kg,1.182,2.99,observado,3.53418,14.13672,4.728 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,72,ARVEJA SECA PARTIDA,menestras,metro,39320452,7757786000054,por_kilo,ampliado_1,0.207,kg,0.414,4.0,observado,1.656,8.0,2x0.5,False,True,False,False,False,comprar_hoy,sin_modelo_b
 con_tottus,73,FREJOL,menestras,plaza_vea,14855,7751130000042,ean,nucleo,0.258,kg,0.516,6.4,observado,3.3024000000000004,19.200000000000003,3x0.5,False,True,False,False,False,comprar_hoy,sin_modelo_b
@@ -68,7 +68,7 @@ sin_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695956,8719200231429,ean,nu
 sin_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,granel,nucleo,0.414,kg,0.414,5.9,observado,2.4426,9.7704,1.656 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 sin_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,3.25,observado,2.81775,11.271,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,47,CHOCLO,hortalizas,plaza_vea,10124,,por_unidad,ampliado_2,0.36,kg,1.4068,2.6,observado,3.65768,15.6,6x0.2559,True,True,False,True,False,comprar_hoy,sin_modelo_b
-sin_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,6.59,observado,3.1632,12.6528,1.920 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
+sin_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,5.69,observado,2.7312000000000003,10.924800000000001,1.920 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
 sin_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,granel,nucleo,0.48,kg,0.48,3.79,observado,1.8192,7.2768,1.920 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 sin_tottus,59,ZAPALLO,hortalizas,metro,2835,,granel,nucleo,0.516,kg,0.516,2.99,observado,1.5428400000000002,6.171360000000001,2.064 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
 sin_tottus,61,LIMÓN,frutas,metro,2823,,granel,nucleo,0.432,kg,0.432,3.4,observado,1.4687999999999999,5.8751999999999995,1.728 a granel,False,True,True,False,True,comprar_hoy,oferta_real_hoy
@@ -76,7 +76,7 @@ sin_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,por_kilo,ampliado_1,1.011,kg,
 sin_tottus,64,MANZANAS,frutas,metro,14059,,granel,nucleo,0.723,kg,0.723,9.89,observado,7.15047,28.60188,2.892 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 sin_tottus,65,NARANJA,frutas,plaza_vea,13485,,granel,nucleo,1.083,kg,1.083,7.69,observado,8.32827,33.31308,4.332 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 sin_tottus,66,PALTA - CRIOLLA O CORRIENTE,frutas,plaza_vea,10627,,granel,nucleo,0.348,kg,0.348,8.49,observado,2.95452,11.81808,1.392 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
-sin_tottus,67,PAPAYA,frutas,metro,39140176,,granel,nucleo,0.867,kg,0.867,4.59,observado,3.97953,15.91812,3.468 a granel,True,False,,,,comprar_hoy,sin_modelo_b
+sin_tottus,67,PAPAYA,frutas,metro,39140176,,granel,nucleo,0.867,kg,0.867,4.59,observado,3.97953,15.91812,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,69,PLÁTANO DE SEDA,frutas,metro,40815,,granel,nucleo,1.182,kg,1.182,2.99,observado,3.53418,14.13672,4.728 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,72,ARVEJA SECA PARTIDA,menestras,metro,39320452,7757786000054,por_kilo,ampliado_1,0.207,kg,0.414,4.0,observado,1.656,8.0,2x0.5,False,True,False,False,False,comprar_hoy,sin_modelo_b
 sin_tottus,73,FREJOL,menestras,plaza_vea,14855,7751130000042,ean,nucleo,0.258,kg,0.516,6.4,observado,3.3024000000000004,19.200000000000003,3x0.5,False,True,False,False,False,comprar_hoy,sin_modelo_b
