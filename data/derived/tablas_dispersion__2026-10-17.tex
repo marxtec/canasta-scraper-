@@ -1,0 +1,62 @@
+% Generado por analisis/dispersion.py -- NO EDITAR A MANO.
+% Panel: 29 dia(s), ultimo 2026-10-17. Criterio: EAN de fabricante (12+ d\'igitos, sin prefijo 2).
+
+\begin{table}[htbp]
+\caption{Precio id\'entico entre pares de cadenas para el mismo EAN, todos los d\'ias del panel (29 d\'ias, \'ultimo 2026-10-17)}
+\label{tab:identidad}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Par & Relaci\'on & EAN-d\'ias & Id\'entico & Brecha med. \\
+\midrule
+Metro + Wong & mismo grupo & 122\,241 & 65.3\,\% & 0.0\,\% \\
+Plaza Vea + Tottus & competidores & 91\,115 & 47.9\,\% & 0.5\,\% \\
+Wong + Vivanda & competidores & 56\,286 & 47.5\,\% & 1.5\,\% \\
+Metro + Vivanda & competidores & 52\,916 & 33.6\,\% & 3.7\,\% \\
+Metro + Plaza Vea & competidores & 66\,404 & 26.1\,\% & 5.6\,\% \\
+Wong + Plaza Vea & competidores & 67\,893 & 23.1\,\% & 6.5\,\% \\
+Plaza Vea + Vivanda & mismo grupo & 114\,093 & 20.1\,\% & 4.2\,\% \\
+Metro + Tottus & competidores & 95\,301 & 18.3\,\% & 6.7\,\% \\
+Wong + Tottus & competidores & 99\,271 & 14.8\,\% & 7.4\,\% \\
+Vivanda + Tottus & competidores & 71\,822 & 13.1\,\% & 6.8\,\% \\
+\bottomrule\end{tabular}\end{table}
+
+\begin{table*}[t]
+\caption{Distribuci\'on de la brecha m\'ax/m\'in del precio por EAN-d\'ia y masa en cero, todos los d\'ias del panel}
+\label{tab:brecha}
+\centering\scriptsize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrrrr@{}}
+\toprule
+Subconjunto & EAN-d\'ias & Masa en 0 & p10 & p25 & p50 & p75 & p90 & SD log \\
+\midrule
+$\geq 2$ cadenas & 262\,340 & 24.0\,\% & 0.0\,\% & 0.7\,\% & 6.4\,\% & 17.1\,\% & 31.8\,\% & 0.067 \\
+$\geq 3$ cadenas & 136\,191 & 10.5\,\% & 0.0\,\% & 4.0\,\% & 11.3\,\% & 22.7\,\% & 36.7\,\% & 0.077 \\
+las 5 cadenas & 25\,864 & 5.0\,\% & 2.6\,\% & 6.8\,\% & 14.3\,\% & 26.4\,\% & 42.2\,\% & 0.077 \\
+\bottomrule\end{tabular}
+\par\smallskip\raggedright\scriptsize SD log: desviaci\'on est\'andar media del log-precio dentro del EAN-d\'ia; referencia de Gorodnichenko y Talavera (2017): 0.13--0.16.
+\end{table*}
+
+\begin{table}[htbp]
+\caption{Descomposici\'on de la varianza de $\log$(precio) por efectos fijos anidados, todos los d\'ias del panel}
+\label{tab:varianza}
+\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Orden & Nivel & $R^2$ acum. & $R^2$ incr. & \% var. intra-prod. \\
+\midrule
+A & dia & 0.07\,\% & 0.07\,\% & -- \\
+ & producto & 98.59\,\% & 98.52\,\% & -- \\
+ & categoria & 98.59\,\% & 0.00\,\% & -- \\
+ & grupo & 98.60\,\% & 0.01\,\% & 0.9\,\% \\
+ & cadena & 98.66\,\% & 0.05\,\% & 3.8\,\% \\
+ & cadena $\times$ categoria & 98.68\,\% & 0.02\,\% & 1.5\,\% \\
+\midrule
+B & dia & 0.07\,\% & 0.07\,\% & -- \\
+ & categoria & 39.10\,\% & 39.03\,\% & -- \\
+ & grupo & 39.16\,\% & 0.06\,\% & -- \\
+ & cadena & 39.40\,\% & 0.24\,\% & -- \\
+ & cadena $\times$ categoria & 40.04\,\% & 0.64\,\% & -- \\
+ & producto & 98.68\,\% & 58.63\,\% & -- \\
+\bottomrule\end{tabular}
+\par\smallskip\raggedright\scriptsize Orden A: producto (EAN$\times$d\'ia) primero; la categor\'ia queda absorbida. Orden B: sin producto hasta el final. $n$ = 753\,123 observaciones EAN$\times$cadena$\times$d\'ia.
+\end{table}
