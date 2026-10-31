@@ -14,16 +14,16 @@ con_tottus,27,GRATED DE SARDINA / ATUN,pescados,metro,39200165,7807910038160,por
 con_tottus,30,LECHE EVAPORADA,lacteos,plaza_vea,11390023,7751271034128,ean,nucleo,1.269,kg,0.542308,21.5,observado,11.659622,64.5,3x2.34,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,32,QUESO FRESCO VACA,lacteos,plaza_vea,10125946,7751271029841,ean,nucleo,0.123,kg,0.123,36.4,observado,4.4772,17.9088,0.492 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 con_tottus,33,YOGURT,lacteos,plaza_vea,10020788,7750289000163,ean,nucleo,0.459,l,0.485201,9.2,observado,4.463849199999999,18.4,2x0.946,True,True,False,True,False,comprar_hoy,sin_modelo_b
-con_tottus,34,HUEVOS A GRANEL DE GALLINA,huevos,plaza_vea,42082,7754470000024,por_unidad,ampliado_2,0.645,kg,0.314327,18.9,observado,5.9407803,28.4,1x2.052 + 1x1.026,True,True,False,True,False,comprar_hoy,sin_modelo_b
+con_tottus,34,HUEVOS A GRANEL DE GALLINA,huevos,metro,35778,7754470000024,por_unidad,ampliado_2,0.645,kg,0.314327,17.9,observado,5.6264533,35.8,2x2.052,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,ean,nucleo,0.391304,l,0.217391,15.0,observado,3.260865,15.0,1x1.8,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695956,8719200231429,ean,nucleo,0.072,kg,0.16,12.5,observado,2.0,12.5,1x0.45,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,granel,nucleo,0.414,kg,0.414,5.9,observado,2.4426,9.7704,1.656 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
-con_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,3.45,observado,2.99115,11.9646,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
+con_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,3.28,observado,2.8437599999999996,11.375039999999998,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,47,CHOCLO,hortalizas,plaza_vea,10124,,por_unidad,ampliado_2,0.36,kg,1.4068,2.6,observado,3.65768,15.6,6x0.2559,True,True,False,True,False,comprar_hoy,sin_modelo_b
-con_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,6.49,observado,3.1152,12.4608,1.920 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
+con_tottus,56,TOMATE,hortalizas,plaza_vea,12726,,granel,nucleo,0.48,kg,0.48,6.48,observado,3.1104000000000003,12.441600000000001,1.920 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,granel,nucleo,0.48,kg,0.48,3.76,observado,1.8047999999999997,7.219199999999999,1.920 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,59,ZAPALLO,hortalizas,plaza_vea,12373,,granel,nucleo,0.516,kg,0.516,3.79,observado,1.95564,7.82256,2.064 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
-con_tottus,61,LIMÓN,frutas,wong,2823,,granel,nucleo,0.432,kg,0.432,3.49,observado,1.5076800000000001,6.0307200000000005,1.728 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
+con_tottus,61,LIMÓN,frutas,plaza_vea,9476,,granel,nucleo,0.432,kg,0.432,3.4,observado,1.4687999999999999,5.8751999999999995,1.728 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
 con_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,por_kilo,ampliado_1,1.011,kg,1.011,2.94,observado,2.9723399999999995,11.889359999999998,4.044 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,64,MANZANAS,frutas,metro,14059,,granel,nucleo,0.723,kg,0.723,8.99,observado,6.49977,25.99908,2.892 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 con_tottus,65,NARANJA,frutas,vivanda,2576,,granel,nucleo,1.083,kg,1.083,8.99,observado,9.73617,38.94468,4.332 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
@@ -62,16 +62,16 @@ sin_tottus,27,GRATED DE SARDINA / ATUN,pescados,metro,39200165,7807910038160,por
 sin_tottus,30,LECHE EVAPORADA,lacteos,plaza_vea,11390023,7751271034128,ean,nucleo,1.269,kg,0.542308,21.5,observado,11.659622,64.5,3x2.34,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,32,QUESO FRESCO VACA,lacteos,plaza_vea,10125946,7751271029841,ean,nucleo,0.123,kg,0.123,36.4,observado,4.4772,17.9088,0.492 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
 sin_tottus,33,YOGURT,lacteos,plaza_vea,10020788,7750289000163,ean,nucleo,0.459,l,0.485201,9.2,observado,4.463849199999999,18.4,2x0.946,True,True,False,True,False,comprar_hoy,sin_modelo_b
-sin_tottus,34,HUEVOS A GRANEL DE GALLINA,huevos,plaza_vea,42082,7754470000024,por_unidad,ampliado_2,0.645,kg,0.314327,18.9,observado,5.9407803,28.4,1x2.052 + 1x1.026,True,True,False,True,False,comprar_hoy,sin_modelo_b
+sin_tottus,34,HUEVOS A GRANEL DE GALLINA,huevos,metro,35778,7754470000024,por_unidad,ampliado_2,0.645,kg,0.314327,17.9,observado,5.6264533,35.8,2x2.052,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,35,ACEITE VEGETAL,aceites_y_grasas,metro,39181622,7750243059381,ean,nucleo,0.391304,l,0.217391,15.0,observado,3.260865,15.0,1x1.8,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,36,MARGARINA,aceites_y_grasas,plaza_vea,10695956,8719200231429,ean,nucleo,0.072,kg,0.16,12.5,observado,2.0,12.5,1x0.45,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,44,BRÓCOLI,hortalizas,plaza_vea,10132,,granel,nucleo,0.414,kg,0.414,5.9,observado,2.4426,9.7704,1.656 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
-sin_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,3.45,observado,2.99115,11.9646,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
+sin_tottus,46,CEBOLLA ROJA DE CABEZA Y DE COLA,hortalizas,plaza_vea,12410,,granel,nucleo,0.867,kg,0.867,3.28,observado,2.8437599999999996,11.375039999999998,3.468 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,47,CHOCLO,hortalizas,plaza_vea,10124,,por_unidad,ampliado_2,0.36,kg,1.4068,2.6,observado,3.65768,15.6,6x0.2559,True,True,False,True,False,comprar_hoy,sin_modelo_b
-sin_tottus,56,TOMATE,hortalizas,metro,33484,,granel,nucleo,0.48,kg,0.48,6.49,observado,3.1152,12.4608,1.920 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
+sin_tottus,56,TOMATE,hortalizas,plaza_vea,12726,,granel,nucleo,0.48,kg,0.48,6.48,observado,3.1104000000000003,12.441600000000001,1.920 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,58,ZANAHORIA,hortalizas,plaza_vea,10342,,granel,nucleo,0.48,kg,0.48,3.76,observado,1.8047999999999997,7.219199999999999,1.920 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,59,ZAPALLO,hortalizas,plaza_vea,12373,,granel,nucleo,0.516,kg,0.516,3.79,observado,1.95564,7.82256,2.064 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
-sin_tottus,61,LIMÓN,frutas,wong,2823,,granel,nucleo,0.432,kg,0.432,3.49,observado,1.5076800000000001,6.0307200000000005,1.728 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
+sin_tottus,61,LIMÓN,frutas,plaza_vea,9476,,granel,nucleo,0.432,kg,0.432,3.4,observado,1.4687999999999999,5.8751999999999995,1.728 a granel,True,True,True,False,False,comprar_hoy,oferta_real_hoy
 sin_tottus,62,MANDARINA,frutas,plaza_vea,11425580,,por_kilo,ampliado_1,1.011,kg,1.011,2.94,observado,2.9723399999999995,11.889359999999998,4.044 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,64,MANZANAS,frutas,metro,14059,,granel,nucleo,0.723,kg,0.723,8.99,observado,6.49977,25.99908,2.892 a granel,True,True,False,True,False,comprar_hoy,sin_modelo_b
 sin_tottus,65,NARANJA,frutas,vivanda,2576,,granel,nucleo,1.083,kg,1.083,8.99,observado,9.73617,38.94468,4.332 a granel,False,True,False,False,False,comprar_hoy,sin_modelo_b
