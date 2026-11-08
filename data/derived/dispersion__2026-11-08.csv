@@ -1,0 +1,58 @@
+bloque,subconjunto,metrica,valor
+brecha,n_cadenas>=2,ean_dias,409903.0
+brecha,n_cadenas>=2,ean_unicos,9686.0
+brecha,n_cadenas>=2,masa_cero,0.2585562925862948
+brecha,n_cadenas>=2,sd_log_media,0.06531073305355796
+brecha,n_cadenas>=2,sd_log_mediana,0.03430812780498506
+brecha,n_cadenas>=2,p10,0.0
+brecha,n_cadenas>=2,p25,0.0
+brecha,n_cadenas>=2,p50,0.06000000000000005
+brecha,n_cadenas>=2,p75,0.1694915254237288
+brecha,n_cadenas>=2,p90,0.32000000000000006
+brecha,n_cadenas>=3,ean_dias,200408.0
+brecha,n_cadenas>=3,ean_unicos,5014.0
+brecha,n_cadenas>=3,masa_cero,0.10564448525008982
+brecha,n_cadenas>=3,sd_log_media,0.07909654986548761
+brecha,n_cadenas>=3,sd_log_mediana,0.05713769599529249
+brecha,n_cadenas>=3,p10,0.0
+brecha,n_cadenas>=3,p25,0.04175365344467652
+brecha,n_cadenas>=3,p50,0.11650485436893199
+brecha,n_cadenas>=3,p75,0.23619047619047628
+brecha,n_cadenas>=3,p90,0.3757828810020878
+brecha,n_cadenas=5,ean_dias,32403.0
+brecha,n_cadenas=5,ean_unicos,981.0
+brecha,n_cadenas=5,masa_cero,0.04724871153905503
+brecha,n_cadenas=5,sd_log_media,0.07751480081319849
+brecha,n_cadenas=5,sd_log_mediana,0.060617786829442015
+brecha,n_cadenas=5,p10,0.02586206896551735
+brecha,n_cadenas=5,p25,0.0682926829268291
+brecha,n_cadenas=5,p50,0.14306151645207432
+brecha,n_cadenas=5,p75,0.2666666666666666
+brecha,n_cadenas=5,p90,0.4285714285714286
+varianza,orden B,r2_incremental[dia],0.001732279175751862
+varianza,orden B,r2_acumulado[dia],0.0017322791757519163
+varianza,orden B,r2_incremental[categoria],0.4028586514142202
+varianza,orden B,r2_acumulado[categoria],0.4045909305899721
+varianza,orden B,r2_incremental[grupo],0.000422319667332452
+varianza,orden B,r2_acumulado[grupo],0.4050132502573045
+varianza,orden B,r2_incremental[cadena],0.002445441204552682
+varianza,orden B,r2_acumulado[cadena],0.4074586914618572
+varianza,orden B,r2_incremental[cadena x categoria],0.0065395945197271365
+varianza,orden B,r2_acumulado[cadena x categoria],0.4139982859815844
+varianza,orden B,r2_incremental[producto],0.5736335869923028
+varianza,orden B,r2_acumulado[producto],0.9876318729738871
+varianza,orden A,r2_incremental[dia],0.0017322791757519163
+varianza,orden A,r2_acumulado[dia],0.0017322791757519163
+varianza,orden A,r2_incremental[producto],0.9849543670395576
+varianza,orden A,r2_acumulado[producto],0.9866866462153094
+varianza,orden A,r2_incremental[categoria],0.0
+varianza,orden A,r2_acumulado[categoria],0.9866866462153094
+varianza,orden A,r2_incremental[grupo],0.00011362625588315164
+varianza,orden A,r2_acumulado[grupo],0.9868002724711926
+varianza,orden A,r2_incremental[cadena],0.0006125993487239045
+varianza,orden A,r2_acumulado[cadena],0.9874128718199164
+varianza,orden A,r2_incremental[cadena x categoria],0.00021900115397061032
+varianza,orden A,r2_acumulado[cadena x categoria],0.9876318729738871
+panel,,n_dias,47.0
+panel,,incluir_internos,0.0
+panel,,solo_disponibles,0.0
